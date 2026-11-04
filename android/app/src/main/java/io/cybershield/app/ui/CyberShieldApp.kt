@@ -20,9 +20,17 @@ import io.cybershield.app.security.RiskAnalyzer
 private enum class Page { HOME, MESSAGE, LINK, QR, PRIVACY }
 
 @Composable
-fun CyberShieldApp() {
+fun CyberShieldApp(sharedText: String? = null, onShareConsumed: () -> Unit = {}) {
     var page by remember { mutableStateOf(Page.HOME) }
     var last by remember { mutableStateOf<RiskAssessment?>(null) }
+    var sharedInput by remember { mutableStateOf("") }
+    LaunchedEffect(sharedText) {
+        if (!sharedText.isNullOrBlank()) {
+            sharedInput = sharedText
+            page = Page.MESSAGE
+            onShareConsumed()
+        }
+    }
     MaterialTheme(colorScheme = darkColorScheme(
         primary = androidx.compose.ui.graphics.Color(0xFF70E0C1),
         secondary = androidx.compose.ui.graphics.Color(0xFF91A9FF),
@@ -43,9 +51,12 @@ fun CyberShieldApp() {
             Column(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(20.dp)) {
                 when (page) {
                     Page.HOME -> Home(last, { page = Page.MESSAGE }, { page = Page.LINK }, { page = Page.QR }, { page = Page.PRIVACY })
-                    Page.MESSAGE -> AnalyzerPage("ScamLens", "Inspect a suspicious SMS, DM or offer.", "Paste message text…", "Analyse message", { RiskAnalyzer.message(it).also { result -> last = result } }, last)
+                    Page.MESSAGE -> AnalyzerPage("ScamLens", "Inspect a suspicious SMS, DM or offer.", "Paste message text…", "Analyse message", { RiskAnalyzer.message(it).also { result -> last = result } }, last, sharedInput)
                     Page.LINK -> AnalyzerPage("LinkGuard", "Inspect a URL before opening it.", "https://example.com", "Check link", { RiskAnalyzer.url(it).also { result -> last = result } }, last)
-                    Page.QR -> QrPage()
+                    Page.QR -> QrPage { decoded ->
+                        last = RiskAnalyzer.url(decoded)
+                        page = Page.LINK
+                    }
                     Page.PRIVACY -> PrivacyPage()
                 }
             }
@@ -78,7 +89,7 @@ private fun Home(assessment: RiskAssessment?, message: () -> Unit, link: () -> U
     Spacer(Modifier.height(10.dp))
     Feature("ScamLens", "Analyse suspicious messages", Icons.Default.Message, message)
     Feature("LinkGuard", "Inspect website addresses", Icons.Default.Link, link)
-    Feature("QRGuard", "QR scan flow (coming next)", Icons.Default.QrCodeScanner, qr)
+    Feature("QRGuard", "Scan QR codes before opening", Icons.Default.QrCodeScanner, qr)
     Spacer(Modifier.height(18.dp))
     assessment?.let { ResultCard(it) }
     TextButton(onClick = privacy) { Text("Protection & privacy settings") }
@@ -101,8 +112,8 @@ private fun Feature(title: String, detail: String, icon: androidx.compose.ui.gra
 
 @Composable
 private fun AnalyzerPage(title: String, subtitle: String, placeholder: String, actionLabel: String,
-                          analyze: (String) -> RiskAssessment, assessment: RiskAssessment?) {
-    var input by remember { mutableStateOf("") }
+                         analyze: (String) -> RiskAssessment, assessment: RiskAssessment?, initialText: String = "") {
+    var input by remember(initialText) { mutableStateOf(initialText) }
     Text(title, fontSize = 28.sp, fontWeight = FontWeight.Bold)
     Spacer(Modifier.height(8.dp))
     Text(subtitle, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -148,18 +159,20 @@ private fun ResultCard(result: RiskAssessment) {
 }
 
 @Composable
-private fun QrPage() {
+private fun QrPage(onDetected: (String) -> Unit) {
+    var decoded by remember { mutableStateOf<String?>(null) }
     Text("QRGuard", fontSize = 28.sp, fontWeight = FontWeight.Bold)
     Spacer(Modifier.height(8.dp))
-    Text("QR camera scanning is the next milestone. The intended flow decodes a destination, checks it, shows the complete address and asks before opening.")
-    Spacer(Modifier.height(16.dp))
-    Card {
-        Column(Modifier.padding(18.dp)) {
-            Icon(Icons.Default.QrCodeScanner, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(40.dp))
-            Spacer(Modifier.height(8.dp))
-            Text("Never open a QR destination automatically.", fontWeight = FontWeight.Bold)
-            Text("This prototype does not yet request camera permission or scan codes.")
-        }
+    Text("Scan a code, inspect its destination, then decide whether to open it.")
+    Spacer(Modifier.height(14.dp))
+    QrScanner { value -> if (decoded == null) decoded = value }
+    decoded?.let { destination ->
+        Spacer(Modifier.height(12.dp))
+        Text("Decoded destination", fontWeight = FontWeight.Bold)
+        SelectionContainer { Text(destination) }
+        Spacer(Modifier.height(10.dp))
+        Button(onClick = { onDetected(destination) }) { Text("Analyse this destination") }
+        TextButton(onClick = { decoded = null }) { Text("Scan another code") }
     }
 }
 
@@ -167,9 +180,9 @@ private fun QrPage() {
 private fun PrivacyPage() {
     Text("Privacy & protection", fontSize = 28.sp, fontWeight = FontWeight.Bold)
     Spacer(Modifier.height(12.dp))
-    Text("CyberShield currently performs message and URL heuristic checks on-device. It does not monitor other apps, read private chats, block traffic or upload scan content.")
+    Text("Message and URL checks run locally using simple heuristics. QR scanning uses the camera only while this screen is open.")
     Spacer(Modifier.height(12.dp))
-    Text("Future background features must be opt-in, transparent and limited to Android-supported capabilities.")
+    Text("CyberShield does not monitor other apps, read private chats, block traffic or upload scan content.")
     Spacer(Modifier.height(12.dp))
     Text("A low risk score does not prove that a message or website is safe.")
 }
