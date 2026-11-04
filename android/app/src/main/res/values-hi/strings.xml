@@ -16,8 +16,8 @@
     <string name="status_cloud_on">क्लाउड जाँच: चालू (सिर्फ़ आपके टैप करने पर)</string>
     <string name="status_cloud_off">क्लाउड जाँच: बंद</string>
     <plurals name="status_attention">
-        <item quantity="one">इस हफ़्ते %1$d उच्च-जोखिम आइटम मिला</item>
-        <item quantity="other">इस हफ़्ते %1$d उच्च-जोखिम आइटम मिले</item>
+        <item quantity="one">इस हफ़्ते %1$s उच्च-जोखिम आइटम मिला</item>
+        <item quantity="other">इस हफ़्ते %1$s उच्च-जोखिम आइटम मिले</item>
     </plurals>
     <string name="stat_total">कुल जाँच</string>
     <string name="stat_suspicious">संदिग्ध</string>
@@ -60,13 +60,13 @@
     <string name="open_link">लिंक खोलें</string>
     <string name="open_confirm_title">यह लिंक खोलें?</string>
     <string name="open_confirm_body">आप CyberShield छोड़कर यह खोलने जा रहे हैं:\n%1$s</string>
-    <string name="open_high_risk">इस लिंक में उच्च जोखिम के संकेत हैं। इसे तभी खोलें जब आपको पूरा यक़ीन हो कि यह असली है।</string>
+    <string name="open_high_risk">इसमें उच्च जोखिम के संकेत हैं। तभी आगे बढ़ें जब आपको पूरा यक़ीन हो कि यह असली है।</string>
     <string name="open_ack">मैं जोखिम समझता/समझती हूँ</string>
     <string name="open_anyway">खोलें</string>
     <string name="no_app_to_open">इस फ़ोन पर कोई ऐप इसे नहीं खोल सकता।</string>
 
     <string name="result_title">जोखिम संकेत</string>
-    <string name="score_of">%1$d/100</string>
+    <string name="score_of">%1$s/100</string>
     <string name="why_title">क्यों</string>
     <string name="what_to_do">क्या करें</string>
     <string name="disclaimer">यह परिणाम फ़ोन पर चलने वाले नियमों से है। यह किसी चीज़ के ख़तरनाक या सुरक्षित होने का प्रमाण नहीं है।</string>
@@ -101,6 +101,7 @@
     <string name="rep_suspicious">%1$s ने संदिग्ध बताया</string>
     <string name="rep_clean">किसी जुड़े हुए प्रदाता की सूची में यह लिंक ख़तरे के रूप में नहीं है। नई धोखाधड़ी साइटें अक्सर सूची में नहीं होतीं, इसलिए यह सुरक्षित होने का प्रमाण नहीं है।</string>
     <string name="rep_unavailable">अभी कोई थ्रेट-इंटेलिजेंस प्रदाता जवाब नहीं दे सका।</string>
+    <string name="rep_not_configured">इस सर्वर पर अभी कोई थ्रेट-इंटेलिजेंस प्रदाता सेट नहीं है, इसलिए सिर्फ़ ऊपर दिया फ़ोन वाला परिणाम लागू है।</string>
     <string name="rep_expanded">छोटा लिंक यहाँ ले जाता है: %1$s</string>
     <string name="rep_cached">सहेजा हुआ परिणाम</string>
     <string name="provider_status_malicious">ख़तरा मिला</string>

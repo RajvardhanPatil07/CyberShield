@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
@@ -46,6 +47,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.SpanStyle
@@ -88,7 +90,8 @@ fun SectionLabel(text: String, modifier: Modifier = Modifier) {
 @Composable
 fun ScoreBadge(score: Int, level: RiskLevel, size: Int = 64) {
     val tint = levelColor(level)
-    val label = stringResource(R.string.score_of, score)
+    // %s with a plain string keeps Western digits in every locale, matching the badge number.
+    val label = stringResource(R.string.score_of, score.toString())
     Box(
         Modifier.size(size.dp).border(4.dp, tint, CircleShape).semantics { contentDescription = label },
         contentAlignment = Alignment.Center,
@@ -203,10 +206,7 @@ fun ConfirmOpenDialog(title: String, body: String, highRisk: Boolean, onConfirm:
                 Text(body, fontFamily = FontFamily.Default)
                 if (highRisk) {
                     Text(stringResource(R.string.open_high_risk), color = CsColors.Danger, fontWeight = FontWeight.SemiBold)
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Checkbox(checked = acknowledged, onCheckedChange = { acknowledged = it })
-                        Text(stringResource(R.string.open_ack))
-                    }
+                    CheckboxRow(acknowledged, stringResource(R.string.open_ack)) { acknowledged = it }
                 }
             }
         },
@@ -230,17 +230,25 @@ fun CloudConsentDialog(body: String, preview: String?, alreadyAllowed: Boolean, 
                         Text(it.take(1200), style = MaterialTheme.typography.bodySmall)
                     }
                 }
-                if (!alreadyAllowed) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Checkbox(checked = rememberChoice, onCheckedChange = { rememberChoice = it })
-                        Text(stringResource(R.string.cloud_remember), style = MaterialTheme.typography.bodySmall)
-                    }
-                }
+                if (!alreadyAllowed) CheckboxRow(rememberChoice, stringResource(R.string.cloud_remember), small = true) { rememberChoice = it }
             }
         },
         confirmButton = { TextButton(onClick = { onSend(rememberChoice) }) { Text(stringResource(R.string.cloud_send)) } },
         dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
     )
+}
+
+/** Checkbox whose whole row, including the label, is one tappable target. */
+@Composable
+private fun CheckboxRow(checked: Boolean, label: String, small: Boolean = false, onChange: (Boolean) -> Unit) {
+    Row(
+        Modifier.fillMaxWidth().toggleable(value = checked, role = Role.Checkbox, onValueChange = onChange).padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Checkbox(checked = checked, onCheckedChange = null)
+        Spacer(Modifier.width(8.dp))
+        Text(label, style = if (small) MaterialTheme.typography.bodySmall else MaterialTheme.typography.bodyMedium)
+    }
 }
 
 /** Renders non-success cloud outcomes. Returns without drawing for Ok. */
@@ -264,7 +272,9 @@ fun ReputationCard(report: ReputationReport) {
             hits.filter { it.status == ProviderStatus.MALICIOUS }.joinToString { providerName(it.name) })
         ReputationVerdict.SUSPICIOUS -> CsColors.Amber to stringResource(R.string.rep_suspicious, hits.joinToString { providerName(it.name) })
         ReputationVerdict.NO_KNOWN_THREAT -> CsColors.Mint to stringResource(R.string.rep_clean)
-        ReputationVerdict.UNAVAILABLE -> MaterialTheme.colorScheme.onSurfaceVariant to stringResource(R.string.rep_unavailable)
+        ReputationVerdict.UNAVAILABLE -> MaterialTheme.colorScheme.onSurfaceVariant to stringResource(
+            if (report.providers.all { it.status == ProviderStatus.NOT_CONFIGURED }) R.string.rep_not_configured else R.string.rep_unavailable,
+        )
     }
     Card(shape = RoundedCornerShape(20.dp), modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(18.dp)) {

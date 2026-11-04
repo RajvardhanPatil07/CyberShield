@@ -85,34 +85,33 @@ fun ScamLensScreen(
         services.record { it.add(r, kind, target = null) }
     }
 
-    LaunchedEffect(pendingImage) {
-        val uri = pendingImage ?: return@LaunchedEffect
-        onImageConsumed()
+    suspend fun readScreenshot(uri: Uri) {
         ocr = OcrState.RUNNING
         result = null
-        val text = runCatching { ImageReaders.readText(context, uri) }.getOrNull()
+        val text = try {
+            ImageReaders.readText(context, uri)
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            null
+        }
         ocr = when {
             text == null -> OcrState.FAILED
             text.isBlank() -> OcrState.EMPTY
-            else -> {
-                onInputChange(text)
-                analyse(text, ScanKind.SCREENSHOT)
-                OcrState.DONE
-            }
+            else -> { onInputChange(text); analyse(text, ScanKind.SCREENSHOT); OcrState.DONE }
         }
     }
 
+    // Images handed over by the dashboard or the Sharesheet. The pending image is cleared only after
+    // OCR finishes: clearing it first would re-key this effect and cancel the OCR that just started.
+    LaunchedEffect(pendingImage) {
+        val uri = pendingImage ?: return@LaunchedEffect
+        readScreenshot(uri)
+        onImageConsumed()
+    }
+
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-        if (uri != null) scope.launch {
-            ocr = OcrState.RUNNING
-            result = null
-            val text = runCatching { ImageReaders.readText(context, uri) }.getOrNull()
-            ocr = when {
-                text == null -> OcrState.FAILED
-                text.isBlank() -> OcrState.EMPTY
-                else -> { onInputChange(text); analyse(text, ScanKind.SCREENSHOT); OcrState.DONE }
-            }
-        }
+        if (uri != null) scope.launch { readScreenshot(uri) }
     }
 
     ScreenTitle(stringResource(R.string.nav_message), stringResource(R.string.scamlens_subtitle))

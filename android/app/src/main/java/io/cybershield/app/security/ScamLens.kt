@@ -44,7 +44,10 @@ object ScamLens {
     private val hindiMarkers = setOf("है", "हैं", "आपका", "आपके", "आपकी", "करें", "और", "नहीं", "होगा", "में", "जाएगा", "गया", "लिए", "कृपया", "अपना")
     private val hinglishMarkers = setOf("hai", "aapka", "aapke", "apna", "karein", "kare", "karo", "nahi", "hoga", "jayega", "kijiye", "turant", "aur", "mein", "ko", "ka", "ki")
 
-    fun detectLanguage(text: String): DetectedLanguage {
+    fun detectLanguage(input: String): DetectedLanguage {
+        // Links are Latin script whatever the message language, so they are not counted.
+        var text = input
+        UrlParser.extract(input, limit = 20).sortedByDescending { it.second.first }.forEach { (_, r) -> text = text.replaceRange(r.first, r.last + 1, " ") }
         var dev = 0
         var latin = 0
         for (c in text) {
@@ -68,7 +71,8 @@ object ScamLens {
                     else -> DetectedLanguage.DEVANAGARI_UNKNOWN
                 }
             }
-            latin * 10 >= total * 7 ->
+            // English only when Devanagari is a negligible share (<10%); otherwise report it as mixed.
+            dev * 10 < total ->
                 if (tokens.count { it in hinglishMarkers } >= 2) DetectedLanguage.ROMANISED_HINDI else DetectedLanguage.ENGLISH
             else -> DetectedLanguage.MIXED
         }

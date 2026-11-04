@@ -86,7 +86,7 @@ fun DashboardScreen(services: AppServices, onNavigate: (Page) -> Unit, onScreens
             Text(stringResource(R.string.status_detail), color = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(Modifier.height(6.dp))
             Text(stringResource(if (services.cloudConsent) R.string.status_cloud_on else R.string.status_cloud_off), style = MaterialTheme.typography.bodySmall)
-            if (recentHigh > 0) Text(pluralStringResource(R.plurals.status_attention, recentHigh, recentHigh), color = CsColors.Amber, style = MaterialTheme.typography.bodySmall)
+            if (recentHigh > 0) Text(pluralStringResource(R.plurals.status_attention, recentHigh, recentHigh.toString()), color = CsColors.Amber, style = MaterialTheme.typography.bodySmall)
             Spacer(Modifier.height(14.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 Stat(stats.total, stringResource(R.string.stat_total), MaterialTheme.colorScheme.primary, Modifier.weight(1f))

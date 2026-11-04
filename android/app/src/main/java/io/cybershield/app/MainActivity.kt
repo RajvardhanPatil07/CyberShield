@@ -52,8 +52,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun streamExtra(intent: Intent): Uri? {
-        val uri = if (Build.VERSION.SDK_INT >= 33) intent.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java)
-        else @Suppress("DEPRECATION") intent.getParcelableExtra(Intent.EXTRA_STREAM)
+        // The Sharesheet mirrors EXTRA_STREAM into ClipData, which is what carries the read grant.
+        val uri = intent.clipData?.takeIf { it.itemCount > 0 }?.getItemAt(0)?.uri
+            ?: if (Build.VERSION.SDK_INT >= 33) intent.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java)
+            else @Suppress("DEPRECATION") intent.getParcelableExtra(Intent.EXTRA_STREAM)
         // Only content:// URIs granted by the sharing app; never file:// paths into our own storage.
         return uri?.takeIf { it.scheme == "content" }
     }

@@ -192,6 +192,19 @@ class RiskAnalyzerTest {
     }
 
     @Test
+    fun mixedScriptAndLinksAreHandledInLanguageGuess() {
+        // Real OCR output from the demo screenshot on the API 35 emulator (including its recognition errors).
+        val ocr = "VK-SBIUPD (DEMO SAMPLE)\nप्रिय ग्राहक, आपका खाता आज बद हो जाएगा।\nतुरंत केवाईसी अपडेट करें;\nhtp://sbi-kyc-update.xyz/login\n" +
+            "Share the OTP with our officer\nto avoid blocking. Call 98XXXXXX10"
+        assertEquals(DetectedLanguage.MIXED, ScamLens.detectLanguage(ocr))
+        val result = RiskAnalyzer.message(ocr)
+        assertEquals(RiskLevel.HIGH, result.level)
+        assertTrue(result.has(FindingCode.SUSPICIOUS_LINK)) // the misread "htp://" still yields the domain
+        // A Hindi message with an English link is still Hindi.
+        assertEquals(DetectedLanguage.HINDI, ScamLens.detectLanguage("आपका खाता बंद हो जाएगा, यहाँ अपडेट करें https://sbi-kyc-update.xyz/verify-account-now"))
+    }
+
+    @Test
     fun englishLanguageIsDetected() {
         assertEquals(DetectedLanguage.ENGLISH, ScamLens.detectLanguage("Your parcel is waiting for delivery"))
         assertEquals(DetectedLanguage.UNKNOWN, ScamLens.detectLanguage("12345 !!"))

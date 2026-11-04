@@ -23,6 +23,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -129,6 +130,8 @@ fun CyberShieldApp(incoming: Incoming? = null, onIncomingConsumed: () -> Unit = 
                 }
             },
         ) { padding ->
+            // Each page gets its own scroll position; otherwise a scrolled result hides the next page's header.
+            key(page) {
             Column(
                 Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 16.dp),
             ) {
@@ -144,6 +147,7 @@ fun CyberShieldApp(incoming: Incoming? = null, onIncomingConsumed: () -> Unit = 
                     Page.HISTORY -> HistoryScreen(services)
                     Page.SETTINGS -> SettingsScreen(services)
                 }
+            }
             }
         }
     }

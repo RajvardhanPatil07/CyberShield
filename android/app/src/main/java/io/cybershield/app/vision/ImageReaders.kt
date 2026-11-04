@@ -32,13 +32,21 @@ object ImageReaders {
 
     /** OCR with the Devanagari model, which also recognises Latin script (English, Hinglish). */
     suspend fun readText(context: Context, uri: Uri): String {
-        val image = load(context, uri)
+        val image = logFailure("load image") { load(context, uri) }
         val recognizer = TextRecognition.getClient(DevanagariTextRecognizerOptions.Builder().build())
         return try {
-            recognizer.process(image).await().text
+            logFailure("recognise text") { recognizer.process(image).await().text }
         } finally {
             recognizer.close()
         }
+    }
+
+    /** Logs only the failing step and exception type, never image content or recognised text. */
+    private inline fun <T> logFailure(step: String, block: () -> T): T = try {
+        block()
+    } catch (e: Exception) {
+        android.util.Log.w("CyberShield", "Image reader failed to $step: ${e.javaClass.simpleName}")
+        throw e
     }
 
     /** Decodes the first QR code in a picture, e.g. a QR screenshot received on WhatsApp. */

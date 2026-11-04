@@ -19,8 +19,8 @@
     <string name="status_cloud_on">Cloud checks: on (only when you tap them)</string>
     <string name="status_cloud_off">Cloud checks: off</string>
     <plurals name="status_attention">
-        <item quantity="one">%1$d high-risk item found this week</item>
-        <item quantity="other">%1$d high-risk items found this week</item>
+        <item quantity="one">%1$s high-risk item found this week</item>
+        <item quantity="other">%1$s high-risk items found this week</item>
     </plurals>
     <string name="stat_total">Total scans</string>
     <string name="stat_suspicious">Suspicious</string>
@@ -65,14 +65,14 @@
     <string name="open_link">Open link</string>
     <string name="open_confirm_title">Open this link?</string>
     <string name="open_confirm_body">You are about to leave CyberShield and open:\n%1$s</string>
-    <string name="open_high_risk">This link shows high-risk signals. Open it only if you are certain it is genuine.</string>
+    <string name="open_high_risk">This shows high-risk signals. Continue only if you are certain it is genuine.</string>
     <string name="open_ack">I understand the risk</string>
     <string name="open_anyway">Open</string>
     <string name="no_app_to_open">No app on this phone can open this.</string>
 
     <!-- Result card -->
     <string name="result_title">Risk indicators</string>
-    <string name="score_of">%1$d/100</string>
+    <string name="score_of">%1$s/100</string>
     <string name="why_title">Why</string>
     <string name="what_to_do">What to do</string>
     <string name="disclaimer">Result from on-device rules. It is not proof that something is malicious or safe.</string>
@@ -108,6 +108,7 @@
     <string name="rep_suspicious">Flagged as suspicious by %1$s</string>
     <string name="rep_clean">No connected provider lists this link as a threat. New scam sites are often not listed yet, so this does not prove it is safe.</string>
     <string name="rep_unavailable">No threat-intelligence provider could answer right now.</string>
+    <string name="rep_not_configured">No threat-intelligence provider is configured on this server yet, so only the on-device result above applies.</string>
     <string name="rep_expanded">Short link leads to: %1$s</string>
     <string name="rep_cached">Cached result</string>
     <string name="provider_status_malicious">Threat found</string>

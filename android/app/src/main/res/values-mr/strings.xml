@@ -16,8 +16,8 @@
     <string name="status_cloud_on">क्लाउड तपासणी: सुरू (फक्त तुम्ही टॅप केल्यावर)</string>
     <string name="status_cloud_off">क्लाउड तपासणी: बंद</string>
     <plurals name="status_attention">
-        <item quantity="one">या आठवड्यात %1$d उच्च-धोका आयटम आढळला</item>
-        <item quantity="other">या आठवड्यात %1$d उच्च-धोका आयटम आढळले</item>
+        <item quantity="one">या आठवड्यात %1$s उच्च-धोका आयटम आढळला</item>
+        <item quantity="other">या आठवड्यात %1$s उच्च-धोका आयटम आढळले</item>
     </plurals>
     <string name="stat_total">एकूण तपासण्या</string>
     <string name="stat_suspicious">संशयास्पद</string>
@@ -60,13 +60,13 @@
     <string name="open_link">लिंक उघडा</string>
     <string name="open_confirm_title">ही लिंक उघडायची?</string>
     <string name="open_confirm_body">तुम्ही CyberShield सोडून हे उघडणार आहात:\n%1$s</string>
-    <string name="open_high_risk">या लिंकमध्ये उच्च धोक्याचे संकेत आहेत. ती खरी असल्याची पूर्ण खात्री असेल तरच उघडा.</string>
+    <string name="open_high_risk">यात उच्च धोक्याचे संकेत आहेत. ते खरे असल्याची पूर्ण खात्री असेल तरच पुढे जा.</string>
     <string name="open_ack">मला धोका समजला आहे</string>
     <string name="open_anyway">उघडा</string>
     <string name="no_app_to_open">या फोनवरील कोणतेही ॲप हे उघडू शकत नाही.</string>
 
     <string name="result_title">धोक्याचे संकेत</string>
-    <string name="score_of">%1$d/100</string>
+    <string name="score_of">%1$s/100</string>
     <string name="why_title">का</string>
     <string name="what_to_do">काय करावे</string>
     <string name="disclaimer">हा निकाल फोनवरील नियमांवर आधारित आहे. एखादी गोष्ट धोकादायक किंवा सुरक्षित असल्याचा हा पुरावा नाही.</string>
@@ -101,6 +101,7 @@
     <string name="rep_suspicious">%1$s ने संशयास्पद ठरवले</string>
     <string name="rep_clean">जोडलेल्या कोणत्याही प्रदात्याच्या यादीत ही लिंक धोका म्हणून नाही. नवीन फसव्या साइट्स अनेकदा यादीत नसतात, त्यामुळे ती सुरक्षित असल्याचा हा पुरावा नाही.</string>
     <string name="rep_unavailable">सध्या कोणताही थ्रेट-इंटेलिजन्स प्रदाता उत्तर देऊ शकला नाही.</string>
+    <string name="rep_not_configured">या सर्व्हरवर अजून कोणताही थ्रेट-इंटेलिजन्स प्रदाता सेट केलेला नाही, त्यामुळे फक्त वरील फोनवरील निकाल लागू आहे.</string>
     <string name="rep_expanded">लहान लिंक इथे नेते: %1$s</string>
     <string name="rep_cached">जतन केलेला निकाल</string>
     <string name="provider_status_malicious">धोका आढळला</string>
