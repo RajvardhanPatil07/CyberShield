@@ -56,7 +56,7 @@ fun CyberShieldApp(sharedText: String? = null, onShareConsumed: () -> Unit = {})
         ) { padding ->
             Column(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(20.dp)) {
                 when (page) {
-                    Page.HOME -> Home(last, history, { page = Page.MESSAGE }, { page = Page.LINK }, { page = Page.QR }, { page = Page.PRIVACY })
+                    Page.HOME -> Home(last, history, { ScanHistory.clear(context); history = ScanHistory.read(context) }, { page = Page.MESSAGE }, { page = Page.LINK }, { page = Page.QR }, { page = Page.PRIVACY })
                     Page.MESSAGE -> AnalyzerPage("ScamLens", "Inspect a suspicious SMS, DM or offer.", "Paste message text…", "Analyse message", { RiskAnalyzer.message(it).also { result -> last = result } }, last, sharedInput) { result ->
                         ScanHistory.add(context, "Message", result.score, result.verdict)
                         history = ScanHistory.read(context)
@@ -77,7 +77,7 @@ fun CyberShieldApp(sharedText: String? = null, onShareConsumed: () -> Unit = {})
 }
 
 @Composable
-private fun Home(assessment: RiskAssessment?, history: List<ScanHistoryItem>, message: () -> Unit, link: () -> Unit, qr: () -> Unit, privacy: () -> Unit) {
+private fun Home(assessment: RiskAssessment?, history: List<ScanHistoryItem>, clearHistory: () -> Unit, message: () -> Unit, link: () -> Unit, qr: () -> Unit, privacy: () -> Unit) {
     Text("CYBERSHIELD", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold, letterSpacing = 2.sp)
     Spacer(Modifier.height(24.dp))
     Text("Your digital safety\nstarts here.", fontSize = 32.sp, lineHeight = 38.sp, fontWeight = FontWeight.Bold)
@@ -116,7 +116,7 @@ private fun Home(assessment: RiskAssessment?, history: List<ScanHistoryItem>, me
                 Text("${item.score}/100", fontWeight = FontWeight.Bold)
             }
         }
-        TextButton(onClick = { ScanHistory.clear(LocalContext.current) }) { Text("Clear local history") }
+        TextButton(onClick = clearHistory) { Text("Clear local history") }
     }
     TextButton(onClick = privacy) { Text("Protection & privacy settings") }
 }
