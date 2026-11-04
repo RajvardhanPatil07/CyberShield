@@ -66,6 +66,16 @@ android {
         compose = true
         buildConfig = true
     }
+    // ML Kit's native OCR and barcode libraries are ~20 MB per CPU architecture. Per-ABI APKs keep
+    // the download small (arm64-v8a covers nearly all current phones); the universal APK runs everywhere.
+    splits {
+        abi {
+            isEnable = true
+            reset()
+            include("arm64-v8a", "armeabi-v7a", "x86_64")
+            isUniversalApk = true
+        }
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17

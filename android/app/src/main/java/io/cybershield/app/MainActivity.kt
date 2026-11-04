@@ -1,30 +1,67 @@
 package io.cybershield.app
 
 import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.mutableStateOf
 import io.cybershield.app.ui.CyberShieldApp
+import io.cybershield.app.ui.Incoming
+import io.cybershield.app.ui.Page
 
-class MainActivity : ComponentActivity() {
-    private val sharedText = mutableStateOf<String?>(null)
+/**
+ * Single entry point. It is exported because it is the launcher activity and a Sharesheet /
+ * text-selection target. All incoming data is treated as untrusted: text is length-limited,
+ * only image MIME types are accepted for streams, and nothing is opened or sent automatically.
+ */
+class MainActivity : AppCompatActivity() {
+    private val incoming = mutableStateOf<Incoming?>(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-        acceptShare(intent)
-        setContent { CyberShieldApp(sharedText = sharedText.value, onShareConsumed = { sharedText.value = null }) }
+        if (savedInstanceState == null) accept(intent)
+        setContent { CyberShieldApp(incoming = incoming.value, onIncomingConsumed = { incoming.value = null }) }
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        acceptShare(intent)
+        accept(intent)
     }
 
-    private fun acceptShare(intent: Intent?) {
-        if (intent?.action == Intent.ACTION_SEND && intent.type == "text/plain") {
-            sharedText.value = intent.getStringExtra(Intent.EXTRA_TEXT)?.take(10_000)
-        }
+    private fun accept(intent: Intent?) {
+        intent ?: return
+        incoming.value = when (intent.action) {
+            Intent.ACTION_SEND -> when {
+                intent.type?.startsWith("image/") == true -> streamExtra(intent)?.let { Incoming.SharedImage(it) }
+                intent.type == "text/plain" -> intent.getCharSequenceExtra(Intent.EXTRA_TEXT)?.toString()?.take(MAX_TEXT)
+                    ?.takeIf { it.isNotBlank() }?.let { Incoming.SharedText(it) }
+                else -> null
+            }
+            Intent.ACTION_PROCESS_TEXT -> intent.getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT)?.toString()?.take(MAX_TEXT)
+                ?.takeIf { it.isNotBlank() }?.let { Incoming.SharedText(it) }
+            ACTION_SCAN_QR -> Incoming.OpenPage(Page.QR)
+            ACTION_CHECK_LINK -> Incoming.OpenPage(Page.LINK)
+            ACTION_CHECK_MESSAGE -> Incoming.OpenPage(Page.MESSAGE)
+            else -> null
+        } ?: incoming.value
+    }
+
+    private fun streamExtra(intent: Intent): Uri? {
+        val uri = if (Build.VERSION.SDK_INT >= 33) intent.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java)
+        else @Suppress("DEPRECATION") intent.getParcelableExtra(Intent.EXTRA_STREAM)
+        // Only content:// URIs granted by the sharing app; never file:// paths into our own storage.
+        return uri?.takeIf { it.scheme == "content" }
+    }
+
+    companion object {
+        const val MAX_TEXT = 10_000
+        const val ACTION_SCAN_QR = "io.cybershield.app.action.SCAN_QR"
+        const val ACTION_CHECK_LINK = "io.cybershield.app.action.CHECK_LINK"
+        const val ACTION_CHECK_MESSAGE = "io.cybershield.app.action.CHECK_MESSAGE"
     }
 }

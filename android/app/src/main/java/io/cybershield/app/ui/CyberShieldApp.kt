@@ -1,76 +1,148 @@
 package io.cybershield.app.ui
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import android.content.Context
+import android.net.Uri
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
+import androidx.compose.material.icons.automirrored.filled.Message
+import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Link
+import androidx.compose.material.icons.filled.QrCodeScanner
+import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.platform.LocalContext
-import io.cybershield.app.data.ScanHistory
-import io.cybershield.app.data.ScanHistoryItem
-import io.cybershield.app.security.RiskAssessment
-import io.cybershield.app.security.RiskAnalyzer
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import io.cybershield.app.BuildConfig
+import io.cybershield.app.R
+import io.cybershield.app.cloud.BackendClient
+import io.cybershield.app.data.AppSettings
+import io.cybershield.app.data.ScanHistoryRepository
+import io.cybershield.app.security.UrlParser
 
-private enum class Page { HOME, MESSAGE, LINK, QR, PRIVACY }
+enum class Page { HOME, MESSAGE, LINK, QR, HISTORY, SETTINGS }
+
+/** Content handed to the app from outside: Sharesheet, text-selection menu or launcher shortcuts. */
+sealed interface Incoming {
+    data class SharedText(val text: String) : Incoming
+    data class SharedImage(val uri: Uri) : Incoming
+    data class OpenPage(val page: Page) : Incoming
+}
+
+/** Long-lived dependencies plus a version counter that screens observe to refresh history. */
+class AppServices(context: Context) {
+    val settings = AppSettings(context)
+    val history = ScanHistoryRepository.create(context)
+    var historyVersion by mutableIntStateOf(0)
+        private set
+    var cloudConsent by mutableStateOf(settings.cloudConsent)
+        private set
+    var saveHistory by mutableStateOf(settings.saveHistory)
+        private set
+
+    fun updateCloudConsent(value: Boolean) { settings.cloudConsent = value; cloudConsent = value }
+    fun updateSaveHistory(value: Boolean) { settings.saveHistory = value; saveHistory = value }
+
+    /** Runs [block] against history only when the user allows history; always refreshes observers. */
+    fun <T> record(block: (ScanHistoryRepository) -> T): T? = (if (saveHistory) block(history) else null).also { historyVersion++ }
+
+    fun changed() { historyVersion++ }
+
+    fun client() = BackendClient(settings.backendUrl, settings.installId, requireHttps = !BuildConfig.DEBUG)
+
+    fun reload() {
+        cloudConsent = settings.cloudConsent
+        saveHistory = settings.saveHistory
+        historyVersion++
+    }
+}
 
 @Composable
-fun CyberShieldApp(sharedText: String? = null, onShareConsumed: () -> Unit = {}) {
-    var page by remember { mutableStateOf(Page.HOME) }
-    var last by remember { mutableStateOf<RiskAssessment?>(null) }
+fun CyberShieldApp(incoming: Incoming? = null, onIncomingConsumed: () -> Unit = {}) {
     val context = LocalContext.current
-    var history by remember { mutableStateOf(ScanHistory.read(context)) }
-    var sharedInput by remember { mutableStateOf("") }
-    var linkInput by remember { mutableStateOf("") }
-    LaunchedEffect(sharedText) {
-        if (!sharedText.isNullOrBlank()) {
-            sharedInput = sharedText
-            page = Page.MESSAGE
-            onShareConsumed()
+    val services = remember { AppServices(context.applicationContext) }
+    var page by rememberSaveable { mutableStateOf(Page.HOME) }
+    var messageInput by rememberSaveable { mutableStateOf("") }
+    var linkInput by rememberSaveable { mutableStateOf("") }
+    var pendingImage by remember { mutableStateOf<Uri?>(null) }
+    var sharedNotice by remember { mutableStateOf(false) }
+    var autoAnalyseLink by remember { mutableStateOf(false) }
+    val inspectLink: (String) -> Unit = { linkInput = it; autoAnalyseLink = true; page = Page.LINK }
+
+    LaunchedEffect(incoming) {
+        when (incoming) {
+            is Incoming.SharedText -> {
+                val text = incoming.text.trim()
+                // A share that is just one link goes to LinkGuard; anything else to ScamLens.
+                val links = UrlParser.extract(text)
+                if (links.size == 1 && links[0].first.length >= text.length - 2) {
+                    inspectLink(links[0].first)
+                } else {
+                    messageInput = text
+                    page = Page.MESSAGE
+                    sharedNotice = true
+                }
+            }
+            is Incoming.SharedImage -> {
+                pendingImage = incoming.uri
+                page = Page.MESSAGE
+            }
+            is Incoming.OpenPage -> page = incoming.page
+            null -> return@LaunchedEffect
         }
+        onIncomingConsumed()
     }
-    MaterialTheme(colorScheme = darkColorScheme(
-        primary = androidx.compose.ui.graphics.Color(0xFF70E0C1),
-        secondary = androidx.compose.ui.graphics.Color(0xFF91A9FF),
-        background = androidx.compose.ui.graphics.Color(0xFF0A1020),
-        surface = androidx.compose.ui.graphics.Color(0xFF142038)
-    )) {
+
+    BackHandler(enabled = page != Page.HOME) { page = Page.HOME }
+
+    CyberShieldTheme {
         Scaffold(
             containerColor = MaterialTheme.colorScheme.background,
             bottomBar = {
                 NavigationBar {
-                    NavigationBarItem(page == Page.HOME, { page = Page.HOME }, icon = { Icon(Icons.Default.Shield, null) }, label = { Text("Home") })
-                    NavigationBarItem(page == Page.MESSAGE, { page = Page.MESSAGE }, icon = { Icon(Icons.Default.Message, null) }, label = { Text("Message") })
-                    NavigationBarItem(page == Page.LINK, { page = Page.LINK }, icon = { Icon(Icons.Default.Link, null) }, label = { Text("Link") })
-                    NavigationBarItem(page == Page.PRIVACY, { page = Page.PRIVACY }, icon = { Icon(Icons.Default.Settings, null) }, label = { Text("Privacy") })
+                    NavItem(page, Page.HOME, { page = it }, Icons.Default.Shield, R.string.nav_home)
+                    NavItem(page, Page.MESSAGE, { page = it }, Icons.AutoMirrored.Filled.Message, R.string.nav_message)
+                    NavItem(page, Page.LINK, { page = it }, Icons.Default.Link, R.string.nav_link)
+                    NavItem(page, Page.QR, { page = it }, Icons.Default.QrCodeScanner, R.string.nav_qr)
+                    NavItem(page, Page.HISTORY, { page = it }, Icons.Default.History, R.string.nav_history)
                 }
-            }
+            },
         ) { padding ->
-            Column(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(20.dp)) {
+            Column(
+                Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 16.dp),
+            ) {
                 when (page) {
-                    Page.HOME -> Home(last, history, { ScanHistory.clear(context); history = ScanHistory.read(context) }, { page = Page.MESSAGE }, { page = Page.LINK }, { page = Page.QR }, { page = Page.PRIVACY })
-                    Page.MESSAGE -> AnalyzerPage("ScamLens", "Inspect a suspicious SMS, DM or offer.", "Paste message text…", "Analyse message", { RiskAnalyzer.message(it).also { result -> last = result } }, last, sharedInput) { result ->
-                        ScanHistory.add(context, "Message", result.score, result.verdict)
-                        history = ScanHistory.read(context)
-                    }
-                    Page.LINK -> AnalyzerPage("LinkGuard", "Inspect a URL before opening it.", "https://example.com", "Check link", { RiskAnalyzer.url(it).also { result -> last = result } }, last, linkInput) { result ->
-                        ScanHistory.add(context, "Link", result.score, result.verdict)
-                        history = ScanHistory.read(context)
-                    }
-                    Page.QR -> QrPage { decoded ->
-                        linkInput = decoded
-                        page = Page.LINK
-                    }
-                    Page.PRIVACY -> PrivacyPage()
+                    Page.HOME -> DashboardScreen(services, onNavigate = { page = it }, onScreenshot = { pendingImage = it; page = Page.MESSAGE })
+                    Page.MESSAGE -> ScamLensScreen(
+                        services, messageInput, { messageInput = it }, pendingImage, { pendingImage = null },
+                        showSharedNotice = sharedNotice, onNoticeShown = { sharedNotice = false },
+                        onInspectLink = inspectLink,
+                    )
+                    Page.LINK -> LinkGuardScreen(services, linkInput, { linkInput = it }, autoAnalyseLink, { autoAnalyseLink = false })
+                    Page.QR -> QrGuardScreen(services, onInspectLink = inspectLink)
+                    Page.HISTORY -> HistoryScreen(services)
+                    Page.SETTINGS -> SettingsScreen(services)
                 }
             }
         }
@@ -78,138 +150,14 @@ fun CyberShieldApp(sharedText: String? = null, onShareConsumed: () -> Unit = {})
 }
 
 @Composable
-private fun Home(assessment: RiskAssessment?, history: List<ScanHistoryItem>, clearHistory: () -> Unit, message: () -> Unit, link: () -> Unit, qr: () -> Unit, privacy: () -> Unit) {
-    Text("CYBERSHIELD", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold, letterSpacing = 2.sp)
-    Spacer(Modifier.height(24.dp))
-    Text("Your digital safety\nstarts here.", fontSize = 32.sp, lineHeight = 38.sp, fontWeight = FontWeight.Bold)
-    Spacer(Modifier.height(8.dp))
-    Text("Check first. Click with confidence.", color = MaterialTheme.colorScheme.onSurfaceVariant)
-    Spacer(Modifier.height(22.dp))
-    Card(shape = RoundedCornerShape(22.dp)) {
-        Column(Modifier.padding(18.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.VerifiedUser, null, tint = MaterialTheme.colorScheme.primary)
-                Spacer(Modifier.width(10.dp))
-                Text("Protection status", fontWeight = FontWeight.Bold)
-            }
-            Spacer(Modifier.height(8.dp))
-            Text("Manual checks ready", fontWeight = FontWeight.SemiBold, fontSize = 19.sp)
-            Text("Background monitoring is off. You control every permission.", color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-    }
-    Spacer(Modifier.height(22.dp))
-    Text("CHECK SOMETHING", fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
-    Spacer(Modifier.height(10.dp))
-    Feature("ScamLens", "Analyse suspicious messages", Icons.Default.Message, message)
-    Feature("LinkGuard", "Inspect website addresses", Icons.Default.Link, link)
-    Feature("QRGuard", "Scan QR codes before opening", Icons.Default.QrCodeScanner, qr)
-    Spacer(Modifier.height(18.dp))
-    assessment?.let { ResultCard(it) }
-    if (history.isNotEmpty()) {
-        Spacer(Modifier.height(14.dp))
-        Text("RECENT CHECKS", fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
-        history.take(4).forEach { item ->
-            Row(Modifier.fillMaxWidth().padding(vertical = 5.dp), verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.weight(1f)) {
-                    Text(item.type, fontWeight = FontWeight.SemiBold)
-                    Text(item.verdict, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-                Text("${item.score}/100", fontWeight = FontWeight.Bold)
-            }
-        }
-        TextButton(onClick = clearHistory) { Text("Clear local history") }
-    }
-    TextButton(onClick = privacy) { Text("Protection & privacy settings") }
-}
-
-@Composable
-private fun Feature(title: String, detail: String, icon: androidx.compose.ui.graphics.vector.ImageVector, action: () -> Unit) {
-    Card(Modifier.fillMaxWidth().padding(vertical = 5.dp).clickable { action() }) {
-        Row(Modifier.padding(17.dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(icon, null, tint = MaterialTheme.colorScheme.primary)
-            Spacer(Modifier.width(14.dp))
-            Column(Modifier.weight(1f)) {
-                Text(title, fontWeight = FontWeight.Bold)
-                Text(detail, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-            Icon(Icons.Default.ChevronRight, null)
-        }
-    }
-}
-
-@Composable
-private fun AnalyzerPage(title: String, subtitle: String, placeholder: String, actionLabel: String,
-                         analyze: (String) -> RiskAssessment, assessment: RiskAssessment?, initialText: String = "", onScanSaved: (RiskAssessment) -> Unit = {}) {
-    var input by remember(initialText) { mutableStateOf(initialText) }
-    Text(title, fontSize = 28.sp, fontWeight = FontWeight.Bold)
-    Spacer(Modifier.height(8.dp))
-    Text(subtitle, color = MaterialTheme.colorScheme.onSurfaceVariant)
-    Spacer(Modifier.height(18.dp))
-    OutlinedTextField(input, { input = it }, modifier = Modifier.fillMaxWidth(),
-        placeholder = { Text(placeholder) }, minLines = 4, shape = RoundedCornerShape(16.dp))
-    Spacer(Modifier.height(12.dp))
-    Button(onClick = { onScanSaved(analyze(input)) }, enabled = input.isNotBlank(), modifier = Modifier.fillMaxWidth()) {
-        Icon(Icons.Default.Security, null)
-        Spacer(Modifier.width(8.dp))
-        Text(actionLabel)
-    }
-    Spacer(Modifier.height(18.dp))
-    assessment?.let { ResultCard(it) }
-}
-
-@Composable
-private fun ResultCard(result: RiskAssessment) {
-    val tint = when {
-        result.score >= 60 -> MaterialTheme.colorScheme.error
-        result.score >= 30 -> androidx.compose.ui.graphics.Color(0xFFFFC36B)
-        else -> MaterialTheme.colorScheme.primary
-    }
-    Card(shape = RoundedCornerShape(20.dp), modifier = Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(18.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("Risk indicators", fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
-                Text("${result.score}/100", color = tint, fontSize = 22.sp, fontWeight = FontWeight.Bold)
-            }
-            Text(result.verdict, color = tint, fontWeight = FontWeight.SemiBold)
-            Spacer(Modifier.height(10.dp))
-            result.reasons.forEach { reason ->
-                Row(Modifier.padding(vertical = 4.dp), verticalAlignment = Alignment.Top) {
-                    Icon(Icons.Default.Info, null, tint = tint)
-                    Spacer(Modifier.width(8.dp))
-                    Text(reason)
-                }
-            }
-            Spacer(Modifier.height(8.dp))
-            Text(result.disclaimer, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-    }
-}
-
-@Composable
-private fun QrPage(onDetected: (String) -> Unit) {
-    var decoded by remember { mutableStateOf<String?>(null) }
-    Text("QRGuard", fontSize = 28.sp, fontWeight = FontWeight.Bold)
-    Spacer(Modifier.height(8.dp))
-    Text("Scan a code, inspect its destination, then decide whether to open it.")
-    Spacer(Modifier.height(14.dp))
-    QrScanner { value -> if (decoded == null) decoded = value }
-    decoded?.let { destination ->
-        Spacer(Modifier.height(12.dp))
-        Text("Decoded destination", fontWeight = FontWeight.Bold)
-        SelectionContainer { Text(destination) }
-        Spacer(Modifier.height(10.dp))
-        Button(onClick = { onDetected(destination) }) { Text("Analyse this destination") }
-        TextButton(onClick = { decoded = null }) { Text("Scan another code") }
-    }
-}
-
-@Composable
-private fun PrivacyPage() {
-    Text("Privacy & protection", fontSize = 28.sp, fontWeight = FontWeight.Bold)
-    Spacer(Modifier.height(12.dp))
-    Text("Message and URL checks run locally using simple heuristics. QR scanning uses the camera only while this screen is open.")
-    Spacer(Modifier.height(12.dp))
-    Text("CyberShield does not monitor other apps, read private chats, block traffic or upload scan content.")
-    Spacer(Modifier.height(12.dp))
-    Text("A low risk score does not prove that a message or website is safe.")
+private fun androidx.compose.foundation.layout.RowScope.NavItem(
+    current: Page, target: Page, onSelect: (Page) -> Unit, icon: androidx.compose.ui.graphics.vector.ImageVector, label: Int,
+) {
+    NavigationBarItem(
+        selected = current == target || (target == Page.HOME && current == Page.SETTINGS),
+        onClick = { onSelect(target) },
+        icon = { Icon(icon, null) },
+        label = { Text(stringResource(label), maxLines = 1, overflow = TextOverflow.Ellipsis) },
+        modifier = Modifier.testTag("nav_${target.name.lowercase()}"),
+    )
 }

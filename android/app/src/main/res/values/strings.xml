@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">CyberShield</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_message">ScamLens</string>
+    <string name="nav_link">LinkGuard</string>
+    <string name="nav_qr">QRGuard</string>
+    <string name="nav_history">History</string>
+    <string name="settings">Settings</string>
+
+    <!-- Dashboard -->
+    <string name="home_title">Your digital safety\nstarts here.</string>
+    <string name="home_tagline">Check first. Click with confidence.</string>
+    <string name="status_title">Protection status</string>
+    <string name="status_local_ready">On-device checks ready</string>
+    <string name="status_detail">Scans run on this phone. Nothing is monitored in the background; you decide what to check.</string>
+    <string name="status_cloud_on">Cloud checks: on (only when you tap them)</string>
+    <string name="status_cloud_off">Cloud checks: off</string>
+    <plurals name="status_attention">
+        <item quantity="one">%1$d high-risk item found this week</item>
+        <item quantity="other">%1$d high-risk items found this week</item>
+    </plurals>
+    <string name="stat_total">Total scans</string>
+    <string name="stat_suspicious">Suspicious</string>
+    <string name="stat_high">High risk</string>
+    <string name="section_check">CHECK SOMETHING</string>
+    <string name="feature_message_detail">Analyse a suspicious SMS or chat message</string>
+    <string name="feature_link_detail">Inspect a web address before opening it</string>
+    <string name="feature_qr_detail">Scan QR codes and UPI payment requests</string>
+    <string name="feature_screenshot">Screenshot check</string>
+    <string name="feature_screenshot_detail">Read a screenshot’s text on this phone and analyse it</string>
+    <string name="section_recent">RECENT ACTIVITY</string>
+    <string name="recent_empty">No scans yet. Your results will appear here.</string>
+    <string name="see_all">See all</string>
+    <string name="section_tips">SAFETY TIPS</string>
+    <string name="tip_1">You never need to enter a UPI PIN or scan a QR code to receive money.</string>
+    <string name="tip_2">Banks never ask for your OTP, PIN, CVV or password by call, SMS or WhatsApp.</string>
+    <string name="tip_3">Police and agencies never conduct “digital arrests” over video calls.</string>
+    <string name="tip_4">KYC is updated only in your bank’s official app or branch, never through an SMS link.</string>
+    <string name="tip_5">Do not install AnyDesk, TeamViewer or APK files because a caller asks you to.</string>
+    <string name="tip_6">Lost money to fraud? Call 1930 immediately or report at cybercrime.gov.in.</string>
+    <string name="helpline">Lost money? Call 1930 or visit cybercrime.gov.in</string>
+
+    <!-- ScamLens -->
+    <string name="scamlens_subtitle">Paste a suspicious SMS, WhatsApp message or offer. It is analysed on this phone.</string>
+    <string name="scamlens_hint">Paste message text…</string>
+    <string name="action_analyse_message">Analyse message</string>
+    <string name="action_pick_screenshot">Check a screenshot</string>
+    <string name="action_clear">Clear</string>
+    <string name="ocr_running">Reading text on this phone…</string>
+    <string name="ocr_failed">Could not read text from this image.</string>
+    <string name="ocr_empty">No text was found in this image.</string>
+    <string name="ocr_source">Text read from your screenshot on this phone. Check it for recognition errors.</string>
+    <string name="highlighted_title">Suspicious phrases</string>
+    <string name="links_found">Links in this message</string>
+    <string name="inspect_link">Inspect</string>
+    <string name="shared_loaded">Shared content loaded. Review it, then analyse.</string>
+
+    <!-- LinkGuard -->
+    <string name="linkguard_subtitle">Paste a link to inspect it without opening it.</string>
+    <string name="linkguard_hint">https://example.com</string>
+    <string name="action_check_link">Check link</string>
+    <string name="open_link">Open link</string>
+    <string name="open_confirm_title">Open this link?</string>
+    <string name="open_confirm_body">You are about to leave CyberShield and open:\n%1$s</string>
+    <string name="open_high_risk">This link shows high-risk signals. Open it only if you are certain it is genuine.</string>
+    <string name="open_ack">I understand the risk</string>
+    <string name="open_anyway">Open</string>
+    <string name="no_app_to_open">No app on this phone can open this.</string>
+
+    <!-- Result card -->
+    <string name="result_title">Risk indicators</string>
+    <string name="score_of">%1$d/100</string>
+    <string name="why_title">Why</string>
+    <string name="what_to_do">What to do</string>
+    <string name="disclaimer">Result from on-device rules. It is not proof that something is malicious or safe.</string>
+    <string name="detected_language">Detected language: %1$s (best guess)</string>
+    <string name="level_low">No obvious red flags</string>
+    <string name="level_medium">Caution advised</string>
+    <string name="level_high">High risk signals</string>
+    <string name="lang_detect_en">English</string>
+    <string name="lang_detect_hi">Hindi</string>
+    <string name="lang_detect_mr">Marathi</string>
+    <string name="lang_detect_hinglish">Romanised Hindi</string>
+    <string name="lang_detect_devanagari">Devanagari (Hindi or Marathi)</string>
+    <string name="lang_detect_mixed">Mixed</string>
+    <string name="lang_detect_unknown">Unknown</string>
+
+    <!-- Cloud features -->
+    <string name="cloud_check_link">Check with threat intelligence</string>
+    <string name="cloud_explain">Explain with AI</string>
+    <string name="cloud_consent_title">Send to the CyberShield server?</string>
+    <string name="cloud_consent_link">Only this link’s address is sent to the CyberShield server, which looks it up in Google Safe Browsing, VirusTotal and URLhaus. Nothing else leaves your phone.</string>
+    <string name="cloud_consent_ai">Numbers, e-mail addresses, UPI IDs and link parameters are removed first. The text below is sent to the CyberShield server and to Google Gemini to generate an explanation. CyberShield does not store it.</string>
+    <string name="cloud_preview">This exact text will be sent:</string>
+    <string name="cloud_remember">Allow cloud checks when I tap them (you can turn this off in Settings)</string>
+    <string name="cloud_send">Send</string>
+    <string name="cancel">Cancel</string>
+    <string name="cloud_loading">Checking…</string>
+    <string name="cloud_not_configured">Cloud checks are not set up for this build. Local analysis still works.</string>
+    <string name="cloud_offline">Could not reach the CyberShield server. Local analysis still works.</string>
+    <string name="cloud_rate_limited">Too many requests. Try again in a minute.</string>
+    <string name="cloud_failed">Cloud check failed: %1$s</string>
+    <string name="rep_title">Threat intelligence</string>
+    <string name="rep_malicious">Confirmed malicious by %1$s</string>
+    <string name="rep_suspicious">Flagged as suspicious by %1$s</string>
+    <string name="rep_clean">No connected provider lists this link as a threat. New scam sites are often not listed yet, so this does not prove it is safe.</string>
+    <string name="rep_unavailable">No threat-intelligence provider could answer right now.</string>
+    <string name="rep_expanded">Short link leads to: %1$s</string>
+    <string name="rep_cached">Cached result</string>
+    <string name="provider_status_malicious">Threat found</string>
+    <string name="provider_status_suspicious">Suspicious</string>
+    <string name="provider_status_clean">Not listed</string>
+    <string name="provider_status_unknown">No data</string>
+    <string name="provider_status_error">Unavailable</string>
+    <string name="provider_status_not_configured">Not configured</string>
+    <string name="provider_status_rate_limited">Rate limited</string>
+    <string name="ai_title">AI explanation</string>
+    <string name="ai_scam_type">Likely scam type</string>
+    <string name="ai_techniques">Techniques used</string>
+    <string name="ai_red_flags">Red flags</string>
+    <string name="ai_steps">Safe next steps</string>
+    <string name="ai_confidence">AI confidence: %1$s</string>
+    <string name="ai_disclaimer">Generated by AI. It can be wrong. Use official channels for decisions.</string>
+
+    <!-- QRGuard -->
+    <string name="qr_subtitle">Scan a code, inspect what it contains, then decide. Nothing opens automatically.</string>
+    <string name="qr_camera_rationale">Camera access is requested only when you choose to scan a QR code. Frames are processed on this phone.</string>
+    <string name="qr_allow_camera">Allow camera</string>
+    <string name="qr_from_image">Scan QR from an image</string>
+    <string name="qr_no_code">No QR code was found in this image.</string>
+    <string name="qr_camera_error">The camera could not start. Close other camera apps, or scan a QR from an image.</string>
+    <string name="qr_decoded">Decoded content</string>
+    <string name="qr_type">Type: %1$s</string>
+    <string name="qr_type_web">Web link</string>
+    <string name="qr_type_upi">UPI payment</string>
+    <string name="qr_type_phone">Phone number</string>
+    <string name="qr_type_sms">SMS</string>
+    <string name="qr_type_email">E-mail</string>
+    <string name="qr_type_wifi">Wi-Fi network</string>
+    <string name="qr_type_contact">Contact card</string>
+    <string name="qr_type_location">Location</string>
+    <string name="qr_type_app">App link</string>
+    <string name="qr_type_text">Text</string>
+    <string name="qr_type_invalid">Invalid</string>
+    <string name="upi_payee">Payee UPI ID</string>
+    <string name="upi_name">Payee name</string>
+    <string name="upi_amount">Amount</string>
+    <string name="upi_note">Note</string>
+    <string name="upi_warning">Paying with UPI always takes money FROM your account. You never need to scan a code or enter a PIN to receive money.</string>
+    <string name="open_in_upi">Open in UPI app</string>
+    <string name="open_upi_title">Open your UPI app?</string>
+    <string name="open_upi_body">Your UPI app will show a payment to %1$s. Check the payee name and amount there before entering your PIN. CyberShield never makes payments.</string>
+    <string name="scan_another">Scan another code</string>
+    <string name="analyse_in_linkguard">Open in LinkGuard</string>
+    <string name="not_provided">Not provided</string>
+
+    <!-- History -->
+    <string name="history_title">Scan history</string>
+    <string name="history_subtitle">Stored only on this phone. Message text, full links, UPI IDs and numbers are never saved.</string>
+    <string name="history_search">Search by website or signal</string>
+    <string name="filter_all">All</string>
+    <string name="filter_risky">Suspicious only</string>
+    <string name="kind_message">Message</string>
+    <string name="kind_url">Link</string>
+    <string name="kind_qr">QR</string>
+    <string name="kind_screenshot">Screenshot</string>
+    <string name="history_empty">No matching scans.</string>
+    <string name="history_disabled">History saving is turned off in Settings.</string>
+    <string name="clear_history">Clear history</string>
+    <string name="clear_confirm_title">Delete all history?</string>
+    <string name="clear_confirm_body">This permanently removes every scan record from this phone.</string>
+    <string name="delete">Delete</string>
+    <string name="confirmed_badge">Confirmed threat</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="language_title">App language</string>
+    <string name="lang_system">System default</string>
+    <string name="lang_en" translatable="false">English</string>
+    <string name="lang_hi" translatable="false">हिन्दी (Hindi)</string>
+    <string name="lang_mr" translatable="false">मराठी (Marathi)</string>
+    <string name="language_note">Detection always checks English, Hindi and Marathi phrases, whatever language you choose.</string>
+    <string name="cloud_title">Cloud checks (optional)</string>
+    <string name="cloud_toggle">Allow cloud checks when I tap them</string>
+    <string name="cloud_toggle_detail">Off by default. Nothing is ever sent automatically.</string>
+    <string name="backend_label">Server address</string>
+    <string name="backend_hint">https://your-cybershield-backend.example</string>
+    <string name="backend_current">Using: %1$s</string>
+    <string name="backend_none">No server configured. Cloud checks are unavailable.</string>
+    <string name="backend_https_required">Release builds only accept https:// server addresses.</string>
+    <string name="history_toggle">Save scan history on this phone</string>
+    <string name="data_title">Your data</string>
+    <string name="delete_all_data">Delete all my data</string>
+    <string name="delete_all_confirm">This deletes scan history and all settings on this phone.</string>
+    <string name="data_deleted">All local data deleted.</string>
+    <string name="privacy_title">Privacy</string>
+    <string name="privacy_1">Messages, links, QR codes and screenshots are analysed on this phone by default.</string>
+    <string name="privacy_2">Cloud checks run only when you tap them and agree. A link check sends only the link. An AI explanation sends text with personal numbers and IDs removed.</string>
+    <string name="privacy_3">CyberShield does not read your SMS inbox, chats or notifications, and does not monitor other apps.</string>
+    <string name="privacy_4">The camera is used only on the QRGuard screen. Screenshots are read only when you pick or share them.</string>
+    <string name="privacy_5">A low score does not prove that a message or website is safe.</string>
+    <string name="privacy_policy_link">Full privacy policy: github.com/RajvardhanPatil07/CyberShield/blob/main/PRIVACY.md</string>
+    <string name="about_version">Version %1$s</string>
+
+    <!-- Shortcuts -->
+    <string name="shortcut_qr_short">Scan QR</string>
+    <string name="shortcut_qr_long">Scan a QR code safely</string>
+    <string name="shortcut_link_short">Check link</string>
+    <string name="shortcut_link_long">Check a link before opening</string>
+    <string name="shortcut_message_short">Check message</string>
+    <string name="shortcut_message_long">Check a suspicious message</string>
+    <string name="process_text_label">Check with CyberShield</string>
+
+    <!-- Findings -->
+    <string name="f_urgency">Uses urgency or pressure to rush you.</string>
+    <string name="f_account_threat">Threatens that an account, card or SIM will be blocked or suspended.</string>
+    <string name="f_service_disconnection">Threatens to cut electricity, gas or mobile service unless you act now.</string>
+    <string name="f_otp_request">Asks you to share an OTP. Banks and UPI apps never ask for it.</string>
+    <string name="f_upi_pin_request">Asks for a UPI PIN or MPIN. You only type it into your own UPI app to send money.</string>
+    <string name="f_card_details_request">Asks for card number, CVV or expiry date.</string>
+    <string name="f_password_request">Asks for a password or net-banking login.</string>
+    <string name="f_secret_mention">Mentions an OTP, PIN, CVV or password.</string>
+    <string name="f_receive_money_trick">Claims you must enter a PIN, scan a QR or approve a request to RECEIVE money. A UPI PIN is only needed to send money.</string>
+    <string name="f_payment_request">Pushes you to make or approve a payment.</string>
+    <string name="f_kyc_update">Asks you to update or verify KYC, PAN or Aadhaar details.</string>
+    <string name="f_reward_lure">Promises a prize, lottery, reward or cashback.</string>
+    <string name="f_refund_lure">Offers a refund that you must claim.</string>
+    <string name="f_loan_lure">Advertises an instant or pre-approved loan.</string>
+    <string name="f_job_task_scam">Offers easy work-from-home or task-based income, a common prepaid-task scam.</string>
+    <string name="f_investment_lure">Promises guaranteed or unusually high returns.</string>
+    <string name="f_fee_request">Asks for an upfront fee, deposit or charge.</string>
+    <string name="f_authority_impersonation">Invokes police, CBI, customs or courts, as “digital arrest” scams do.</string>
+    <string name="f_remote_access_app">Asks you to install a screen-sharing or remote-access app such as AnyDesk.</string>
+    <string name="f_apk_lure">Asks you to install an APK file from outside the Play Store.</string>
+    <string name="f_secrecy">Asks you to keep this secret or stay on the call.</string>
+    <string name="f_callback_request">Asks you to call or message a number given in the text.</string>
+    <string name="f_contains_link">Contains a link. Its destination was checked separately below.</string>
+    <string name="f_suspicious_link">Contains a link with risky characteristics.</string>
+    <string name="f_url_parse_failed">This is not a complete web address with a host.</string>
+    <string name="f_url_dangerous_scheme">Uses a link type that can run code or open apps directly.</string>
+    <string name="f_url_no_scheme">The address had no http:// or https://; it was checked as https://.</string>
+    <string name="f_url_no_https">Does not use HTTPS, so the connection is not encrypted.</string>
+    <string name="f_url_user_info">Hides text before an @ sign that can disguise the real website.</string>
+    <string name="f_url_ip_host">Uses a raw IP address instead of a website name.</string>
+    <string name="f_url_encoded_host">The website name contains encoded characters.</string>
+    <string name="f_url_internationalized">The website name uses international (punycode) characters. Check its spelling carefully.</string>
+    <string name="f_url_mixed_script">The website name mixes alphabets, a look-alike trick.</string>
+    <string name="f_url_brand_impersonation">Uses a well-known brand name, but the website is not owned by that brand.</string>
+    <string name="f_url_lookalike_domain">The website name looks like a misspelling of a well-known brand.</string>
+    <string name="f_url_shortener">Uses a link shortener that hides where it really goes.</string>
+    <string name="f_url_free_hosting">Hosted on a free website service often used for throwaway scam pages.</string>
+    <string name="f_url_suspicious_tld">Uses a domain ending that is often abused for scams.</string>
+    <string name="f_url_sensitive_keyword">Contains words such as login, verify or KYC that are common in fake links.</string>
+    <string name="f_url_many_subdomains">Has an unusually long chain of sub-domains.</string>
+    <string name="f_url_many_hyphens">The website name has several hyphens.</string>
+    <string name="f_url_nonstandard_port">Uses an unusual network port.</string>
+    <string name="f_url_apk_download">Downloads an Android APK file directly.</string>
+    <string name="f_url_embedded_redirect">Contains another web address that can redirect you elsewhere.</string>
+    <string name="f_url_excessive_length">The address is unusually long.</string>
+    <string name="f_qr_empty">The QR code is empty or unreadable.</string>
+    <string name="f_qr_text_only">The QR code contains only text, not a link or payment.</string>
+    <string name="f_qr_other_action">The QR code triggers an action such as a call, SMS, e-mail, Wi-Fi or contact.</string>
+    <string name="f_upi_payment">This is a UPI payment code. Paying SENDS money from your account.</string>
+    <string name="f_upi_missing_payee">The UPI request has no valid payee address.</string>
+    <string name="f_upi_invalid_vpa">The payee UPI ID is malformed.</string>
+    <string name="f_upi_collect_request">This is a collect request: approving it takes money out of your account.</string>
+    <string name="f_upi_large_amount">The pre-filled amount is large.</string>
+    <string name="f_upi_fixed_amount">The amount is pre-filled. Check it before paying.</string>
+    <string name="f_upi_suspicious_note">The payee name or note mentions refunds, prizes, KYC or receiving money.</string>
+    <string name="f_upi_impersonation_name">The payee name claims to be a bank, government body or customer care.</string>
+    <string name="f_upi_non_inr">The payment currency is not Indian rupees.</string>
+    <string name="f_upi_unknown_handle">The UPI handle is not a common bank or app handle.</string>
+
+    <!-- Recommendations -->
+    <string name="rec_never_share_secrets">Never share OTPs, UPI PINs, CVVs or passwords with anyone, even callers who say they are from your bank.</string>
+    <string name="rec_pin_only_to_pay">You never need a UPI PIN or a QR scan to receive money. Decline the request.</string>
+    <string name="rec_dont_open_link">Do not open the link. Type the official website address yourself.</string>
+    <string name="rec_verify_official_channel">Contact the organisation through its official app, website or the number on your card, not the contact in this message.</string>
+    <string name="rec_no_remote_apps">Do not install apps or APK files sent by others. Uninstall any screen-sharing app a stranger asked you to install.</string>
+    <string name="rec_no_upfront_fees">Real prizes, jobs and loans never ask you to pay a fee first.</string>
+    <string name="rec_no_digital_arrest">Police and government agencies do not arrest people on video calls or ask for money to close a case. Hang up.</string>
+    <string name="rec_check_payee">Check the payee name and amount in your UPI app before entering your PIN.</string>
+    <string name="rec_report_1930">If money was lost, call 1930 or report at cybercrime.gov.in immediately.</string>
+    <string name="rec_report_chakshu">Report fraudulent calls, SMS or WhatsApp messages on the Sanchar Saathi “Chakshu” portal.</string>
+    <string name="rec_stay_cautious">No strong red flags were found on this phone. Still verify the sender before acting.</string>
+</resources>

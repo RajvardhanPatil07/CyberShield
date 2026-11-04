@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="cs_night">#0A1020</color>
+    <color name="ic_launcher_background">#0A1020</color>
+
+    <style name="Theme.CyberShield" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowBackground">@color/cs_night</item>
+        <item name="colorPrimary">#70E0C1</item>
+        <item name="colorAccent">#70E0C1</item>
+    </style>
+</resources>

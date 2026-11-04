@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Long-press launcher shortcuts. They only open a screen; nothing runs in the background. -->
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="scan_qr"
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_qr"
+        android:shortcutShortLabel="@string/shortcut_qr_short"
+        android:shortcutLongLabel="@string/shortcut_qr_long">
+        <intent
+            android:action="io.cybershield.app.action.SCAN_QR"
+            android:targetPackage="io.cybershield.app"
+            android:targetClass="io.cybershield.app.MainActivity" />
+    </shortcut>
+    <shortcut
+        android:shortcutId="check_link"
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_link"
+        android:shortcutShortLabel="@string/shortcut_link_short"
+        android:shortcutLongLabel="@string/shortcut_link_long">
+        <intent
+            android:action="io.cybershield.app.action.CHECK_LINK"
+            android:targetPackage="io.cybershield.app"
+            android:targetClass="io.cybershield.app.MainActivity" />
+    </shortcut>
+    <shortcut
+        android:shortcutId="check_message"
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_message"
+        android:shortcutShortLabel="@string/shortcut_message_short"
+        android:shortcutLongLabel="@string/shortcut_message_long">
+        <intent
+            android:action="io.cybershield.app.action.CHECK_MESSAGE"
+            android:targetPackage="io.cybershield.app"
+            android:targetClass="io.cybershield.app.MainActivity" />
+    </shortcut>
+</shortcuts>
