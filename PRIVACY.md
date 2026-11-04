@@ -19,7 +19,9 @@ CyberShield **does not**:
 - read notifications, use an Accessibility Service, or run in the background;
 - access your photo library (the Android photo picker gives the app only the single image you pick);
 - open links or start payments automatically;
-- include advertising or analytics SDKs.
+- include advertising SDKs or its own analytics.
+
+**Google ML Kit diagnostics.** The QR scanner and screenshot reader use Google ML Kit. Images, QR content and recognised text are processed on the phone and are not uploaded. However, ML Kit itself sends Google diagnostic and usage data: device model and OS version, app package and version, a per-installation identifier, and performance metrics such as processing latency ([Google's ML Kit data disclosure](https://developers.google.com/ml-kit/android-data-disclosure)). CyberShield cannot turn this off. We observed these events being queued during on-device testing.
 
 ## 2. What may be sent to the CyberShield server, and only when you tap it
 

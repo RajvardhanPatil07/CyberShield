@@ -18,7 +18,7 @@ CyberShield is an Android app that answers one question before you act: **"Is th
 1. **Private by default.** No SMS, accessibility or notification permissions, no background monitoring. History never stores message text or numbers.
 2. **Built for Indian scams and languages.** UPI-specific logic, Indian bank and government domains (`.bank.in`, `.gov.in`), Hindi and Marathi interface, dictionaries and OCR.
 3. **Honest results.** Heuristic warnings are labelled as heuristics. "Confirmed malicious" appears only when a threat-intelligence provider lists the URL. Genuine bank OTP messages are not flagged.
-4. **Engineering quality.** 61 JVM unit tests, 7 instrumented UI tests, 19 backend tests, Android lint at 0 issues, 0 known dependency vulnerabilities, a dependency-free backend, and CI that builds tested debug and release APKs on every push.
+4. **Engineering quality.** 62 JVM unit tests, 9 instrumented UI/OCR tests, 19 backend tests, Android lint at 0 issues, 0 known dependency vulnerabilities, a dependency-free backend, and CI that builds tested debug and release APKs on every push.
 
 ## Technology
 
@@ -26,7 +26,7 @@ Kotlin, Jetpack Compose (Material 3), CameraX, ML Kit (barcode, Devanagari+Latin
 
 ## Honest status
 
-- Works: all local features, share-to-scan, OCR from images, history, language switching (emulator-tested).
+- Works on an Android 15 emulator: all local features, share-to-scan (text), screenshot OCR and QR decoding from images, history, Hindi/Marathi switching, app ↔ backend calls.
 - Implemented, awaiting credentials: threat intelligence and AI explanation (backend tested with scripted provider responses).
 - Not yet done: physical-device testing, native-speaker review of Hindi/Marathi, accuracy measurement on a labelled dataset, app attestation for the backend.
 

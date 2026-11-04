@@ -67,3 +67,41 @@ This records what the repository contained **before** the hackathon-readiness wo
 | No secrets in repository | OK | No API keys, tokens or signing material found in history (`git log -p` scan). |
 | Content storage | OK | History stored only type/score/verdict, not message text or URLs. |
 | Permissions | OK | Only `CAMERA`, requested at runtime from QRGuard. |
+
+---
+
+# Status after the v0.3.0 work (4 November 2026)
+
+Legend: ✅ verified · ⚠️ implemented, partially verified · ⏳ implemented, awaiting credentials or hardware · ❌ not done
+
+| Acceptance criterion | Status | Evidence |
+|---|---|---|
+| Android app compiles | ✅ | Local (JDK 21, Gradle 8.11.1 wrapper and Gradle 9.8.2) and CI (JDK 17) |
+| Unit tests pass | ✅ | 62/62 JVM tests; 19/19 backend tests |
+| Debug APK builds | ✅ | CI artifact `cybershield-debug-apk` (per-ABI + universal) |
+| Release APK builds | ✅ unsigned | R8-shrunk; signed when the secrets in RELEASE.md are added |
+| ScamLens works | ✅ | Unit + instrumented tests; emulator runs in EN/HI/MR |
+| LinkGuard works | ✅ | Unit + instrumented tests; emulator |
+| QRGuard works | ⚠️ | Decoding from images verified on the emulator; live camera opens and binds but decoding a real QR needs a physical device |
+| Scan history works | ✅ | Unit + instrumented tests; search, filter, delete, clear, "Confirmed threat" |
+| Dashboard works | ✅ | Emulator |
+| Share-to-scan works | ⚠️ | Text: ✅ (intents, instrumented). Image share: code present, not verified end-to-end (the picker path with the same OCR is verified) |
+| Screenshot OCR works | ✅ emulator | Devanagari + Latin recognised from the demo image on-device; not yet tried on real screenshots |
+| Multilingual implemented and tested to documented scope | ✅ | docs/MULTILINGUAL.md; completeness tests; no native-speaker review |
+| Threat intelligence connected or documented as awaiting credentials | ⏳ | Implemented for Safe Browsing v5, VirusTotal v3, URLhaus; not run against live keys |
+| AI connected or documented as awaiting credentials | ⏳ | Gemini structured output implemented; not run against a live key |
+| Privacy and security review | ✅ | docs/SECURITY_REVIEW.md, PRIVACY.md, lint 0 issues, OSV 0 vulnerabilities |
+| GitHub Actions succeeds | ✅ | See README badge |
+| README complete | ✅ | |
+| APK artifact available | ✅ | CI artifacts (retained 90 days by default) |
+| Remaining limitations documented | ✅ | README → Limitations |
+
+Bugs found and fixed while testing on the emulator:
+
+1. OCR always failed for images coming from the dashboard or the Sharesheet: clearing the pending image re-keyed the `LaunchedEffect` and cancelled the OCR coroutine.
+2. A multi-language OCR result containing a URL was labelled "English" because link characters counted as English text.
+3. The "I understand the risk" label was not tappable; only the small checkbox was.
+4. All tabs shared one scroll position, so Home opened scrolled past its header.
+5. With no provider keys configured, LinkGuard said providers "could not answer" (it implied an outage) instead of "not configured".
+6. Marathi locale formatted the score as "५५/100" while the badge showed "55".
+7. Lint (never run before): missing `ExperimentalGetImage` opt-in in the QR scanner.

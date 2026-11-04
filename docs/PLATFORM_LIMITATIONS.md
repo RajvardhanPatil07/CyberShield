@@ -14,12 +14,12 @@ CyberShield does **not** provide universal background protection. This page reco
 
 ## Legitimate entry points that are implemented
 
-| Entry point | How to use it | Verified |
+| Entry point | How to use it | Verified (Android 15 emulator) |
 |---|---|---|
-| Share text → CyberShield | In any app: Share → CyberShield. A lone link opens LinkGuard; other text opens ScamLens. | Emulator (see DEMO.md) |
-| Share image → CyberShield | Share a screenshot → on-device OCR → ScamLens | Emulator |
-| Text selection → "Check with CyberShield" | Long-press text in an app that supports the `PROCESS_TEXT` menu | Emulator |
-| Launcher shortcuts | Long-press the app icon → Scan QR / Check link / Check message | Emulator |
-| Photo picker | ScamLens → Check a screenshot; QRGuard → Scan QR from an image | Emulator |
+| Share text → CyberShield | In any app: Share → CyberShield. A lone link opens LinkGuard; other text opens ScamLens. | ✅ Instrumented tests send the same `ACTION_SEND` intent; Hindi/Marathi text also checked via `adb am start`, including delivery to an already-running app |
+| Share image → CyberShield | Share a screenshot → on-device OCR → ScamLens | ⚠️ Code path present; not verified end-to-end. `adb` cannot grant URI permission the way a real Sharesheet does. The same OCR pipeline is verified through the photo picker. |
+| Text selection → "Check with CyberShield" | Long-press text in an app that supports the `PROCESS_TEXT` menu | ✅ Intent handling via instrumented test; the menu entry inside other apps not checked |
+| Launcher shortcuts | Long-press the app icon → Scan QR / Check link / Check message | ✅ Registered (`dumpsys shortcut`) and routing checked |
+| Photo picker | ScamLens / Dashboard → Check a screenshot; QRGuard → Scan QR from an image | ✅ Driven through the real system picker |
 
 Whether a particular app (WhatsApp, Messages, Instagram) offers Share or text selection for a given message depends on that app. This has **not** been tested on a physical device.

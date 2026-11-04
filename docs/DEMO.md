@@ -37,17 +37,18 @@ Sample inputs are in [`docs/demo/`](demo/). Every sample is labelled "DEMO".
 
 ## What has been tested where
 
-| Feature | JVM unit tests | Emulator (API 35) | Physical device |
+| Feature | JVM unit tests | Android 15 emulator | Physical device |
 |---|---|---|---|
-| ScamLens / LinkGuard / QRGuard engines | ✅ 45 tests | ✅ via UI tests | ❌ not yet |
-| History redaction, search, clear | ✅ 9 tests | ✅ UI test | ❌ |
-| Backend client parsing / failure modes | ✅ 4 tests | – | ❌ |
-| Hindi / Marathi completeness | ✅ 3 tests | manual language switch | ❌ |
-| Share text / PROCESS_TEXT intents | – | ✅ UI tests | ❌ |
-| Live camera QR scanning | – | ⚠️ emulator camera only | ❌ **needs a real phone** |
-| Screenshot OCR (bundled ML Kit) | – | see results in README | ❌ **needs real screenshots** |
-| Opening links / UPI apps | – | confirmation dialog only | ❌ **needs a phone with UPI apps** |
-| Threat intelligence / AI live | backend tests with scripted responses | – | ❌ **needs API keys** |
+| ScamLens / LinkGuard / QRGuard engines | ✅ 46 tests | ✅ UI tests + manual | ❌ not yet |
+| History redaction, search, clear, "Confirmed threat" | ✅ 9 tests | ✅ UI test + manual | ❌ |
+| Backend client parsing / failure modes | ✅ 4 tests | ✅ real HTTP to local backend via `10.0.2.2` | ❌ |
+| Hindi / Marathi | ✅ completeness tests | ✅ language switch, Hindi and Marathi results | ❌ |
+| Share text / `PROCESS_TEXT` / shortcuts | – | ✅ | ❌ |
+| Screenshot OCR (bundled ML Kit) | – | ✅ Devanagari + Latin read from the demo image (instrumented test + photo picker) | ❌ **needs real WhatsApp screenshots** |
+| QR from image | – | ✅ instrumented test + picker | ❌ |
+| Live camera QR scanning | – | ⚠️ camera opens and binds; the emulator scene has no QR to decode | ❌ **needs a real phone** |
+| Open link / UPI app | – | ✅ confirmation + acknowledgement gating; system chooser opened ("No apps can perform this action": no UPI app on the emulator) | ❌ **needs a phone with UPI apps** |
+| Threat intelligence / AI rendering | backend tests with scripted responses | ✅ with a scripted backend (README screenshots marked ⚠️) | ❌ **needs API keys** |
 
 ## Physical-device checklist (not yet done)
 

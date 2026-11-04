@@ -1,56 +1,152 @@
 # CyberShield
 
-**Your everyday digital safety companion.** A native Android app for inspecting suspicious messages, links and QR destinations.
+**Check first. Click with confidence.** A privacy-first Android app that helps people in India spot UPI fraud, phishing SMS, fake KYC messages, malicious links and fraudulent QR codes, in English, Hindi and Marathi.
 
-## Implemented in this repository
+[![Android build](https://github.com/RajvardhanPatil07/CyberShield/actions/workflows/android-build.yml/badge.svg)](https://github.com/RajvardhanPatil07/CyberShield/actions/workflows/android-build.yml)
 
-- **ScamLens:** local heuristic analysis for pasted messages.
-- **LinkGuard:** local URL-structure checks (HTTPS, user-info tricks, IP hosts, punycode and suspicious hostname terms).
-- **QRGuard:** live camera QR decoding with CameraX and Google ML Kit; decoded destinations are shown for review and can be passed to LinkGuard. The app never opens a QR destination automatically.
-- **Share to CyberShield:** receive plain text shared from compatible Android apps through the Android Sharesheet and open it in ScamLens.
-- **Privacy screen:** explains what the prototype does and does not monitor.
+## The problem
 
-## Important limitations
+Payment fraud in India reaches people through the channels they trust: SMS, WhatsApp and UPI QR codes. The scripts repeat: "your account will be blocked, update KYC", "electricity will be cut tonight", "enter your PIN to receive cashback", "this is CBI, you are under digital arrest". Victims are often first-time smartphone users who read Hindi or Marathi more easily than English. Many safety tools need invasive permissions or upload private messages.
 
-This is a hackathon MVP, not a finished security product.
+## The solution
 
-- Risk scores are simple heuristics, not trained AI, verified reputation checks, or proof of maliciousness.
-- No live VirusTotal, Google Safe Browsing, URLhaus or CyberStrike integration is configured.
-- The app does not monitor WhatsApp/Instagram private chats, intercept all links, inspect notification content, run a VPN, or block network traffic.
-- QR camera access is requested only when the user opens QRGuard.
-- Share-to-check works only when another app offers text through Android's Sharesheet.
-- No content is uploaded by the implemented scanning features.
+CyberShield answers "is this a scam?" before you act. It runs on the phone by default and explains why, in your language.
 
-## Build
+| Feature | What it does |
+|---|---|
+| **ScamLens** | Analyses pasted or shared messages for 20+ scam patterns (OTP/UPI-PIN/card requests, receive-money tricks, KYC, account and electricity threats, rewards, refunds, loans, task jobs, investment lures, fees, digital-arrest impersonation, AnyDesk/APK installs, secrecy). Highlights the exact phrases, scores 0–100, and lists safe next steps (1930 helpline, Chakshu reporting). Does not flag genuine "do not share your OTP" bank SMS. |
+| **Screenshot check** | Pick or share a screenshot; on-device OCR (Latin + Devanagari) reads it and ScamLens analyses it. |
+| **LinkGuard** | Inspects a link without opening it: brand impersonation (`hdfcbank-kyc.xyz`), misspellings (`icicbank.com`, `paytrn.com`), Cyrillic homographs, punycode, IP hosts, user-info tricks, shorteners, free-hosting pages, abused TLDs, APK downloads, embedded redirects. |
+| **QRGuard** | Live camera or image QR scanning. Decodes UPI requests (payee, name, amount, note), flags collect requests, impersonating payee names, refund/prize notes, large amounts and odd handles, and reminds you that **a PIN is only needed to send money**. |
+| **Threat intelligence** (optional) | One tap checks a link with Google Safe Browsing, VirusTotal and URLhaus through the CyberShield backend. Only a provider match is shown as **"Confirmed malicious"**; everything else is labelled a heuristic. |
+| **AI explanation** (optional) | One tap sends **redacted** text (numbers, e-mails, UPI IDs removed, previewed first) to Gemini through the backend for a plain-language explanation in the app language. |
+| **History and dashboard** | Totals, suspicious and high-risk counts, recent activity, search and filters. Never stores message text, full links, UPI IDs or numbers. |
+| **Share-to-scan** | Share text or images from any app, use *Check with CyberShield* in the text-selection menu, or launcher shortcuts. |
+| **Languages** | English, हिन्दी, मराठी interface and explanations, switchable in-app; detection always uses all three dictionaries plus romanised Hindi. |
 
-Requirements: Android Studio, JDK 17, Android SDK Platform 35.
+Nothing opens automatically. Links and UPI payments open only after a confirmation dialog, with an extra acknowledgement for high-risk results. CyberShield never initiates payments.
 
-1. Open the android/ folder in Android Studio.
-2. Allow Gradle sync and install any prompted SDK components.
-3. Run the app configuration on an Android device or emulator with a camera for QR scanning.
+## Screenshots
 
-A GitHub Actions workflow builds the debug APK on pushes and pull requests. The repository currently does not include a Gradle wrapper; Android Studio can generate/manage the wrapper, or CI uses a pinned Gradle 8.9 installation.
+All screenshots are from the debug build on an Android 15 (API 35) emulator.
 
-## Stack
+| Dashboard | ScamLens | Screenshot OCR (Hindi + English) | QRGuard UPI |
+|---|---|---|---|
+| ![Dashboard](docs/screenshots/01-dashboard.png) | ![ScamLens](docs/screenshots/02-scamlens-english.png) | ![OCR](docs/screenshots/03-screenshot-ocr-result.png) | ![QR UPI](docs/screenshots/05-qrguard-upi-scam.png) |
 
-- Kotlin + Jetpack Compose + Material 3
-- CameraX + ML Kit Barcode Scanning
-- Android Sharesheet integration
-- Local on-device heuristic analysis
+| LinkGuard | Open confirmation | Hindi UI | Marathi result |
+|---|---|---|---|
+| ![LinkGuard](docs/screenshots/07-linkguard-impersonation.png) | ![Confirm](docs/screenshots/06-qrguard-upi-confirm.png) | ![Hindi](docs/screenshots/13-dashboard-hindi.png) | ![Marathi](docs/screenshots/15-scamlens-marathi.png) |
 
-## Roadmap before a public release
+| History | AI consent with redaction | Threat intel ⚠️ scripted | AI output ⚠️ scripted |
+|---|---|---|---|
+| ![History](docs/screenshots/09-history.png) | ![Consent](docs/screenshots/11-ai-consent-redacted.png) | ![TI](docs/screenshots/08-linkguard-threat-intel-scripted.png) | ![AI](docs/screenshots/12-ai-explanation-scripted.png) |
 
-1. Add domain reputation providers through a backend proxy, with clear source attribution and rate limits.
-2. Add screenshot OCR and multilingual scam classification.
-3. Add local scan history with deletion controls.
-4. Design any notification or VPN protection as separate opt-in features with a threat model, disclosure, data minimization and Android/Google Play policy review.
-5. Add automated unit/instrumentation tests and verify builds on physical Android devices.
+⚠️ The last two screenshots were rendered by the real app and the real backend code, but with **scripted provider responses** (no API keys were available). They show how results are displayed, not a live verdict. The AI text itself says "SCRIPTED TEST RESPONSE".
 
-## Security and privacy principles
+## Architecture
 
-- Never ask for or collect OTPs, passwords, UPI PINs or CVVs.
-- Never automatically open suspicious destinations.
-- Keep user content on-device unless a future feature clearly explains a separate upload and obtains consent.
-- Do not expose CyberStrike offensive execution tools to consumer users. Any future integration must be a narrow, read-only analysis service.
+```mermaid
+flowchart LR
+    subgraph Phone["Android (offline by default)"]
+        UI["Compose UI"] --> ENG["Local engine<br/>ScamLens · LinkGuard · QrGuard · Redactor"]
+        UI --> ML["ML Kit OCR + barcode (bundled)"]
+        UI --> DB[("Redacted history")]
+    end
+    UI -- "HTTPS, only on tap + consent" --> API["CyberShield backend (Node.js)"]
+    API --> GSB["Safe Browsing v5"] & VT["VirusTotal v3"] & UH["URLhaus"] & GEM["Gemini API"]
+```
 
-No license has been selected yet. Choose one only after reviewing dependency and integration obligations.
+API keys live only in the backend's environment. More diagrams (feature flow, detection workflow, backend pipeline) are in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
+## Technology
+
+- **Android:** Kotlin 2.0, Jetpack Compose + Material 3, CameraX 1.4, ML Kit barcode scanning and Devanagari/Latin text recognition (bundled models), AppCompat per-app locales, AGP 8.7, compile/target SDK 35, min SDK 26 (Android 8.0).
+- **Backend:** Node.js ≥ 22.9 with **no npm dependencies**; Google Safe Browsing v5, VirusTotal v3, abuse.ch URLhaus, Gemini API with JSON-schema output.
+- **CI:** GitHub Actions: wrapper validation, backend tests, unit tests, lint, debug and release APKs, artifacts.
+
+## Install the app
+
+Download `cybershield-debug-apk` from the [latest successful CI run](https://github.com/RajvardhanPatil07/CyberShield/actions/workflows/android-build.yml?query=branch%3Amain+is%3Asuccess), unzip, and install `app-arm64-v8a-debug.apk` (most phones, ~38 MB) or `app-universal-debug.apk` (any device). See [docs/DEMO.md](docs/DEMO.md) for a demo script and sample inputs.
+
+## Build from source
+
+Requirements: JDK 17+ and Android SDK Platform 35 (Android Studio provides both). The Gradle wrapper (8.11.1, checksum-pinned) downloads Gradle.
+
+```bash
+cd android
+./gradlew :app:testDebugUnitTest      # 62 JVM unit tests
+./gradlew :app:lintDebug              # Android lint (0 issues)
+./gradlew :app:assembleDebug          # app/build/outputs/apk/debug/*.apk
+./gradlew :app:assembleRelease        # R8-shrunk; unsigned unless signing env vars are set
+./gradlew :app:connectedDebugAndroidTest   # 9 UI/OCR tests, needs a device or emulator
+```
+
+The commands in the original brief (`gradle --no-daemon -p android …`) also work with a locally installed Gradle 8.9+.
+
+Release signing and GitHub secrets: [docs/RELEASE.md](docs/RELEASE.md).
+
+## Backend and API setup
+
+```bash
+cd backend
+cp .env.example .env     # every key is optional
+npm test                 # 19 tests, no network needed
+npm start                # http://localhost:8787
+```
+
+The debug app talks to `http://10.0.2.2:8787` (emulator → host). On a physical phone use `adb reverse tcp:8787 tcp:8787` and set *Settings → Server address* to `http://127.0.0.1:8787`. Release builds accept HTTPS only: `CYBERSHIELD_BACKEND_URL=https://… ./gradlew :app:assembleRelease`.
+
+| Variable | Provider | Free tier / terms |
+|---|---|---|
+| `GOOGLE_SAFE_BROWSING_API_KEY` | Google Safe Browsing v5 | Free, non-commercial only |
+| `VIRUSTOTAL_API_KEY` | VirusTotal v3 | 4 req/min, 500/day, non-commercial |
+| `URLHAUS_AUTH_KEY` | abuse.ch URLhaus | Free Auth-Key |
+| `GEMINI_API_KEY`, `GEMINI_MODEL` | Google Gemini API | Free tier with rate limits; paid per token |
+
+How to get each key, response formats, limits and deployment: [backend/README.md](backend/README.md). PhishTank (closed to new registrations) and OpenPhish (personal/academic licence) were evaluated and not used.
+
+## Testing
+
+| Suite | Count | Covers |
+|---|---|---|
+| Android JVM unit tests | 62 | Message scams (EN/HI/MR/Hinglish), genuine OTP and everyday SMS, URLs (IP, punycode, homograph, credentials, lookalikes, shorteners, free hosting, redirects, malformed input), QR and UPI parsing, redaction, history privacy and limits, backend-client failure modes, translation completeness |
+| Android instrumented tests | 9 | Message → HIGH and history without content; LinkGuard confirmation gating; genuine OTP → LOW; clear history; share text, share link, `PROCESS_TEXT`; on-device OCR of a Hindi+English screenshot; QR decoding from images |
+| Backend tests | 19 | Valid request, invalid input (400/413/415), missing credentials, provider down, retry, cache, rate limits (app and VirusTotal), shortener expansion without SSRF, AI schema validation and error mapping |
+
+## Privacy and security
+
+- On-device by default; cloud calls only on tap, after a consent dialog showing exactly what is sent.
+- Permissions: `CAMERA` (QR screen, runtime) and `INTERNET`. No SMS, storage, contacts, location, accessibility or notification access.
+- History stores scores, signal names and at most a hostname or UPI handle suffix; excluded from backups; deletable per item or all at once.
+- HTTPS-only networking in release builds; no secrets in the APK; backend input validation, rate limits, body caps, timeouts, SSRF-safe link expansion, logs without content.
+- Google ML Kit sends its own diagnostic telemetry (device model, app version, per-install ID, performance). Image content is not sent. This is disclosed in the policy.
+
+Details: [PRIVACY.md](PRIVACY.md) · [docs/SECURITY_REVIEW.md](docs/SECURITY_REVIEW.md) · [docs/PLATFORM_LIMITATIONS.md](docs/PLATFORM_LIMITATIONS.md)
+
+## Limitations
+
+- Detection is rule-based. Accuracy (precision/recall) has **not** been measured on a labelled dataset; new wording or clean-looking domains can score LOW, and a low score is not proof of safety.
+- Threat intelligence and AI are implemented and tested with scripted responses but have **not been run against live API keys**.
+- Tested on an Android 15 emulator only. **No physical-device testing yet**: live camera QR decoding, real WhatsApp/Messages sharing, UPI app hand-off and OCR on real screenshots still need it.
+- Hindi and Marathi translations have not been reviewed by native speakers; language detection is a best guess. See [docs/MULTILINGUAL.md](docs/MULTILINGUAL.md).
+- No background protection: Android does not let ordinary apps read other apps' messages, and CyberShield deliberately avoids notification and accessibility access.
+- The backend has no app attestation yet (rate limits only) and keeps limits in memory per instance.
+- Release APKs are unsigned until a keystore is configured.
+
+## Roadmap
+
+1. Physical-device test pass ([checklist](docs/DEMO.md#physical-device-checklist-not-yet-done)).
+2. Live-key verification of Safe Browsing, VirusTotal, URLhaus and Gemini; deploy the backend on HTTPS.
+3. Labelled evaluation set from public advisories; publish precision/recall.
+4. Native-speaker review of Hindi and Marathi; more Indian languages.
+5. Play Integrity / App Check on the backend.
+6. Pre-filled, redacted "Report to Chakshu / 1930" flow.
+
+## Project docs
+
+[Architecture](docs/ARCHITECTURE.md) · [Demo script](docs/DEMO.md) · [Pitch](docs/PITCH.md) · [Security review](docs/SECURITY_REVIEW.md) · [Audit of the starting code](docs/AUDIT.md) · [Release & signing](docs/RELEASE.md) · [Multilingual scope](docs/MULTILINGUAL.md) · [Platform limits](docs/PLATFORM_LIMITATIONS.md) · [Privacy policy](PRIVACY.md)
+
+No licence has been selected yet. Choose one after reviewing dependency obligations (ML Kit is subject to Google's ML Kit terms).
+
+If you lost money to fraud, call **1930** or report at **cybercrime.gov.in**.

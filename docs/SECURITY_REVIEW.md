@@ -26,6 +26,7 @@ Scope: Android app (`android/`), backend (`backend/`), CI (`.github/workflows/`)
 | 18 | Backend | SSRF | Outbound requests go only to fixed provider hosts and to an allow-list of URL shorteners (HEAD, `redirect: manual`). User-supplied destinations are never fetched. |
 | 19 | Backend | Error handling | Structured `{error:{code,message}}`; provider failures are isolated per provider and never reported as safe; 5xx retried once; timeouts mapped to 504. |
 | 20 | AI | Prompt injection / unsafe advice | User text is delimited and declared untrusted; the system prompt forbids asking for secrets or app installs; output must pass strict schema validation and length clamps. The UI labels it "AI-generated, can be wrong". |
+| 21a | Privacy | Third-party SDK telemetry | ML Kit (barcode, OCR) sends Google device/app info, a per-install ID and performance metrics; image content is not sent. Observed `FIREBASE_ML_SDK` events in logcat during emulator testing. Disclosed in PRIVACY.md; no opt-out exists in the SDK. |
 | 21 | Privacy | Data sent to cloud | Only on tap plus consent dialog. URLs: credentials and fragment stripped. AI text: on-device redaction of numbers, e-mails, UPI IDs and PAN, with URL query strings dropped; the user sees the exact text first. **Gap:** personal names are not redacted (disclosed in the dialog preview and the privacy policy). |
 | 22 | CI | Secrets | `permissions: contents: read`; signing secrets used only when present; the keystore is decoded to `$RUNNER_TEMP` and deleted. Fork PRs get no secrets. |
 
