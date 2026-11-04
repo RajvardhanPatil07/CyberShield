@@ -1,4 +1,5 @@
 name: Android build
+
 on:
   push:
     branches: [main]
@@ -6,26 +7,128 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# One run per branch at a time; a newer push cancels the older run (avoids Gradle cache write races).
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
 jobs:
-  assemble:
+  backend:
+    name: Backend tests
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+      - name: Syntax check
+        run: npm run check
+      - name: Unit tests
+        run: npm test
+
+  android:
+    name: Android tests, lint and APKs
+    runs-on: ubuntu-latest
+    env:
+      # Optional release signing. When these secrets are absent the release APK is built unsigned.
+      KEYSTORE_BASE64: ${{ secrets.CYBERSHIELD_KEYSTORE_BASE64 }}
+      CYBERSHIELD_KEYSTORE_PASSWORD: ${{ secrets.CYBERSHIELD_KEYSTORE_PASSWORD }}
+      CYBERSHIELD_KEY_ALIAS: ${{ secrets.CYBERSHIELD_KEY_ALIAS }}
+      CYBERSHIELD_KEY_PASSWORD: ${{ secrets.CYBERSHIELD_KEY_PASSWORD }}
+      # Public backend URL baked into the release build (not a secret). Empty disables cloud checks.
+      CYBERSHIELD_BACKEND_URL: ${{ vars.CYBERSHIELD_BACKEND_URL }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Validate Gradle wrapper checksum
+        uses: gradle/actions/wrapper-validation@v6
+
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: "17"
-      - name: Install Gradle
-        uses: gradle/actions/setup-gradle@v4
+
+      - name: Set up Gradle (with caching)
+        uses: gradle/actions/setup-gradle@v6
         with:
-          gradle-version: "8.9"
-      - name: Run unit tests and build debug APK
-        run: gradle --no-daemon -p android :app:testDebugUnitTest :app:assembleDebug
-      - name: Upload debug APK
-        uses: actions/upload-artifact@v4
+          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
+
+      - name: Decode release keystore
+        if: env.KEYSTORE_BASE64 != ''
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/release.jks"
+          echo "CYBERSHIELD_KEYSTORE_PATH=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
+
+      - name: Unit tests
+        working-directory: android
+        run: ./gradlew --no-daemon :app:testDebugUnitTest
+
+      - name: Android lint
+        working-directory: android
+        run: ./gradlew --no-daemon :app:lintDebug
+
+      - name: Build debug APKs
+        working-directory: android
+        run: ./gradlew --no-daemon :app:assembleDebug
+
+      - name: Build release APKs
+        working-directory: android
+        run: ./gradlew --no-daemon :app:assembleRelease
+
+      - name: Summary
+        if: always()
+        working-directory: android/app/build
+        run: |
+          {
+            echo "### CyberShield build"
+            if ls test-results/testDebugUnitTest/*.xml >/dev/null 2>&1; then
+              python3 - <<'EOF'
+          import glob, xml.etree.ElementTree as ET
+          t = f = e = s = 0
+          for p in glob.glob("test-results/testDebugUnitTest/*.xml"):
+              r = ET.parse(p).getroot()
+              t += int(r.get("tests", 0)); f += int(r.get("failures", 0)); e += int(r.get("errors", 0)); s += int(r.get("skipped", 0))
+          print(f"Unit tests: {t} run, {f} failed, {e} errors, {s} skipped")
+          EOF
+            fi
+            echo ""
+            echo "| APK | Size |"
+            echo "|---|---|"
+            find outputs/apk -name '*.apk' -printf '| %f | %s bytes |\n' 2>/dev/null || true
+            if [ -z "$KEYSTORE_BASE64" ]; then echo ""; echo "Release APKs are **unsigned** (no signing secrets configured)."; fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload debug APKs
+        uses: actions/upload-artifact@v7
         with:
           name: cybershield-debug-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: android/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
+
+      - name: Upload release APKs
+        uses: actions/upload-artifact@v7
+        with:
+          name: cybershield-release-apk
+          path: android/app/build/outputs/apk/release/*.apk
+          if-no-files-found: error
+
+      - name: Upload test and lint reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: reports
+          path: |
+            android/app/build/reports/
+            android/app/build/test-results/
+          if-no-files-found: ignore
+
+      - name: Remove decoded keystore
+        if: always()
+        run: rm -f "$RUNNER_TEMP/release.jks"
