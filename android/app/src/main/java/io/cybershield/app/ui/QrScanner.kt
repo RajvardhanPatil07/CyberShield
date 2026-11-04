@@ -1,6 +1,5 @@
 package io.cybershield.app.ui
 
-import Manifest
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
