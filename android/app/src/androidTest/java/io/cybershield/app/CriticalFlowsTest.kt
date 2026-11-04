@@ -3,6 +3,8 @@ package io.cybershield.app
 import android.content.Context
 import android.content.Intent
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
@@ -59,7 +61,10 @@ class CriticalFlowsTest {
         compose.onNodeWithText("High risk signals").assertIsDisplayed()
         compose.onNodeWithText("Open link").performScrollTo().performClick()
         compose.onNodeWithText("Open this link?").assertIsDisplayed()
-        compose.onNodeWithText("I understand the risk").assertIsDisplayed()
+        compose.onNodeWithText("Open").assertIsNotEnabled()
+        // Tapping the label (not just the small checkbox) must enable the button.
+        compose.onNodeWithText("I understand the risk").performClick()
+        compose.onNodeWithText("Open").assertIsEnabled()
         compose.onNodeWithText("Cancel").performClick()
     }
 
