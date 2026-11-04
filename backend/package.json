@@ -1,0 +1,16 @@
+{
+  "name": "cybershield-backend",
+  "version": "0.3.0",
+  "private": true,
+  "description": "CyberShield proxy for threat-intelligence lookups and AI scam explanations. Holds all provider API keys server-side.",
+  "type": "module",
+  "engines": {
+    "node": ">=22.9"
+  },
+  "scripts": {
+    "start": "node --env-file-if-exists=.env src/index.js",
+    "test": "node --test test/*.test.js",
+    "check": "node --check src/index.js"
+  },
+  "license": "UNLICENSED"
+}
