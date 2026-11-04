@@ -30,6 +30,7 @@ fun CyberShieldApp(sharedText: String? = null, onShareConsumed: () -> Unit = {})
     val context = LocalContext.current
     var history by remember { mutableStateOf(ScanHistory.read(context)) }
     var sharedInput by remember { mutableStateOf("") }
+    var linkInput by remember { mutableStateOf("") }
     LaunchedEffect(sharedText) {
         if (!sharedText.isNullOrBlank()) {
             sharedInput = sharedText
@@ -61,12 +62,12 @@ fun CyberShieldApp(sharedText: String? = null, onShareConsumed: () -> Unit = {})
                         ScanHistory.add(context, "Message", result.score, result.verdict)
                         history = ScanHistory.read(context)
                     }
-                    Page.LINK -> AnalyzerPage("LinkGuard", "Inspect a URL before opening it.", "https://example.com", "Check link", { RiskAnalyzer.url(it).also { result -> last = result } }, last) { result ->
+                    Page.LINK -> AnalyzerPage("LinkGuard", "Inspect a URL before opening it.", "https://example.com", "Check link", { RiskAnalyzer.url(it).also { result -> last = result } }, last, linkInput) { result ->
                         ScanHistory.add(context, "Link", result.score, result.verdict)
                         history = ScanHistory.read(context)
                     }
                     Page.QR -> QrPage { decoded ->
-                        last = RiskAnalyzer.url(decoded)
+                        linkInput = decoded
                         page = Page.LINK
                     }
                     Page.PRIVACY -> PrivacyPage()
