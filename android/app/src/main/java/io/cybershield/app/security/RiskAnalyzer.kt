@@ -22,8 +22,8 @@ object RiskAnalyzer {
             if (Regex("""\b(otp|upi pin|password|cvv)\b""").containsMatchIn(value)) add("Mentions credentials or payment secrets. Never share these.")
             if (isEmpty()) add("No obvious scam phrase was detected by the basic local rules.")
         }
-        val score = reasons.sumOf { reason ->
-            when {
+        val score = reasons.fold(0) { total, reason ->
+            total + when {
                 reason.contains("credentials") -> 35
                 reason.contains("urgency") || reason.contains("lure") -> 25
                 reason.contains("link") -> 15
@@ -46,12 +46,12 @@ object RiskAnalyzer {
             if (host.count { it == '-' } >= 3) add("The hostname contains several hyphens.")
             if (isEmpty()) add("No obvious structural red flags were found. This does not establish that the site is safe.")
         }
-        val score = reasons.sumOf {
-            when {
-                it.contains("user-info") -> 45
-                it.contains("IP address") -> 30
-                it.contains("HTTPS") -> 20
-                it.contains("punycode") -> 25
+        val score = reasons.fold(0) { total, reason ->
+            total + when {
+                reason.contains("user-info") -> 45
+                reason.contains("IP address") -> 30
+                reason.contains("HTTPS") -> 20
+                reason.contains("punycode") -> 25
                 else -> 15
             }
         }.coerceIn(5, 95)
