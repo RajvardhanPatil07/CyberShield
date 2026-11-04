@@ -15,6 +15,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.platform.LocalContext
+import io.cybershield.app.data.ScanHistory
+import io.cybershield.app.data.ScanHistoryItem
 import io.cybershield.app.security.RiskAssessment
 import io.cybershield.app.security.RiskAnalyzer
 
@@ -24,6 +27,8 @@ private enum class Page { HOME, MESSAGE, LINK, QR, PRIVACY }
 fun CyberShieldApp(sharedText: String? = null, onShareConsumed: () -> Unit = {}) {
     var page by remember { mutableStateOf(Page.HOME) }
     var last by remember { mutableStateOf<RiskAssessment?>(null) }
+    val context = LocalContext.current
+    var history by remember { mutableStateOf(ScanHistory.read(context)) }
     var sharedInput by remember { mutableStateOf("") }
     LaunchedEffect(sharedText) {
         if (!sharedText.isNullOrBlank()) {
@@ -51,9 +56,15 @@ fun CyberShieldApp(sharedText: String? = null, onShareConsumed: () -> Unit = {})
         ) { padding ->
             Column(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(20.dp)) {
                 when (page) {
-                    Page.HOME -> Home(last, { page = Page.MESSAGE }, { page = Page.LINK }, { page = Page.QR }, { page = Page.PRIVACY })
-                    Page.MESSAGE -> AnalyzerPage("ScamLens", "Inspect a suspicious SMS, DM or offer.", "Paste message text…", "Analyse message", { RiskAnalyzer.message(it).also { result -> last = result } }, last, sharedInput)
-                    Page.LINK -> AnalyzerPage("LinkGuard", "Inspect a URL before opening it.", "https://example.com", "Check link", { RiskAnalyzer.url(it).also { result -> last = result } }, last)
+                    Page.HOME -> Home(last, history, { page = Page.MESSAGE }, { page = Page.LINK }, { page = Page.QR }, { page = Page.PRIVACY })
+                    Page.MESSAGE -> AnalyzerPage("ScamLens", "Inspect a suspicious SMS, DM or offer.", "Paste message text…", "Analyse message", { RiskAnalyzer.message(it).also { result -> last = result } }, last, sharedInput) { result ->
+                        ScanHistory.add(context, "Message", result.score, result.verdict)
+                        history = ScanHistory.read(context)
+                    }
+                    Page.LINK -> AnalyzerPage("LinkGuard", "Inspect a URL before opening it.", "https://example.com", "Check link", { RiskAnalyzer.url(it).also { result -> last = result } }, last) { result ->
+                        ScanHistory.add(context, "Link", result.score, result.verdict)
+                        history = ScanHistory.read(context)
+                    }
                     Page.QR -> QrPage { decoded ->
                         last = RiskAnalyzer.url(decoded)
                         page = Page.LINK
@@ -66,7 +77,7 @@ fun CyberShieldApp(sharedText: String? = null, onShareConsumed: () -> Unit = {})
 }
 
 @Composable
-private fun Home(assessment: RiskAssessment?, message: () -> Unit, link: () -> Unit, qr: () -> Unit, privacy: () -> Unit) {
+private fun Home(assessment: RiskAssessment?, history: List<ScanHistoryItem>, message: () -> Unit, link: () -> Unit, qr: () -> Unit, privacy: () -> Unit) {
     Text("CYBERSHIELD", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold, letterSpacing = 2.sp)
     Spacer(Modifier.height(24.dp))
     Text("Your digital safety\nstarts here.", fontSize = 32.sp, lineHeight = 38.sp, fontWeight = FontWeight.Bold)
@@ -93,6 +104,20 @@ private fun Home(assessment: RiskAssessment?, message: () -> Unit, link: () -> U
     Feature("QRGuard", "Scan QR codes before opening", Icons.Default.QrCodeScanner, qr)
     Spacer(Modifier.height(18.dp))
     assessment?.let { ResultCard(it) }
+    if (history.isNotEmpty()) {
+        Spacer(Modifier.height(14.dp))
+        Text("RECENT CHECKS", fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
+        history.take(4).forEach { item ->
+            Row(Modifier.fillMaxWidth().padding(vertical = 5.dp), verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text(item.type, fontWeight = FontWeight.SemiBold)
+                    Text(item.verdict, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                Text("${item.score}/100", fontWeight = FontWeight.Bold)
+            }
+        }
+        TextButton(onClick = { ScanHistory.clear(LocalContext.current) }) { Text("Clear local history") }
+    }
     TextButton(onClick = privacy) { Text("Protection & privacy settings") }
 }
 
@@ -113,7 +138,7 @@ private fun Feature(title: String, detail: String, icon: androidx.compose.ui.gra
 
 @Composable
 private fun AnalyzerPage(title: String, subtitle: String, placeholder: String, actionLabel: String,
-                         analyze: (String) -> RiskAssessment, assessment: RiskAssessment?, initialText: String = "") {
+                         analyze: (String) -> RiskAssessment, assessment: RiskAssessment?, initialText: String = "", onScanSaved: (RiskAssessment) -> Unit = {}) {
     var input by remember(initialText) { mutableStateOf(initialText) }
     Text(title, fontSize = 28.sp, fontWeight = FontWeight.Bold)
     Spacer(Modifier.height(8.dp))
@@ -122,7 +147,7 @@ private fun AnalyzerPage(title: String, subtitle: String, placeholder: String, a
     OutlinedTextField(input, { input = it }, modifier = Modifier.fillMaxWidth(),
         placeholder = { Text(placeholder) }, minLines = 4, shape = RoundedCornerShape(16.dp))
     Spacer(Modifier.height(12.dp))
-    Button(onClick = { analyze(input) }, enabled = input.isNotBlank(), modifier = Modifier.fillMaxWidth()) {
+    Button(onClick = { onScanSaved(analyze(input)) }, enabled = input.isNotBlank(), modifier = Modifier.fillMaxWidth()) {
         Icon(Icons.Default.Security, null)
         Spacer(Modifier.width(8.dp))
         Text(actionLabel)
