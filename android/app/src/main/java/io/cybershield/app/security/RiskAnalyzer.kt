@@ -1,6 +1,6 @@
 package io.cybershield.app.security
 
-import android.net.Uri
+import java.net.URI
 
 data class RiskAssessment(
     val score: Int,
@@ -34,12 +34,12 @@ object RiskAnalyzer {
     }
 
     fun url(raw: String): RiskAssessment {
-        val uri = runCatching { Uri.parse(raw.trim()) }.getOrNull()
+        val uri = runCatching { URI(raw.trim()) }.getOrNull()
         val host = uri?.host?.lowercase()
         if (host.isNullOrBlank()) return result(55, listOf("Could not parse a complete URL with a host."))
         val reasons = buildList {
-            if (uri.scheme != "https") add("The address does not use HTTPS.")
-            if (uri.userInfo != null) add("The URL embeds user-info before the host, which can disguise its destination.")
+            if (!uri.scheme.equals("https", ignoreCase = true)) add("The address does not use HTTPS.")
+            if (uri.rawUserInfo != null) add("The URL embeds user-info before the host, which can disguise its destination.")
             if (host.matches(Regex("""\d{1,3}(\.\d{1,3}){3}"""))) add("The host is an IP address rather than a conventional domain.")
             if (host.startsWith("xn--") || host.contains(".xn--")) add("The domain uses punycode characters; verify its spelling carefully.")
             if (listOf("verify", "kyc", "login", "wallet", "claim", "prize").any(host::contains)) add("The hostname contains a term sometimes used in impersonation links.")
