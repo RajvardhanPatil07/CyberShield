@@ -74,7 +74,7 @@ fun SettingsScreen(services: AppServices) {
             placeholder = { Text(stringResource(R.string.backend_hint)) },
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
-            modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp),
+            modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp), colors = glassFieldColors(),
         )
         val effective = services.settings.backendUrl
         Text(
@@ -88,7 +88,7 @@ fun SettingsScreen(services: AppServices) {
 
     SettingsCard(stringResource(R.string.data_title)) {
         ToggleRow(stringResource(R.string.history_toggle), null, services.saveHistory, "history_toggle") { services.updateSaveHistory(it) }
-        OutlinedButton(onClick = { confirmDelete = true }, modifier = Modifier.fillMaxWidth().testTag("delete_all")) { Text(stringResource(R.string.delete_all_data)) }
+        SoftButton(onClick = { confirmDelete = true }, contentColor = CsColors.RiskText, modifier = Modifier.fillMaxWidth().testTag("delete_all")) { Text(stringResource(R.string.delete_all_data)) }
         if (deleted) Text(stringResource(R.string.data_deleted), color = MaterialTheme.colorScheme.primary)
     }
 
@@ -98,7 +98,9 @@ fun SettingsScreen(services: AppServices) {
         }
         Text(stringResource(R.string.privacy_policy_link), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
-    Text(stringResource(R.string.helpline), fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(vertical = 12.dp))
+    GlassCard(Modifier.fillMaxWidth().padding(vertical = 6.dp), color = CsColors.GlassStrong) {
+        Text(stringResource(R.string.helpline), fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(16.dp))
+    }
 
     if (confirmDelete) {
         AlertDialog(
@@ -122,8 +124,8 @@ fun SettingsScreen(services: AppServices) {
 
 @Composable
 private fun SettingsCard(title: String, content: @Composable () -> Unit) {
-    Card(Modifier.fillMaxWidth().padding(vertical = 6.dp)) {
-        Column(Modifier.padding(16.dp)) {
+    GlassCard(Modifier.fillMaxWidth().padding(vertical = 6.dp)) {
+        Column(Modifier.padding(18.dp)) {
             Text(title, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(8.dp))
             content()

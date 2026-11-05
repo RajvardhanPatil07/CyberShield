@@ -10,6 +10,9 @@
 
     <string name="home_title">तुमची डिजिटल सुरक्षा\nइथून सुरू होते.</string>
     <string name="home_tagline">आधी तपासा, मग विश्वासाने क्लिक करा.</string>
+    <string name="home_paste_hint">संदेश किंवा लिंक पेस्ट करा</string>
+    <string name="home_check">आता तपासा</string>
+    <string name="stat_safe">सुरक्षित</string>
     <string name="status_title">सुरक्षा स्थिती</string>
     <string name="status_local_ready">फोनवरील तपासणी तयार आहे</string>
     <string name="status_detail">तपासणी याच फोनवर होते. पार्श्वभूमीत काहीही पाहिले जात नाही; काय तपासायचे ते तुम्ही ठरवता.</string>

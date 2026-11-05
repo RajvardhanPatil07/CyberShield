@@ -76,46 +76,51 @@ fun levelColor(level: RiskLevel): Color = when (level) {
 
 @Composable
 fun ScreenTitle(title: String, subtitle: String) {
-    Text(title, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+    Text(title, fontSize = 32.sp, lineHeight = 36.sp, fontWeight = FontWeight.ExtraBold, letterSpacing = (-0.8).sp,
+        color = CsColors.Ink, modifier = Modifier.enter(0))
     Spacer(Modifier.height(6.dp))
-    Text(subtitle, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    Text(subtitle, color = CsColors.Muted, modifier = Modifier.enter(1))
     Spacer(Modifier.height(16.dp))
 }
 
 @Composable
 fun SectionLabel(text: String, modifier: Modifier = Modifier) {
-    Text(text, modifier = modifier, fontWeight = FontWeight.Bold, letterSpacing = 1.sp, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    Text(text, modifier = modifier, fontWeight = FontWeight.Bold, letterSpacing = 0.8.sp, fontSize = 13.sp, color = CsColors.Muted)
 }
 
 @Composable
 fun ScoreBadge(score: Int, level: RiskLevel, size: Int = 64) {
-    val tint = levelColor(level)
     // %s with a plain string keeps Western digits in every locale, matching the badge number.
     val label = stringResource(R.string.score_of, score.toString())
-    Box(
-        Modifier.size(size.dp).border(4.dp, tint, CircleShape).semantics { contentDescription = label },
-        contentAlignment = Alignment.Center,
+    ActivityRings(
+        rings = listOf(levelFill(level) to (score.coerceAtLeast(4) / 100f)),
+        size = size.dp, stroke = (size / 10f).coerceAtLeast(4f).dp,
+        modifier = Modifier.semantics(mergeDescendants = true) { contentDescription = label },
     ) {
-        Text(score.toString(), color = tint, fontWeight = FontWeight.Bold, fontSize = (size / 3).sp)
+        CountUpText(score, fontSize = (size / 3.4f).sp, color = CsColors.Ink, weight = FontWeight.ExtraBold)
     }
 }
 
 @Composable
 fun ResultCard(result: RiskAssessment, showLanguage: Boolean = false) {
     val tint = levelColor(result.level)
-    Card(shape = RoundedCornerShape(20.dp), modifier = Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(18.dp)) {
+    GlassCard(Modifier.fillMaxWidth().enter(2), border = levelFill(result.level).copy(alpha = 0.5f), borderWidth = 1.5.dp, color = CsColors.GlassStrong) {
+        Column(Modifier.padding(20.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    when (result.level) { RiskLevel.HIGH -> Icons.Default.Error; RiskLevel.MEDIUM -> Icons.Default.Warning; RiskLevel.LOW -> Icons.Default.CheckCircle },
-                    null, tint = tint,
-                )
-                Spacer(Modifier.width(10.dp))
                 Column(Modifier.weight(1f)) {
-                    Text(stringResource(R.string.result_title), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Text(stringResource(result.level.label()), color = tint, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            when (result.level) { RiskLevel.HIGH -> Icons.Default.Error; RiskLevel.MEDIUM -> Icons.Default.Warning; RiskLevel.LOW -> Icons.Default.CheckCircle },
+                            null, tint = levelFill(result.level), modifier = Modifier.size(16.dp),
+                        )
+                        Spacer(Modifier.width(6.dp))
+                        Text(stringResource(R.string.result_title).uppercase(), fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = 0.6.sp, color = CsColors.Muted)
+                    }
+                    Spacer(Modifier.height(4.dp))
+                    Text(stringResource(result.level.label()), color = tint, fontWeight = FontWeight.ExtraBold, fontSize = 26.sp, lineHeight = 30.sp, letterSpacing = (-0.5).sp)
                 }
-                ScoreBadge(result.score, result.level)
+                Spacer(Modifier.width(12.dp))
+                ScoreBadge(result.score, result.level, size = 84)
             }
             if (showLanguage && result.language != DetectedLanguage.UNKNOWN) {
                 Spacer(Modifier.height(6.dp))
@@ -135,7 +140,7 @@ fun ResultCard(result: RiskAssessment, showLanguage: Boolean = false) {
                 Text(stringResource(R.string.what_to_do), fontWeight = FontWeight.Bold)
                 result.recommendations.forEach { rec ->
                     Row(Modifier.padding(vertical = 4.dp), verticalAlignment = Alignment.Top) {
-                        Icon(Icons.Default.Lightbulb, null, tint = MaterialTheme.colorScheme.secondary, modifier = Modifier.size(18.dp))
+                        Icon(Icons.Default.Lightbulb, null, tint = CsColors.Accent, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(8.dp))
                         Text(stringResource(rec.label()))
                     }
@@ -150,15 +155,15 @@ fun ResultCard(result: RiskAssessment, showLanguage: Boolean = false) {
 @Composable
 private fun FindingRow(finding: Finding) {
     val tint = when {
-        finding.code.weight >= 35 -> CsColors.Danger
-        finding.code.weight >= 15 -> CsColors.Amber
-        else -> MaterialTheme.colorScheme.secondary
+        finding.code.weight >= 35 -> CsColors.Risk
+        finding.code.weight >= 15 -> CsColors.Warn
+        else -> CsColors.Accent
     }
-    Row(Modifier.padding(vertical = 5.dp), verticalAlignment = Alignment.Top) {
-        Icon(Icons.Default.Info, null, tint = tint, modifier = Modifier.size(18.dp))
+    Row(Modifier.padding(vertical = 6.dp), verticalAlignment = Alignment.Top) {
+        Dot(tint, modifier = Modifier.padding(top = 3.dp))
         Spacer(Modifier.width(8.dp))
         Column {
-            Text(stringResource(finding.code.label()))
+            Text(stringResource(finding.code.label()), fontWeight = FontWeight.SemiBold)
             finding.evidence?.takeIf { it.isNotBlank() }?.let {
                 Text("“${it.take(80)}”", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
@@ -177,16 +182,16 @@ fun HighlightedText(text: String, findings: List<Finding>) {
         for ((range, weight) in ranges) {
             if (range.first < cursor) continue // overlapping match already highlighted
             append(text.substring(cursor, range.first))
-            val color = if (weight >= 35) CsColors.Danger else CsColors.Amber
-            withStyle(SpanStyle(background = color.copy(alpha = 0.30f), color = Color.White, fontWeight = FontWeight.SemiBold)) {
+            val color = if (weight >= 35) CsColors.Risk else CsColors.Warn
+            withStyle(SpanStyle(background = color.copy(alpha = 0.26f), color = CsColors.Ink, fontWeight = FontWeight.SemiBold)) {
                 append(text.substring(range.first, range.last + 1))
             }
             cursor = range.last + 1
         }
         if (cursor < text.length) append(text.substring(cursor))
     }
-    Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant), modifier = Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(14.dp)) {
+    GlassCard(Modifier.fillMaxWidth().enter(3)) {
+        Column(Modifier.padding(18.dp)) {
             Text(stringResource(R.string.highlighted_title), fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(6.dp))
             SelectionContainer { Text(annotated, modifier = Modifier.heightIn(max = 260.dp).verticalScroll(rememberScrollState())) }
@@ -261,7 +266,7 @@ fun CloudProblem(result: CloudResult<*>) {
         CloudResult.RateLimited -> stringResource(R.string.cloud_rate_limited)
         is CloudResult.Failed -> stringResource(R.string.cloud_failed, result.message)
     }
-    Text(text, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(vertical = 8.dp))
+    GlassCard(Modifier.fillMaxWidth().padding(vertical = 8.dp)) { Text(text, color = CsColors.Ink2, modifier = Modifier.padding(14.dp)) }
 }
 
 @Composable
@@ -272,11 +277,11 @@ fun ReputationCard(report: ReputationReport) {
             hits.filter { it.status == ProviderStatus.MALICIOUS }.joinToString { providerName(it.name) })
         ReputationVerdict.SUSPICIOUS -> CsColors.Amber to stringResource(R.string.rep_suspicious, hits.joinToString { providerName(it.name) })
         ReputationVerdict.NO_KNOWN_THREAT -> CsColors.Mint to stringResource(R.string.rep_clean)
-        ReputationVerdict.UNAVAILABLE -> MaterialTheme.colorScheme.onSurfaceVariant to stringResource(
+        ReputationVerdict.UNAVAILABLE -> CsColors.Muted to stringResource(
             if (report.providers.all { it.status == ProviderStatus.NOT_CONFIGURED }) R.string.rep_not_configured else R.string.rep_unavailable,
         )
     }
-    Card(shape = RoundedCornerShape(20.dp), modifier = Modifier.fillMaxWidth()) {
+    GlassCard(Modifier.fillMaxWidth().enter(1)) {
         Column(Modifier.padding(18.dp)) {
             Text(stringResource(R.string.rep_title), fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(6.dp))
@@ -303,7 +308,7 @@ fun ReputationCard(report: ReputationReport) {
 
 @Composable
 fun AiCard(analysis: AiAnalysis) {
-    Card(shape = RoundedCornerShape(20.dp), modifier = Modifier.fillMaxWidth()) {
+    GlassCard(Modifier.fillMaxWidth().enter(1)) {
         Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Text(stringResource(R.string.ai_title), fontWeight = FontWeight.Bold)
             if (analysis.scamType.isNotBlank()) {

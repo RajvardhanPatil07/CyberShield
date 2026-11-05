@@ -48,12 +48,12 @@ fun HistoryScreen(services: AppServices) {
     }
 
     ScreenTitle(stringResource(R.string.history_title), stringResource(R.string.history_subtitle))
-    if (!services.saveHistory) Text(stringResource(R.string.history_disabled), color = CsColors.Amber, modifier = Modifier.padding(bottom = 8.dp))
+    if (!services.saveHistory) Notice(stringResource(R.string.history_disabled), color = CsColors.WarnText)
     OutlinedTextField(
         value = query, onValueChange = { query = it.take(80) }, singleLine = true,
         leadingIcon = { Icon(Icons.Default.Search, null) },
         placeholder = { Text(stringResource(R.string.history_search)) },
-        modifier = Modifier.fillMaxWidth().testTag("history_search"), shape = RoundedCornerShape(16.dp),
+        modifier = Modifier.fillMaxWidth().testTag("history_search"), shape = RoundedCornerShape(22.dp), colors = glassFieldColors(),
     )
     Row(Modifier.horizontalScroll(rememberScrollState()).padding(vertical = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         FilterChip(selected = kind == null, onClick = { kind = null }, label = { Text(stringResource(R.string.filter_all)) })
@@ -62,20 +62,24 @@ fun HistoryScreen(services: AppServices) {
         }
         FilterChip(selected = riskyOnly, onClick = { riskyOnly = !riskyOnly }, label = { Text(stringResource(R.string.filter_risky)) })
     }
-    if (items.isEmpty()) {
-        Text(stringResource(R.string.history_empty), color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(vertical = 12.dp))
-    } else {
-        items.forEach { record ->
-            RecordRow(record) {
-                IconButton(onClick = { services.history.delete(record.id); services.changed() }) {
-                    Icon(Icons.Default.Delete, stringResource(R.string.delete))
+    GlassCard(Modifier.fillMaxWidth().enter(2)) {
+        if (items.isEmpty()) {
+            Text(stringResource(R.string.history_empty), color = CsColors.Muted, modifier = Modifier.padding(16.dp))
+        } else {
+            items.forEachIndexed { i, record ->
+                if (i > 0) HorizontalDivider(color = CsColors.Track)
+                androidx.compose.foundation.layout.Box(Modifier.padding(start = 14.dp, end = 4.dp)) {
+                    RecordRow(record) {
+                        IconButton(onClick = { services.history.delete(record.id); services.changed() }) {
+                            Icon(Icons.Default.Delete, stringResource(R.string.delete), tint = CsColors.Muted)
+                        }
+                    }
                 }
             }
-            HorizontalDivider()
         }
     }
     Spacer(Modifier.height(16.dp))
-    OutlinedButton(onClick = { confirmClear = true }, enabled = services.history.all().isNotEmpty(), modifier = Modifier.fillMaxWidth().testTag("clear_history")) {
+    SoftButton(onClick = { confirmClear = true }, enabled = services.history.all().isNotEmpty(), modifier = Modifier.fillMaxWidth().testTag("clear_history")) {
         Text(stringResource(R.string.clear_history))
     }
     if (confirmClear) {

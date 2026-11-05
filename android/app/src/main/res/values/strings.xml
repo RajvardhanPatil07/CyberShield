@@ -13,6 +13,9 @@
     <!-- Dashboard -->
     <string name="home_title">Your digital safety\nstarts here.</string>
     <string name="home_tagline">Check first. Click with confidence.</string>
+    <string name="home_paste_hint">Paste a message or link</string>
+    <string name="home_check">Check now</string>
+    <string name="stat_safe">Safe</string>
     <string name="status_title">Protection status</string>
     <string name="status_local_ready">On-device checks ready</string>
     <string name="status_detail">Scans run on this phone. Nothing is monitored in the background; you decide what to check.</string>

@@ -5,7 +5,9 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.compose.setContent
+import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.mutableStateOf
 import io.cybershield.app.ui.CyberShieldApp
@@ -21,7 +23,11 @@ class MainActivity : AppCompatActivity() {
     private val incoming = mutableStateOf<Incoming?>(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        enableEdgeToEdge()
+        // The app is always light (white into blue), so system bars need dark icons regardless of system theme.
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT),
+            navigationBarStyle = SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT),
+        )
         super.onCreate(savedInstanceState)
         if (savedInstanceState == null) accept(intent)
         setContent { CyberShieldApp(incoming = incoming.value, onIncomingConsumed = { incoming.value = null }) }

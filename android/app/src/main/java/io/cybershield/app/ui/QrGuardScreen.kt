@@ -74,17 +74,17 @@ fun QrGuardScreen(services: AppServices, onInspectLink: (String) -> Unit) {
     if (current == null) {
         QrScanner { value -> accept(value) }
         Spacer(Modifier.height(12.dp))
-        OutlinedButton(onClick = { picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }, modifier = Modifier.fillMaxWidth()) {
+        SoftButton(onClick = { picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }, modifier = Modifier.fillMaxWidth()) {
             Icon(Icons.Default.Image, null)
             Spacer(Modifier.width(8.dp))
             Text(stringResource(R.string.qr_from_image))
         }
-        if (noCodeInImage) Text(stringResource(R.string.qr_no_code), color = MaterialTheme.colorScheme.error)
+        if (noCodeInImage) Notice(stringResource(R.string.qr_no_code), color = CsColors.RiskText)
         return
     }
 
-    Card(Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(16.dp)) {
+    GlassCard(Modifier.fillMaxWidth().enter(2), color = CsColors.GlassStrong) {
+        Column(Modifier.padding(18.dp)) {
             Text(stringResource(R.string.qr_decoded), fontWeight = FontWeight.Bold)
             Text(stringResource(R.string.qr_type, stringResource(current.type.label())), color = MaterialTheme.colorScheme.primary)
             Spacer(Modifier.height(8.dp))
@@ -96,7 +96,7 @@ fun QrGuardScreen(services: AppServices, onInspectLink: (String) -> Unit) {
                 Spacer(Modifier.height(8.dp))
                 Text(stringResource(R.string.upi_warning), color = CsColors.Amber, fontWeight = FontWeight.SemiBold)
             } ?: SelectionContainer {
-                Text(raw.orEmpty(), modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(10.dp)).padding(10.dp),
+                Text(raw.orEmpty(), modifier = Modifier.fillMaxWidth().background(CsColors.AccentSoft, RoundedCornerShape(12.dp)).padding(12.dp),
                     style = MaterialTheme.typography.bodySmall)
             }
         }
@@ -108,19 +108,21 @@ fun QrGuardScreen(services: AppServices, onInspectLink: (String) -> Unit) {
     val target = current.openTarget
     when {
         target != null && current.type == QrContentType.WEB_URL -> {
-            Button(onClick = { onInspectLink(target) }, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.analyse_in_linkguard)) }
-            TextButton(onClick = { confirm = true }) {
+            Button(onClick = { onInspectLink(target) }, modifier = Modifier.fillMaxWidth().height(54.dp)) { Text(stringResource(R.string.analyse_in_linkguard)) }
+            Spacer(Modifier.height(8.dp))
+            SoftButton(onClick = { confirm = true }, modifier = Modifier.fillMaxWidth(), contentColor = levelColor(current.assessment.level)) {
                 Icon(Icons.AutoMirrored.Filled.OpenInNew, null); Spacer(Modifier.width(6.dp)); Text(stringResource(R.string.open_link))
             }
         }
         target != null && current.type == QrContentType.UPI_PAYMENT -> {
-            OutlinedButton(onClick = { confirm = true }, modifier = Modifier.fillMaxWidth()) {
+            SoftButton(onClick = { confirm = true }, modifier = Modifier.fillMaxWidth(), contentColor = levelColor(current.assessment.level)) {
                 Icon(Icons.Default.Payments, null); Spacer(Modifier.width(6.dp)); Text(stringResource(R.string.open_in_upi))
             }
         }
     }
-    if (openFailed) Text(stringResource(R.string.no_app_to_open), color = MaterialTheme.colorScheme.error)
-    TextButton(onClick = { analysis = null; raw = null }) { Text(stringResource(R.string.scan_another)) }
+    if (openFailed) Notice(stringResource(R.string.no_app_to_open), color = CsColors.RiskText)
+    Spacer(Modifier.height(8.dp))
+    SoftButton(onClick = { analysis = null; raw = null }, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.scan_another)) }
 
     if (confirm && target != null) {
         val isUpi = current.type == QrContentType.UPI_PAYMENT
@@ -138,7 +140,7 @@ fun QrGuardScreen(services: AppServices, onInspectLink: (String) -> Unit) {
 @Composable
 private fun Field(label: String, value: String?) {
     Row(Modifier.fillMaxWidth().padding(vertical = 3.dp)) {
-        Text(label, modifier = Modifier.weight(0.4f), color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(label, modifier = Modifier.weight(0.4f), color = CsColors.Muted)
         Text(value ?: stringResource(R.string.not_provided), modifier = Modifier.weight(0.6f), fontWeight = FontWeight.SemiBold)
     }
 }

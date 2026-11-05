@@ -93,10 +93,11 @@ fun LinkGuardScreen(services: AppServices, input: String, onInputChange: (String
         placeholder = { Text(stringResource(R.string.linkguard_hint)) },
         singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(22.dp),
+        colors = glassFieldColors(),
     )
     Spacer(Modifier.height(12.dp))
-    Button(onClick = { analyse() }, enabled = input.isNotBlank(), modifier = Modifier.fillMaxWidth().testTag("check_link")) {
+    Button(onClick = { analyse() }, enabled = input.isNotBlank(), modifier = Modifier.fillMaxWidth().height(54.dp).testTag("check_link")) {
         Icon(Icons.Default.Security, null)
         Spacer(Modifier.width(8.dp))
         Text(stringResource(R.string.action_check_link))
@@ -110,7 +111,7 @@ fun LinkGuardScreen(services: AppServices, input: String, onInputChange: (String
     val openable = parsed != null && parsed.scheme in setOf("http", "https") && parsed.host.isNotEmpty()
     if (openable) {
         Spacer(Modifier.height(12.dp))
-        OutlinedButton(onClick = {
+        SoftButton(onClick = {
             when {
                 !services.client().isConfigured -> reputation = CloudResult.NotConfigured
                 services.cloudConsent -> runReputation()
@@ -121,16 +122,17 @@ fun LinkGuardScreen(services: AppServices, input: String, onInputChange: (String
             Spacer(Modifier.width(8.dp))
             Text(stringResource(R.string.cloud_check_link))
         }
-        if (loading) { Text(stringResource(R.string.cloud_loading)); LinearProgressIndicator(Modifier.fillMaxWidth()) }
+        if (loading) Notice(stringResource(R.string.cloud_loading), progress = true)
         reputation?.let { outcome ->
             if (outcome is CloudResult.Ok) { Spacer(Modifier.height(12.dp)); ReputationCard(outcome.value) } else CloudProblem(outcome)
         }
-        TextButton(onClick = { confirmOpen = true }, modifier = Modifier.padding(top = 4.dp)) {
+        Spacer(Modifier.height(8.dp))
+        SoftButton(onClick = { confirmOpen = true }, modifier = Modifier.fillMaxWidth(), contentColor = levelColor(current.level)) {
             Icon(Icons.AutoMirrored.Filled.OpenInNew, null)
             Spacer(Modifier.width(6.dp))
             Text(stringResource(R.string.open_link))
         }
-        if (openFailed) Text(stringResource(R.string.no_app_to_open), color = MaterialTheme.colorScheme.error)
+        if (openFailed) Notice(stringResource(R.string.no_app_to_open), color = CsColors.RiskText)
     }
 
     if (askConsent) {

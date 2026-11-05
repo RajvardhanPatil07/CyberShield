@@ -1,53 +1,92 @@
 package io.cybershield.app.ui
 
 import android.text.format.DateUtils
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.Message
-import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.QrCodeScanner
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.VerifiedUser
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.os.LocaleListCompat
 import io.cybershield.app.R
 import io.cybershield.app.data.ScanRecord
 import io.cybershield.app.security.RiskLevel
+import io.cybershield.app.security.ScamLens
 
 private val tips = listOf(R.string.tip_1, R.string.tip_2, R.string.tip_3, R.string.tip_4, R.string.tip_5, R.string.tip_6)
 
 @Composable
-fun DashboardScreen(services: AppServices, onNavigate: (Page) -> Unit, onScreenshot: (android.net.Uri) -> Unit) {
+fun DashboardScreen(
+    services: AppServices,
+    onNavigate: (Page) -> Unit,
+    onScreenshot: (android.net.Uri) -> Unit,
+    onCheck: (String) -> Unit = {},
+) {
     // The Android photo picker needs no storage permission and exposes only the chosen image.
     val picker = androidx.activity.compose.rememberLauncherForActivityResult(
         androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia(),
@@ -59,124 +98,261 @@ fun DashboardScreen(services: AppServices, onNavigate: (Page) -> Unit, onScreens
         val weekAgo = System.currentTimeMillis() - 7 * DateUtils.DAY_IN_MILLIS
         services.history.all().count { it.level == RiskLevel.HIGH && it.checkedAt >= weekAgo }
     }
+    var draft by rememberSaveable { mutableStateOf("") }
 
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Text("CYBERSHIELD", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold, letterSpacing = 2.sp, modifier = Modifier.weight(1f))
-        IconButton(onClick = { onNavigate(Page.SETTINGS) }, modifier = Modifier.testTag("open_settings")) {
-            Icon(Icons.Default.Settings, stringResource(R.string.settings))
+    // Header: brand, language switch, settings.
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.enter(0)) {
+        Box(Modifier.size(32.dp).clip(RoundedCornerShape(10.dp)).background(CsColors.Accent), contentAlignment = Alignment.Center) {
+            Icon(Icons.Default.Shield, null, tint = Color.White, modifier = Modifier.size(18.dp))
         }
-    }
-    Spacer(Modifier.height(12.dp))
-    Text(stringResource(R.string.home_title), fontSize = 30.sp, lineHeight = 36.sp, fontWeight = FontWeight.Bold)
-    Spacer(Modifier.height(6.dp))
-    Text(stringResource(R.string.home_tagline), color = MaterialTheme.colorScheme.onSurfaceVariant)
-    Spacer(Modifier.height(18.dp))
-
-    Card(shape = RoundedCornerShape(22.dp), modifier = Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(18.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                val attention = recentHigh > 0
-                Icon(if (attention) Icons.Default.Warning else Icons.Default.VerifiedUser, null,
-                    tint = if (attention) CsColors.Amber else MaterialTheme.colorScheme.primary)
-                Spacer(Modifier.width(10.dp))
-                Text(stringResource(R.string.status_title), fontWeight = FontWeight.Bold)
-            }
-            Spacer(Modifier.height(8.dp))
-            Text(stringResource(R.string.status_local_ready), fontWeight = FontWeight.SemiBold, fontSize = 19.sp)
-            Text(stringResource(R.string.status_detail), color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Spacer(Modifier.height(6.dp))
-            Text(stringResource(if (services.cloudConsent) R.string.status_cloud_on else R.string.status_cloud_off), style = MaterialTheme.typography.bodySmall)
-            if (recentHigh > 0) Text(pluralStringResource(R.plurals.status_attention, recentHigh, recentHigh.toString()), color = CsColors.Amber, style = MaterialTheme.typography.bodySmall)
-            Spacer(Modifier.height(14.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                Stat(stats.total, stringResource(R.string.stat_total), MaterialTheme.colorScheme.primary, Modifier.weight(1f))
-                Stat(stats.suspicious, stringResource(R.string.stat_suspicious), CsColors.Amber, Modifier.weight(1f))
-                Stat(stats.highRisk, stringResource(R.string.stat_high), CsColors.Danger, Modifier.weight(1f))
-            }
-        }
+        Spacer(Modifier.width(9.dp))
+        Text("CyberShield", fontWeight = FontWeight.ExtraBold, fontSize = 20.sp, letterSpacing = (-0.4).sp, color = CsColors.Ink, modifier = Modifier.weight(1f))
+        LanguageSwitch()
+        Spacer(Modifier.width(6.dp))
+        IconButton(
+            onClick = { onNavigate(Page.SETTINGS) },
+            modifier = Modifier.size(40.dp).clip(CircleShape).background(CsColors.GlassStrong).testTag("open_settings"),
+        ) { Icon(Icons.Default.Tune, stringResource(R.string.settings), tint = CsColors.Ink) }
     }
 
     Spacer(Modifier.height(20.dp))
+    Hero(stringResource(R.string.home_tagline))
+    Spacer(Modifier.height(6.dp))
+    Text(stringResource(R.string.home_title).replace('\n', ' '), color = CsColors.Ink2, modifier = Modifier.enter(1))
+    Spacer(Modifier.height(16.dp))
+
+    // Main action: paste a message or link, tap the arrow.
+    GlassCard(Modifier.fillMaxWidth().enter(2), shape = RoundedCornerShape(30.dp), color = CsColors.GlassStrong) {
+        Row(Modifier.padding(6.dp), verticalAlignment = Alignment.CenterVertically) {
+            TextField(
+                value = draft,
+                onValueChange = { draft = it.take(ScamLens.MAX_INPUT) },
+                placeholder = { Text(stringResource(R.string.home_paste_hint)) },
+                maxLines = 4,
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color.Transparent, unfocusedContainerColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent,
+                    cursorColor = CsColors.Accent, focusedPlaceholderColor = CsColors.Muted, unfocusedPlaceholderColor = CsColors.Muted,
+                    focusedTextColor = CsColors.Ink, unfocusedTextColor = CsColors.Ink,
+                ),
+                modifier = Modifier.weight(1f).testTag("home_input"),
+            )
+            CheckButton(enabled = draft.isNotBlank()) { onCheck(draft); draft = "" }
+        }
+    }
+
+    Spacer(Modifier.height(18.dp))
     SectionLabel(stringResource(R.string.section_check))
     Spacer(Modifier.height(8.dp))
-    Feature(stringResource(R.string.nav_message), stringResource(R.string.feature_message_detail), Icons.AutoMirrored.Filled.Message, "feature_message") { onNavigate(Page.MESSAGE) }
-    Feature(stringResource(R.string.nav_link), stringResource(R.string.feature_link_detail), Icons.Default.Link, "feature_link") { onNavigate(Page.LINK) }
-    Feature(stringResource(R.string.nav_qr), stringResource(R.string.feature_qr_detail), Icons.Default.QrCodeScanner, "feature_qr") { onNavigate(Page.QR) }
-    Feature(stringResource(R.string.feature_screenshot), stringResource(R.string.feature_screenshot_detail), Icons.Default.Image, "feature_screenshot") {
-        picker.launch(androidx.activity.result.PickVisualMediaRequest(androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly))
+    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        Feature(stringResource(R.string.nav_message), stringResource(R.string.feature_message_detail), Icons.AutoMirrored.Filled.Message,
+            "feature_message", 3, Modifier.weight(1f)) { onNavigate(Page.MESSAGE) }
+        Feature(stringResource(R.string.nav_link), stringResource(R.string.feature_link_detail), Icons.Default.Link,
+            "feature_link", 3, Modifier.weight(1f)) { onNavigate(Page.LINK) }
+    }
+    Spacer(Modifier.height(10.dp))
+    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        Feature(stringResource(R.string.nav_qr), stringResource(R.string.feature_qr_detail), Icons.Default.QrCodeScanner,
+            "feature_qr", 4, Modifier.weight(1f)) { onNavigate(Page.QR) }
+        Feature(stringResource(R.string.feature_screenshot), stringResource(R.string.feature_screenshot_detail), Icons.Default.Image,
+            "feature_screenshot", 4, Modifier.weight(1f)) {
+            picker.launch(androidx.activity.result.PickVisualMediaRequest(androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly))
+        }
     }
 
-    Spacer(Modifier.height(20.dp))
+    // Protection status with Fitness-style rings: safe, suspicious, high risk.
+    Spacer(Modifier.height(14.dp))
+    StatusCard(services, stats.total, stats.suspicious, stats.highRisk, recentHigh)
+
+    Spacer(Modifier.height(22.dp))
     Row(verticalAlignment = Alignment.CenterVertically) {
         SectionLabel(stringResource(R.string.section_recent), Modifier.weight(1f))
-        if (recent.isNotEmpty()) TextButton(onClick = { onNavigate(Page.HISTORY) }) { Text(stringResource(R.string.see_all)) }
+        if (recent.isNotEmpty()) TextButton(onClick = { onNavigate(Page.HISTORY) }) { Text(stringResource(R.string.see_all), color = CsColors.Accent) }
     }
-    if (recent.isEmpty()) {
-        Text(stringResource(R.string.recent_empty), color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(vertical = 8.dp))
-    } else {
-        recent.forEach { RecordRow(it) }
+    Spacer(Modifier.height(6.dp))
+    GlassCard(Modifier.fillMaxWidth().enter(6)) {
+        if (recent.isEmpty()) {
+            Text(stringResource(R.string.recent_empty), color = CsColors.Muted, modifier = Modifier.padding(16.dp))
+        } else {
+            recent.forEachIndexed { i, record ->
+                if (i > 0) HorizontalDivider(color = CsColors.Track)
+                Box(Modifier.padding(horizontal = 14.dp)) { RecordRow(record) }
+            }
+        }
     }
 
-    Spacer(Modifier.height(20.dp))
+    Spacer(Modifier.height(22.dp))
     SectionLabel(stringResource(R.string.section_tips))
     Spacer(Modifier.height(8.dp))
     val tipIndex = remember { (System.currentTimeMillis() / DateUtils.DAY_IN_MILLIS).toInt() }
-    (0 until 3).map { tips[(tipIndex + it) % tips.size] }.forEach { tip ->
-        Card(Modifier.fillMaxWidth().padding(vertical = 4.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
-            Text(stringResource(tip), modifier = Modifier.padding(14.dp))
+    GlassCard(Modifier.fillMaxWidth().enter(7)) {
+        (0 until 3).map { tips[(tipIndex + it) % tips.size] }.forEachIndexed { i, tip ->
+            if (i > 0) HorizontalDivider(color = CsColors.Track)
+            Row(Modifier.padding(14.dp), verticalAlignment = Alignment.Top) {
+                Icon(Icons.Default.Lightbulb, null, tint = CsColors.Accent, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(10.dp))
+                Text(stringResource(tip), color = CsColors.Ink)
+            }
         }
     }
     Spacer(Modifier.height(12.dp))
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Icon(Icons.Default.Phone, null, tint = CsColors.Danger)
-        Spacer(Modifier.width(8.dp))
-        Text(stringResource(R.string.helpline), fontWeight = FontWeight.SemiBold)
+    GlassCard(Modifier.fillMaxWidth().enter(8), color = CsColors.GlassStrong) {
+        Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(Icons.Default.Phone, null, tint = CsColors.Risk)
+            Spacer(Modifier.width(10.dp))
+            Text(stringResource(R.string.helpline), fontWeight = FontWeight.SemiBold, color = CsColors.Ink)
+        }
     }
+    Spacer(Modifier.height(12.dp))
 }
 
+/** "Check first." in ink, "Click with confidence." in blue. Splits on the first sentence break in any language. */
 @Composable
-private fun Stat(value: Int, label: String, color: Color, modifier: Modifier) {
-    Card(modifier, colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
-        Column(Modifier.padding(12.dp)) {
-            Text(value.toString(), color = color, fontWeight = FontWeight.Bold, fontSize = 22.sp)
-            Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
+private fun Hero(tagline: String) {
+    val cut = tagline.indexOfFirst { it == '.' || it == ',' || it == '।' }
+    val (first, second) = if (cut in 1 until tagline.length - 1) tagline.substring(0, cut + 1) to tagline.substring(cut + 1).trim() else tagline to ""
+    Text(
+        buildAnnotatedString {
+            withStyle(SpanStyle(color = CsColors.Ink)) { append(first) }
+            if (second.isNotEmpty()) { append("\n"); withStyle(SpanStyle(color = CsColors.Accent)) { append(second) } }
+        },
+        fontSize = 40.sp, lineHeight = 43.sp, fontWeight = FontWeight.ExtraBold, letterSpacing = (-1.2).sp,
+        modifier = Modifier.enter(1),
+    )
+}
+
+/** Compact EN / हि / म switch. Uses AppCompat per-app locales, like Settings. */
+@Composable
+private fun LanguageSwitch() {
+    val chosen = AppCompatDelegate.getApplicationLocales().toLanguageTags().substringBefore(',').substringBefore('-')
+    val system = LocalConfiguration.current.locales[0].language
+    val active = chosen.ifEmpty { system }.takeIf { it in setOf("en", "hi", "mr") } ?: "en"
+    Row(Modifier.clip(RoundedCornerShape(50)).background(CsColors.GlassStrong).padding(3.dp)) {
+        listOf(Triple("en", "EN", R.string.lang_en), Triple("hi", "हि", R.string.lang_hi), Triple("mr", "म", R.string.lang_mr)).forEach { (tag, short, full) ->
+            val selected = active == tag
+            val name = stringResource(full)
+            Box(
+                Modifier.clip(RoundedCornerShape(50)).background(if (selected) CsColors.Accent else Color.Transparent)
+                    .selectable(selected = selected, role = Role.RadioButton) {
+                        if (!selected) AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(tag))
+                    }
+                    .semantics { contentDescription = name }
+                    .padding(horizontal = 10.dp, vertical = 6.dp).testTag("home_lang_$tag"),
+            ) { Text(short, color = if (selected) Color.White else CsColors.Muted, fontSize = 12.sp, fontWeight = FontWeight.Bold) }
         }
     }
 }
 
+/** Round blue arrow with a gentle "breathing" halo while there is something to check. */
 @Composable
-private fun Feature(title: String, detail: String, icon: ImageVector, tag: String, action: () -> Unit) {
-    Card(Modifier.fillMaxWidth().padding(vertical = 5.dp).testTag(tag).clickable { action() }) {
-        Row(Modifier.padding(17.dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(icon, null, tint = MaterialTheme.colorScheme.primary)
-            Spacer(Modifier.width(14.dp))
-            Column(Modifier.weight(1f)) {
-                Text(title, fontWeight = FontWeight.Bold)
-                Text(detail, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+private fun CheckButton(enabled: Boolean, onClick: () -> Unit) {
+    val animate = remember { motionEnabled() }
+    val pulse by rememberInfiniteTransition(label = "pulse").animateFloat(0f, 1f, infiniteRepeatable(tween(2200, easing = LinearEasing)), label = "p")
+    val label = stringResource(R.string.home_check)
+    Box(
+        Modifier.size(52.dp)
+            .drawBehind {
+                if (enabled && animate) drawCircle(CsColors.Accent.copy(alpha = 0.35f * (1f - pulse)), radius = size.minDimension / 2 * (0.82f + 0.18f * pulse))
             }
-            Icon(Icons.Default.ChevronRight, null)
+            .padding(4.dp).clip(CircleShape)
+            .background(if (enabled) CsColors.Accent else CsColors.Accent.copy(alpha = 0.35f))
+            .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
+            .semantics { contentDescription = label }.testTag("home_check"),
+        contentAlignment = Alignment.Center,
+    ) { Icon(Icons.AutoMirrored.Filled.ArrowForward, null, tint = Color.White) }
+}
+
+@Composable
+private fun Feature(title: String, detail: String, icon: ImageVector, tag: String, order: Int, modifier: Modifier, action: () -> Unit) {
+    val interaction = remember { MutableInteractionSource() }
+    val pressed by interaction.collectIsPressedAsState()
+    val scale by animateFloatAsState(if (pressed) 0.95f else 1f, label = "press")
+    Surface(
+        modifier = modifier.enter(order).graphicsLayer { scaleX = scale; scaleY = scale }.testTag(tag)
+            .clip(RoundedCornerShape(22.dp)).clickable(interactionSource = interaction, indication = androidx.compose.material3.ripple(), onClick = action),
+        shape = RoundedCornerShape(22.dp), color = CsColors.Glass, contentColor = CsColors.Ink, shadowElevation = 0.dp,
+        border = BorderStroke(1.dp, CsColors.GlassEdge),
+    ) {
+        Column(Modifier.padding(14.dp)) {
+            Box(Modifier.size(38.dp).clip(RoundedCornerShape(12.dp)).background(CsColors.AccentSoft), contentAlignment = Alignment.Center) {
+                Icon(icon, null, tint = CsColors.Accent, modifier = Modifier.size(20.dp))
+            }
+            Spacer(Modifier.height(10.dp))
+            Text(title, fontWeight = FontWeight.Bold, fontSize = 15.sp, maxLines = 1)
+            Text(detail, fontSize = 12.sp, lineHeight = 15.sp, color = CsColors.Muted, maxLines = 2, minLines = 2)
         }
+    }
+}
+
+@Composable
+private fun StatusCard(services: AppServices, total: Int, suspicious: Int, high: Int, recentHigh: Int) {
+    val safe = (total - suspicious).coerceAtLeast(0)
+    val medium = (suspicious - high).coerceAtLeast(0)
+    fun frac(n: Int) = if (total == 0) 0f else n / total.toFloat()
+    val attention = recentHigh > 0
+    GlassCard(Modifier.fillMaxWidth().enter(5)) {
+        Row(Modifier.padding(start = 20.dp, end = 16.dp, top = 18.dp, bottom = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(if (attention) Icons.Default.Warning else Icons.Default.VerifiedUser, null,
+                        tint = if (attention) CsColors.Warn else CsColors.Safe, modifier = Modifier.size(16.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text(stringResource(R.string.status_title), fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = CsColors.Muted)
+                }
+                CountUpText(total, fontSize = 50.sp, weight = FontWeight.ExtraBold)
+                Text(stringResource(R.string.stat_total), fontSize = 13.sp, color = CsColors.Muted)
+                Spacer(Modifier.height(10.dp))
+                Key(CsColors.Safe, safe, stringResource(R.string.stat_safe))
+                Key(CsColors.Warn, medium, stringResource(R.string.stat_suspicious))
+                Key(CsColors.Risk, high, stringResource(R.string.stat_high))
+            }
+            ActivityRings(listOf(CsColors.Safe to frac(safe), CsColors.Warn to frac(medium), CsColors.Risk to frac(high)), size = 124.dp, stroke = 13.dp)
+        }
+        Column(Modifier.padding(start = 20.dp, end = 20.dp, bottom = 16.dp)) {
+            Surface(shape = RoundedCornerShape(50), color = CsColors.Safe.copy(alpha = 0.12f), contentColor = CsColors.SafeText) {
+                Row(Modifier.padding(horizontal = 10.dp, vertical = 5.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Dot(CsColors.Safe, size = 6.dp)
+                    Text(stringResource(R.string.status_local_ready), fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                }
+            }
+            Spacer(Modifier.height(8.dp))
+            Text(stringResource(R.string.status_detail), fontSize = 13.sp, color = CsColors.Ink2)
+            Spacer(Modifier.height(4.dp))
+            Text(stringResource(if (services.cloudConsent) R.string.status_cloud_on else R.string.status_cloud_off), fontSize = 12.sp, color = CsColors.Muted)
+            if (attention) Text(pluralStringResource(R.plurals.status_attention, recentHigh, recentHigh.toString()),
+                fontSize = 12.sp, color = CsColors.WarnText, fontWeight = FontWeight.SemiBold)
+        }
+    }
+}
+
+@Composable
+private fun Key(color: Color, count: Int, label: String) {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 1.dp)) {
+        Dot(color, size = 7.dp)
+        Text(count.toString(), fontWeight = FontWeight.Bold, fontSize = 13.sp, color = CsColors.Ink)
+        Spacer(Modifier.width(5.dp))
+        Text(label, fontSize = 13.sp, color = CsColors.Muted, maxLines = 1)
     }
 }
 
 @Composable
 fun RecordRow(record: ScanRecord, trailing: (@Composable () -> Unit)? = null) {
-    Row(Modifier.fillMaxWidth().padding(vertical = 7.dp), verticalAlignment = Alignment.CenterVertically) {
-        ScoreBadge(record.score, record.level, size = 42)
+    Row(Modifier.fillMaxWidth().padding(vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+        ScoreBadge(record.score, record.level, size = 44)
         Spacer(Modifier.width(12.dp))
         Column(Modifier.weight(1f)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(stringResource(record.kind.label()), fontWeight = FontWeight.SemiBold)
-                record.target?.let { Text(" · $it", color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1) }
+                Text(stringResource(record.kind.label()), fontWeight = FontWeight.SemiBold, color = CsColors.Ink)
+                record.target?.let { Text(" · $it", color = CsColors.Muted, maxLines = 1) }
             }
             Text(
                 if (record.confirmedMalicious) stringResource(R.string.confirmed_badge) else stringResource(record.level.label()),
-                style = MaterialTheme.typography.bodySmall,
-                color = if (record.confirmedMalicious) CsColors.Danger else levelColor(record.level),
+                fontSize = 13.sp, fontWeight = FontWeight.SemiBold,
+                color = if (record.confirmedMalicious) CsColors.RiskText else levelColor(record.level),
             )
             Text(
                 DateUtils.getRelativeTimeSpanString(record.checkedAt, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS).toString(),
-                style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontSize = 11.sp, color = CsColors.Muted,
             )
         }
         trailing?.invoke()
