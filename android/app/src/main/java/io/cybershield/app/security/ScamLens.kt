@@ -123,8 +123,8 @@ object ScamLens {
         var bonus = 0
         if (credential && pressure) bonus += 15
         if (FindingCode.CONTAINS_LINK in codes && codes.any { it in linkLureCodes }) bonus += 15
-        // Advance-fee fraud: a prize, job or loan that first needs a payment.
-        if (codes.any { it == FindingCode.REWARD_LURE || it == FindingCode.JOB_TASK_SCAM || it == FindingCode.LOAN_LURE } && FindingCode.FEE_REQUEST in codes) bonus += 20
+        // Advance-fee fraud: a prize, job, loan, refund or payout that first needs a payment.
+        if (FindingCode.FEE_REQUEST in codes && (codes.any { it in advanceFeeLures } || payoutPattern.containsMatchIn(lower))) bonus += 20
         if (FindingCode.AUTHORITY_IMPERSONATION in codes && (FindingCode.SECRECY in codes || FindingCode.PAYMENT_REQUEST in codes)) bonus += 15
 
         val result = RiskAssessment.from(
@@ -146,7 +146,14 @@ object ScamLens {
     )
     private val linkLureCodes = setOf(
         FindingCode.KYC_UPDATE, FindingCode.ACCOUNT_THREAT, FindingCode.REWARD_LURE, FindingCode.REFUND_LURE,
-        FindingCode.SERVICE_DISCONNECTION, FindingCode.URGENCY,
+        FindingCode.SERVICE_DISCONNECTION, FindingCode.URGENCY, FindingCode.FEE_REQUEST,
+    )
+    private val advanceFeeLures = setOf(
+        FindingCode.REWARD_LURE, FindingCode.JOB_TASK_SCAM, FindingCode.LOAN_LURE, FindingCode.REFUND_LURE, FindingCode.INVESTMENT_LURE,
+    )
+    /** "Pay a fee to release / withdraw / receive the money": the payout is the bait. */
+    private val payoutPattern = Regex(
+        """\b(?:to release|release the amount|to withdraw|to receive (?:the |your )?(?:amount|money|payment|prize|reward|refund|loan))""",
     )
 
     private fun recommendationsFor(codes: Set<FindingCode>): List<Recommendation> = buildList {

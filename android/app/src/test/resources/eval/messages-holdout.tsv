@@ -1,0 +1,75 @@
+# Labelled messages held out from rule tuning. Do not change rules to fix misses in this file; add similar cases to the dev split instead.
+# Columns: id, label (scam|legit), language (en|hi|mr|hinglish|mixed), text. "\n" in text means a line break.
+# Written for CyberShield in the style of scams described in public advisories and of ordinary SMS/WhatsApp traffic.
+# They are not copies of real messages; phone numbers and links are fictitious.
+id	label	lang	text
+h-s01	scam	en	ALERT: Your Axis Bank debit card has been blocked due to incomplete KYC. Reactivate now at axis-reactivate.top/kyc
+h-s02	scam	en	Dear consumer, your power supply will be cut off at 10 PM tonight. Your last bill payment is not reflected. Contact officer Sharma 9812345670.
+h-s03	scam	en	You are the lucky winner of a Tata Safari in our anniversary lucky draw. Pay Rs 8,000 GST to receive your car.
+h-s04	scam	en	This call is from the Narcotics Control Bureau. A package booked with your Aadhaar was intercepted. Join the video call with the officer now and do not inform anyone.
+h-s05	scam	en	Earn Rs 800-2000 per day from your mobile. Just rate restaurants on Google Maps. Contact HR on Telegram.
+h-s06	scam	en	Your Kotak account is temporarily frozen. Submit your net banking password and login ID to unfreeze it.
+h-s07	scam	en	Hi dear, I am from the customer support team of PhonePe. To process your refund of Rs 4,999, approve the collect request I sent.
+h-s08	scam	en	Your Aadhaar-linked mobile will be disconnected by TRAI in 2 hours. Dial 9 to avoid disconnection.
+h-s09	scam	en	Get an instant personal loan of up to Rs 3 lakh with no documents. 100% approval. Apply: tinyurl.com/fastloan99
+h-s10	scam	en	Dear user, your BSNL SIM card KYC is suspended. Call 9001234567 within 24 hrs or your SIM will be blocked.
+h-s11	scam	en	Congratulations! Your mobile number has won GBP 750,000 in the Coca-Cola promotion. Send your bank details to claim.
+h-s12	scam	en	Your traffic e-challan is unpaid. Download the app and pay now to avoid court action: echallan-pay.apk
+h-s13	scam	en	Sir I am from the electricity office, your meter is not updated. Install the Team Viewer Quick Support app, I will update it remotely.
+h-s14	scam	en	Investment opportunity: earn 5% daily profit with our AI trading bot. Risk-free returns, withdraw anytime.
+h-s15	scam	en	Your credit card has been charged Rs 49,999 for an iPhone. If not you, give us the OTP to cancel the order.
+h-s16	scam	en	Your income tax refund of Rs 18,230 is pending. Verify your bank account at bit.ly/itr-refund-26
+h-s17	scam	en	Hello, your daughter has been arrested by police. Send Rs 50,000 immediately for bail and do not tell anyone.
+h-s18	scam	en	We have deposited Rs 10 to verify your account. To receive Rs 5,000 more, scan the QR and approve the payment.
+h-s19	scam	en	Your DTDC courier is on hold. A small fee of Rs 15 is required for redelivery: dtdc-track.online/pay
+h-s20	scam	en	Exciting offer! Selected users get iPhone 16 for Rs 999 only. Hurry, offer valid only today.
+h-s21	scam	en	Dear customer, your YONO account is deactivated. Update PAN immediately to reactivate: yono-sbi.cc
+h-s22	scam	en	Work from home opportunity with a guaranteed income of Rs 30,000 per month. Pay the security deposit of Rs 2,000 to start.
+h-s23	scam	en	Telegram task: invest Rs 1,000 and get Rs 1,800 back in 30 minutes. Simple tasks, guaranteed profit.
+h-s24	scam	en	Your parcel contains illegal items. Mumbai Customs will register a case. Call officer immediately on 7766554433.
+h-s25	scam	en	Your account will be suspended. Verify your identity by sharing the verification code sent to your phone.
+h-s26	scam	hinglish	Aapka bijli connection aaj raat 9 baje kat jayega. Turant call kare 9988123456.
+h-s27	scam	hinglish	Congratulations! Aapne Rs 10 lakh ka inaam jeeta hai. Processing fee Rs 3000 bhejo turant.
+h-s28	scam	hinglish	Sir aapka account block ho jayega. OTP bata dijiye verify karne ke liye.
+h-s29	scam	hi	आपका पैन कार्ड आज बंद हो जाएगा। तुरंत पैन कार्ड अपडेट करें इस लिंक पर: pan-update.xyz
+h-s30	scam	hi	पुलिस: आपके आधार कार्ड से जुड़ा एक अवैध पार्सल पकड़ा गया है। गिरफ्तारी से बचने के लिए तुरंत कॉल करें।
+h-s31	scam	hi	पार्ट टाइम जॉब! घर बैठे रोज 2500 रुपये कमाएं। अभी जुड़ें।
+h-s32	scam	hi	अपना एटीएम पिन और कार्ड नंबर बताइए, आपका कार्ड ब्लॉक हो गया है।
+h-s33	scam	hi	आपके 5,000 रुपये के कैशबैक को प्राप्त करने के लिए इस क्यूआर को स्कैन करें।
+h-s34	scam	mr	तुमचे खाते ब्लॉक होईल. लगेच पॅन कार्ड अपडेट करा: bank-pan.top
+h-s35	scam	mr	तुम्ही 5 लाखांचे बक्षीस जिंकले आहे! प्रक्रिया शुल्क 2000 रुपये भरा.
+h-s36	scam	mr	तुमचा वीज पुरवठा आज खंडित होईल. त्वरित संपर्क साधा 9876123450.
+h-s37	scam	mr	तुमचा यूपीआय पिन सांगा, रिफंड जमा करण्यासाठी.
+h-s38	scam	mixed	आपका electricity bill update नहीं हुआ है, आज रात connection कट जाएगा. Call करें 9123012345.
+h-s39	scam	en	Dear customer, your loan EMI bounce charges of Rs 590 are pending. Pay immediately to avoid legal action: emi-pay.site
+h-s40	scam	en	Hi, this is your boss. I am in a meeting. Buy 5 Amazon gift cards of Rs 2000 each urgently and send me the codes. Keep it confidential.
+h-l01	legit	en	Your OTP for login to Axis Mobile is 913406. Do not share it with anyone, including bank officials.
+h-l02	legit	en	Rs 899.00 spent on your ICICI Bank Credit Card XX1234 at MYNTRA on 04-Nov. Avl limit Rs 1,12,300.
+h-l03	legit	en	Your BigBasket order will be delivered today between 7 and 9 PM.
+h-l04	legit	en	Happy birthday! Have a great year ahead.
+h-l05	legit	en	Your HDFC Bank FD of Rs 1,00,000 matures on 20-Nov-26. Visit NetBanking to renew.
+h-l06	legit	en	Your BESCOM bill of Rs 760 has been paid successfully. Thank you.
+h-l07	legit	en	Lab report for patient Kavita Rao is ready. Download it from the Thyrocare app.
+h-l08	legit	en	Your Ola ride receipt: Rs 245 for 8.2 km. Thank you for riding with us.
+h-l09	legit	en	Dear customer, your mobile number has been successfully linked to your Aadhaar. - UIDAI
+h-l10	legit	en	Reminder: your car service is due. Book a slot at your nearest Maruti Suzuki workshop.
+h-l11	legit	en	The library book "Wings of Fire" is due on 9 Nov. Please return or renew it.
+h-l12	legit	en	Tickets confirmed for Jawan at PVR Phoenix, 9:45 PM, seats F11-F12. Booking ID 12ABC.
+h-l13	legit	en	Can you pick up milk on the way back?
+h-l14	legit	en	Your PhonePe transaction of Rs 1,200 to Sunita Sharma is successful.
+h-l15	legit	en	Your water bill of Rs 320 is due on 15 Nov. Pay at the PMC portal or citizen service centre.
+h-l16	legit	en	Do not share your UPI PIN with anyone. NPCI and banks never ask for it. - NPCI
+h-l17	legit	en	Your Myntra refund of Rs 1,499 has been credited to your bank account.
+h-l18	legit	en	New login to your Gmail account from a Windows device. If this was you, no action is needed.
+h-l19	legit	hinglish	Bhaiya kal ki class cancel hai, sir ne bataya.
+h-l20	legit	hinglish	Ghar pahunch ke message kar dena.
+h-l21	legit	hi	आपका ओटीपी 552019 है। बैंक कभी भी ओटीपी नहीं मांगता। - पंजाब नेशनल बैंक
+h-l22	legit	hi	दीवाली की हार्दिक शुभकामनाएं! आपका परिवार सुखी रहे।
+h-l23	legit	hi	आपकी ट्रेन 2 घंटे देरी से चल रही है।
+h-l24	legit	mr	दिवाळीच्या हार्दिक शुभेच्छा!
+h-l25	legit	mr	तुमचे पार्सल आज संध्याकाळी पोहोचेल.
+h-l26	legit	en	Your Swiggy Instamart order of Rs 432 has been delivered. Rate your experience.
+h-l27	legit	en	Your Netflix payment of Rs 649 was successful. Your next billing date is 5 Dec.
+h-l28	legit	en	Exam timetable for semester 5 has been published on the university portal.
+h-l29	legit	en	Your PAN application acknowledgement number is 881234567890123. Track status at the NSDL website.
+h-l30	legit	en	Hi Raj, the plumber will come at 11 tomorrow. Please keep someone at home.

@@ -25,6 +25,7 @@ object ScamPhrases {
             "will be blocked", "blocked today", "suspended today", "sim will be blocked", "card will be blocked",
             "card has been blocked", "kyc expired", "kyc has expired", "kyc is pending", "pan card blocked",
             "pan will be deactivated", "wallet will be blocked", "account has been suspended", "account freeze", "account frozen",
+            "will be deactivated", "will be blacklisted",
         ),
         FindingCode.SERVICE_DISCONNECTION to listOf(
             "electricity will be disconnected", "power will be disconnected", "electricity connection will be",
@@ -34,7 +35,7 @@ object ScamPhrases {
         FindingCode.KYC_UPDATE to listOf(
             "kyc", "update kyc", "kyc update", "complete kyc", "kyc verification", "re-kyc", "rekyc", "ekyc", "e-kyc",
             "pan update", "update pan", "update your pan", "link aadhaar", "link aadhar", "aadhaar update", "aadhar update",
-            "verify your account", "update your account",
+            "verify your account", "update your account", "update your aadhaar", "update aadhaar", "aadhaar details", "update your details",
         ),
         FindingCode.REWARD_LURE to listOf(
             "you have won", "you won", "winner", "congratulations", "prize", "lottery", "lucky draw", "jackpot",
@@ -44,12 +45,12 @@ object ScamPhrases {
         FindingCode.REFUND_LURE to listOf("refund", "tax refund", "income tax refund", "excess payment", "refund amount"),
         FindingCode.LOAN_LURE to listOf(
             "instant loan", "pre-approved loan", "pre approved loan", "preapproved loan", "loan approved", "loan sanctioned",
-            "without cibil", "no cibil", "low interest loan", "loan without documents",
+            "without cibil", "no cibil", "low interest loan", "loan without documents", "loan is approved", "loan has been approved",
         ),
         FindingCode.JOB_TASK_SCAM to listOf(
             "work from home", "part time job", "part-time job", "earn daily", "daily income", "per day income",
             "like youtube videos", "rate hotels", "task based", "prepaid task", "telegram task", "simple tasks",
-            "earn money online", "earn upto", "earn up to",
+            "earn money online", "earn upto", "earn up to", "liking youtube videos", "like videos", "hotel review", "per task",
         ),
         FindingCode.INVESTMENT_LURE to listOf(
             "guaranteed return", "guaranteed returns", "guaranteed profit", "double your money", "100% profit", "daily profit",
@@ -57,13 +58,13 @@ object ScamPhrases {
         ),
         FindingCode.FEE_REQUEST to listOf(
             "registration fee", "processing fee", "advance fee", "small fee", "security deposit", "delivery charge",
-            "customs duty", "verification fee", "activation fee", "pay a fee", "token amount",
+            "customs duty", "verification fee", "activation fee", "pay a fee", "token amount", "file charges", "deposit rs",
         ),
         FindingCode.AUTHORITY_IMPERSONATION to listOf(
             "cbi", "cyber crime", "cybercrime", "cyber cell", "narcotics", "ncb", "enforcement directorate", "trai",
             "customs department", "income tax department", "court notice", "arrest warrant", "digital arrest",
             "money laundering", "illegal parcel", "parcel contains drugs", "your parcel", "police case", "fir registered",
-            "case registered against you",
+            "case registered against you", "case will be registered", "customs officer", "seized by", "illegal items", "will file an fir",
         ),
         FindingCode.REMOTE_ACCESS_APP to listOf(
             "anydesk", "any desk", "teamviewer", "team viewer", "quicksupport", "quick support", "rustdesk", "airdroid",
@@ -76,7 +77,7 @@ object ScamPhrases {
         ),
         FindingCode.CALLBACK_REQUEST to listOf(
             "call this number", "call immediately", "call us on", "call us at", "contact customer care", "call now",
-            "whatsapp us", "contact our officer", "call our executive", "call on",
+            "whatsapp us", "contact our officer", "call our executive", "call on", "press 1", "press 9", "press 0", "dial 9",
         ),
         FindingCode.PAYMENT_REQUEST to listOf(
             "collect request", "payment request", "approve the request", "accept the request", "request money", "pay now",
@@ -105,7 +106,7 @@ object ScamPhrases {
         FindingCode.REWARD_LURE to listOf("आपने जीता", "आपने जीते", "इनाम", "लॉटरी", "बधाई हो", "उपहार", "कैशबैक", "पुरस्कार"),
         FindingCode.REFUND_LURE to listOf("रिफंड", "धनवापसी"),
         FindingCode.LOAN_LURE to listOf("तुरंत लोन", "लोन मंजूर", "बिना दस्तावेज"),
-        FindingCode.JOB_TASK_SCAM to listOf("घर बैठे कमाई", "घर बैठे", "पार्ट टाइम जॉब", "रोज कमाएं"),
+        FindingCode.JOB_TASK_SCAM to listOf("घर बैठे कमाई", "घर बैठे", "पार्ट टाइम जॉब", "रोज कमाएं", "वीडियो लाइक"),
         FindingCode.INVESTMENT_LURE to listOf("पैसा डबल", "गारंटीड रिटर्न", "निश्चित मुनाफा"),
         FindingCode.FEE_REQUEST to listOf("रजिस्ट्रेशन शुल्क", "प्रोसेसिंग फीस", "पंजीकरण शुल्क", "शुल्क जमा"),
         FindingCode.AUTHORITY_IMPERSONATION to listOf("सीबीआई", "पुलिस", "गिरफ्तारी", "डिजिटल अरेस्ट", "साइबर क्राइम", "कस्टम विभाग", "मनी लॉन्ड्रिंग"),
@@ -123,7 +124,7 @@ object ScamPhrases {
         FindingCode.REWARD_LURE to listOf("तुम्ही जिंकला", "तुम्ही जिंकले", "बक्षीस", "लॉटरी", "अभिनंदन", "भेटवस्तू", "कॅशबॅक"),
         FindingCode.REFUND_LURE to listOf("परतावा", "रिफंड"),
         FindingCode.LOAN_LURE to listOf("त्वरित कर्ज", "कर्ज मंजूर"),
-        FindingCode.JOB_TASK_SCAM to listOf("घरबसल्या कमाई", "घरबसल्या", "पार्ट टाइम नोकरी"),
+        FindingCode.JOB_TASK_SCAM to listOf("घरबसल्या कमाई", "घरबसल्या", "पार्ट टाइम नोकरी", "दररोज कमवा", "व्हिडिओ लाईक"),
         FindingCode.INVESTMENT_LURE to listOf("पैसे दुप्पट", "दुप्पट परतावा", "हमखास परतावा"),
         FindingCode.FEE_REQUEST to listOf("नोंदणी शुल्क", "प्रक्रिया शुल्क"),
         FindingCode.AUTHORITY_IMPERSONATION to listOf("सीबीआय", "पोलीस", "अटक", "डिजिटल अरेस्ट", "सायबर क्राईम"),

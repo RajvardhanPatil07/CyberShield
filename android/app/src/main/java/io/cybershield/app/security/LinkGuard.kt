@@ -12,10 +12,10 @@ object LinkGuard {
     private val sensitiveWords = listOf(
         "login", "signin", "verify", "verification", "kyc", "ekyc", "update", "secure", "account", "wallet", "claim",
         "reward", "refund", "prize", "bonus", "banking", "netbanking", "otp", "password", "unlock", "suspend", "blocked",
-        "confirm", "cashback", "lottery", "aadhaar", "aadhar", "redeem", "gift", "challan", "penalty", "parcel",
+        "confirm", "cashback", "lottery", "aadhaar", "aadhar", "redeem", "gift", "challan", "penalty", "parcel", "electricity",
     )
     /** Short sensitive words that only count as whole hostname/path parts ("pan" must not match "company"). */
-    private val sensitiveExact = setOf("pan", "upi", "bank", "pay", "free", "win", "kyc")
+    private val sensitiveExact = setOf("pan", "upi", "bank", "pay", "free", "win", "kyc", "bill")
     private val redirectParams = setOf("url", "u", "r", "redirect", "redirect_uri", "redirect_url", "next", "link", "goto", "dest", "destination", "target", "continue", "return", "returnurl")
 
     fun analyze(raw: String): RiskAssessment {
@@ -24,7 +24,9 @@ object LinkGuard {
         return analyze(parsed)
     }
 
-    fun analyze(url: ParsedUrl): RiskAssessment {
+    fun analyze(url: ParsedUrl): RiskAssessment = analyze(url, depth = 0)
+
+    private fun analyze(url: ParsedUrl, depth: Int): RiskAssessment {
         val f = mutableListOf<Finding>()
         if (url.scheme in dangerousSchemes) {
             f += Finding(FindingCode.URL_DANGEROUS_SCHEME, url.scheme + ":")
@@ -51,7 +53,10 @@ object LinkGuard {
             if (DomainTools.hasMixedScript(unicodeHost)) f += Finding(FindingCode.URL_MIXED_SCRIPT, unicodeHost)
             val brands = DomainTools.impersonatedBrands(unicodeHost)
             brands.forEach { f += Finding(FindingCode.URL_BRAND_IMPERSONATION, it) }
-            if (brands.isEmpty()) DomainTools.lookalikeOf(unicodeHost)?.let { f += Finding(FindingCode.URL_LOOKALIKE_DOMAIN, it) }
+            if (brands.isEmpty()) {
+                (DomainTools.lookalikeOf(unicodeHost) ?: DomainTools.impersonatedBrands(unicodeHost, digitSwaps = true).firstOrNull())
+                    ?.let { f += Finding(FindingCode.URL_LOOKALIKE_DOMAIN, it) }
+            }
             if (DomainTools.isShortener(host)) f += Finding(FindingCode.URL_SHORTENER, host)
             DomainTools.freeHostingSuffix(host)?.let { f += Finding(FindingCode.URL_FREE_HOSTING, it) }
             if (DomainTools.tld(host) in DomainTools.suspiciousTlds) f += Finding(FindingCode.URL_SUSPICIOUS_TLD, "." + DomainTools.tld(host))
@@ -60,37 +65,41 @@ object LinkGuard {
             if (host.count { it == '-' } >= 3) f += Finding(FindingCode.URL_MANY_HYPHENS)
         }
 
-        if (!official) sensitiveKeyword(host, url.path)?.let { f += Finding(FindingCode.URL_SENSITIVE_KEYWORD, it) }
+        // Up to two distinct keywords count; several of them in a non-official hostname (kyc-update-axis) is typical of phishing.
+        val keywords = if (official) emptyList() else sensitiveKeywords(host, url.path)
+        keywords.take(2).forEach { f += Finding(FindingCode.URL_SENSITIVE_KEYWORD, it) }
+        val keywordsInHost = if (official || isIp) 0 else sensitiveKeywords(host, "").size
 
         val path = url.path.lowercase()
         if (path.endsWith(".apk") || path.contains(".apk/")) f += Finding(FindingCode.URL_APK_DOWNLOAD)
-        embeddedRedirectHost(url)?.let { f += Finding(FindingCode.URL_EMBEDDED_REDIRECT, it) }
+        // A redirect target counts with part of its own score, like links inside a message.
+        embeddedRedirect(url)?.let { target ->
+            val extra = if (depth == 0) analyze(target, depth + 1).score * 6 / 10 else 0
+            f += Finding(FindingCode.URL_EMBEDDED_REDIRECT, target.host, extraWeight = extra)
+        }
         if (url.original.length > 150) f += Finding(FindingCode.URL_EXCESSIVE_LENGTH)
 
         val bonus = if (f.any { it.code == FindingCode.URL_BRAND_IMPERSONATION || it.code == FindingCode.URL_LOOKALIKE_DOMAIN } &&
             f.any { it.code == FindingCode.URL_SENSITIVE_KEYWORD || it.code == FindingCode.URL_SUSPICIOUS_TLD || it.code == FindingCode.URL_FREE_HOSTING }
         ) 10 else 0
+        val keywordBonus = if (keywordsInHost >= 2) 10 else 0
         val recs = buildList {
-            val score = f.sumOf { it.code.weight } + bonus
+            val score = f.sumOf { it.code.weight + it.extraWeight } + bonus + keywordBonus
             if (score >= 30) add(Recommendation.DONT_OPEN_LINK)
             if (f.any { it.code == FindingCode.URL_BRAND_IMPERSONATION || it.code == FindingCode.URL_LOOKALIKE_DOMAIN }) add(Recommendation.VERIFY_OFFICIAL_CHANNEL)
             if (f.any { it.code == FindingCode.URL_APK_DOWNLOAD }) add(Recommendation.NO_REMOTE_APPS)
             if (isEmpty()) add(Recommendation.STAY_CAUTIOUS)
         }
-        return RiskAssessment.from(f, ScanKind.URL, bonus = bonus, recommendations = recs)
+        return RiskAssessment.from(f, ScanKind.URL, bonus = bonus + keywordBonus, recommendations = recs)
     }
 
-    private fun sensitiveKeyword(host: String, path: String): String? {
+    private fun sensitiveKeywords(host: String, path: String): List<String> {
         val parts = (host.split('.', '-', '_') + path.lowercase().split('/', '-', '_', '.', '?', '=', '&'))
             .filter { it.isNotEmpty() }
-        for (part in parts) {
-            if (part in sensitiveExact) return part
-            sensitiveWords.firstOrNull { part.contains(it) }?.let { return it }
-        }
-        return null
+        return parts.mapNotNull { part -> if (part in sensitiveExact) part else sensitiveWords.firstOrNull { part.contains(it) } }.distinct()
     }
 
-    private fun embeddedRedirectHost(url: ParsedUrl): String? {
+    private fun embeddedRedirect(url: ParsedUrl): ParsedUrl? {
         val query = url.query ?: return null
         for (pair in query.split('&')) {
             val key = pair.substringBefore('=').lowercase()
@@ -98,7 +107,7 @@ object LinkGuard {
             val value = runCatching { URLDecoder.decode(pair.substringAfter('=', ""), "UTF-8") }.getOrNull() ?: continue
             if (!value.startsWith("http://", true) && !value.startsWith("https://", true) && !value.startsWith("//")) continue
             val target = UrlParser.parse(if (value.startsWith("//")) "https:$value" else value) ?: continue
-            if (DomainTools.registrableDomain(target.host) != DomainTools.registrableDomain(url.host)) return target.host
+            if (DomainTools.registrableDomain(target.host) != DomainTools.registrableDomain(url.host)) return target
         }
         return null
     }

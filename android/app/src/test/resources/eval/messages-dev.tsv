@@ -1,0 +1,125 @@
+# Labelled messages for tuning the ScamLens rules (dev split). Rules may be tuned against this file.
+# Columns: id, label (scam|legit), language (en|hi|mr|hinglish|mixed), text. "\n" in text means a line break.
+# Written for CyberShield in the style of scams described in public advisories (RBI, NPCI, CERT-In, I4C, state police)
+# and of ordinary Indian SMS/WhatsApp traffic. They are not copies of real messages; phone numbers and links are fictitious.
+id	label	lang	text
+d-s01	scam	en	Dear customer, your SBI account will be blocked today. Update your KYC immediately at sbi-kyc-update.xyz/login
+d-s02	scam	en	Dear Customer, Your Electricity power will be disconnected tonight at 9.30 pm because your previous month bill was not updated. Please immediately contact our electricity officer 9876012345.
+d-s03	scam	en	HDFC Bank: Your NetBanking will be suspended today. Kindly update your PAN at http://hdfc-pan-update.top/verify to avoid suspension.
+d-s04	scam	en	Congratulations! You have won Rs 25,00,000 in KBC lottery. To claim your prize pay a processing fee of Rs 12,500. Contact Mr Rana Pratap on WhatsApp.
+d-s05	scam	en	This is CBI officer. A parcel in your name contains drugs and 5 fake passports. You are under digital arrest. Do not disconnect the call and do not tell your family.
+d-s06	scam	en	FedEx: Your parcel to Taiwan has been seized by Mumbai customs. It contains illegal items. Press 1 to talk to the customs officer or a case will be registered against you.
+d-s07	scam	en	Part time job: earn Rs 3000 daily by liking YouTube videos. Simple tasks, work from home. Join our Telegram: t.me/earnwithtasks
+d-s08	scam	en	Hi, I am Priya from Amazon HR. We are hiring for part-time job. Daily income Rs 5000-8000. Reply YES to know more.
+d-s09	scam	en	Join our VIP stock tips trading group. Guaranteed returns of 30% every month. Limited seats. https://chat.whatsapp.com/Kx9Qp
+d-s10	scam	en	Your Paytm KYC has expired. Your wallet will be blocked within 24 hours. Call customer care 7012345678 to complete KYC.
+d-s11	scam	en	Income Tax Department: You are eligible for an income tax refund of Rs 15,490. Submit your account details at incometax-refund.in.net to receive it.
+d-s12	scam	en	I have sent you Rs 5000 by mistake on Google Pay. Please accept the request I sent and enter your PIN to return my money.
+d-s13	scam	en	To receive the cashback of Rs 2,000 scan this QR code and enter your UPI PIN.
+d-s14	scam	en	Dear user, your OTP is required to verify your account. Please share the OTP you just received with our executive to stop the deactivation.
+d-s15	scam	en	Your SIM card will be deactivated in 2 hours as per TRAI. Press 9 to speak with our customer care executive.
+d-s16	scam	en	Pre-approved loan of Rs 5,00,000 without CIBIL check. Instant loan in 10 minutes. Download the app from bit.ly/loan-now
+d-s17	scam	en	India Post: Your package is held at our warehouse due to an incomplete address. Please update your address within 24 hours: https://indiapost.in-delivery.top
+d-s18	scam	en	Dear customer, your HDFC credit card reward points of 9,850 will expire today. Redeem now: http://hdfc-rewards.cc/redeem
+d-s19	scam	en	Your e-challan of Rs 500 is pending. Download the RTO challan app to pay: mParivahan.apk
+d-s20	scam	en	Hello sir, I am calling from SBI customer care. Please install AnyDesk so I can help you fix your account problem.
+d-s21	scam	en	You are invited to our wedding! Please see the invitation card: Wedding_Invitation.apk
+d-s22	scam	en	Your Netflix subscription has been suspended because of a payment failure. Update your card details at netflix-billing-help.com to continue.
+d-s23	scam	en	ATTENTION: Your PAN card will be deactivated today. Link Aadhaar now to avoid a penalty of Rs 10,000: pan-aadhaar-link.online
+d-s24	scam	en	I am an Army officer posted in Jammu. I want to buy your sofa listed on OLX. I will send the payment via QR code, just scan it and enter your PIN to receive the amount.
+d-s25	scam	en	Your mobile number has been used for illegal activities. Mumbai Police cyber crime department will file an FIR. Connect on Skype for a video statement immediately.
+d-s26	scam	en	Earn Rs 500 for every hotel review. Prepaid task: deposit Rs 1000 first and get Rs 1500 back today.
+d-s27	scam	en	Double your money in 30 days with our crypto investment plan. 100% profit guaranteed. Minimum investment Rs 5,000.
+d-s28	scam	en	Sir, your FASTag KYC is incomplete. It will be blacklisted today. Update now at fastag-kyc.co.in
+d-s29	scam	en	Your EPF claim of Rs 48,000 is approved. Pay a verification fee of Rs 999 to release the amount.
+d-s30	scam	en	Dear customer, you have received a gift voucher worth Rs 5000 from Flipkart. Claim your reward before midnight: flipkart-gift.store
+d-s31	scam	en	We noticed suspicious activity in your ICICI account. Reply with your card number and CVV to stop the transaction.
+d-s32	scam	en	Congratulations, you are selected for a work from home data entry job. Registration fee Rs 1,500 only. Earn up to Rs 40,000 monthly.
+d-s33	scam	en	Your Aadhaar is linked with a money laundering case. CBI will issue an arrest warrant. Stay on the call and keep this confidential.
+d-s34	scam	en	Mom, I lost my phone. This is my new number. Please send Rs 15,000 urgently to this UPI ID, I will explain later. Don't tell anyone.
+d-s35	scam	en	URGENT: Your gas connection will be disconnected today due to pending KYC. Call 8765012345 now.
+d-s36	scam	en	Your account has been credited with Rs 50,000 loan. To withdraw, pay processing fee of Rs 2,999 now.
+d-s37	scam	en	Amazon: Your order could not be delivered. Pay Rs 25 delivery charge at amzn-redelivery.xyz to reschedule.
+d-s38	scam	en	Dear user, your WhatsApp account will be closed within 24 hrs. Verify your account by sending the 6 digit code we sent you.
+d-s39	scam	en	Your electricity bill is not updated. Electricity connection will be cut tonight. Download the bill update app: mseb-update.apk
+d-s40	scam	en	We are from TRAI. Your number will be blocked within 2 hours because of illegal advertising. Press 1 to speak to an officer.
+d-s41	scam	hinglish	Aapka SBI account aaj band ho jayega. Turant KYC update karein: sbi-kyc.in.net
+d-s42	scam	hinglish	Badhai ho! Aapne KBC lottery mein 25 lakh jeete hain. Inaam lene ke liye Rs 5000 registration fee bhejo.
+d-s43	scam	hinglish	Ghar baithe kamaye Rs 2000 roz. Sirf YouTube videos like karo. Abhi join karo t.me/dailytasks
+d-s44	scam	hinglish	Bijli connection aaj raat kat jayega. Turant is number par call karein 9123456780.
+d-s45	scam	hinglish	Bhai OTP aaya hoga, bata do please, galti se tumhare number par chala gaya.
+d-s46	scam	hinglish	Paisa double scheme! 15 din mein paise double. Kisi ko mat batana.
+d-s47	scam	hi	प्रिय ग्राहक, आपका बैंक खाता आज बंद हो जाएगा। तुरंत केवाईसी अपडेट करें: sbi-kyc-update.xyz
+d-s48	scam	hi	आपका बिजली कनेक्शन आज रात 9:30 बजे काट दिया जाएगा क्योंकि आपका पिछला बिल अपडेट नहीं हुआ है। तुरंत इस नंबर पर कॉल करें 9876501234
+d-s49	scam	hi	बधाई हो! आपने 25 लाख रुपये की लॉटरी जीती है। इनाम पाने के लिए 10,000 रुपये रजिस्ट्रेशन शुल्क जमा करें।
+d-s50	scam	hi	मैं सीबीआई से बोल रहा हूं। आपके नाम पर मनी लॉन्ड्रिंग का केस दर्ज है। आप डिजिटल अरेस्ट में हैं। किसी को मत बताना।
+d-s51	scam	hi	घर बैठे कमाई करें! रोज 3000 रुपये कमाएं। पार्ट टाइम जॉब, सिर्फ वीडियो लाइक करें।
+d-s52	scam	hi	आपके खाते में गलती से 5000 रुपये भेज दिए गए हैं। पैसे वापस करने के लिए अपना यूपीआई पिन डालें।
+d-s53	scam	hi	कैशबैक पाने के लिए यह क्यूआर कोड स्कैन करें और पिन डालें।
+d-s54	scam	hi	आपको 50,000 रुपये का तुरंत लोन मंजूर हुआ है। प्रोसेसिंग फीस 1999 रुपये जमा करें।
+d-s55	scam	hi	अपना ओटीपी बताएं ताकि हम आपका खाता ब्लॉक होने से बचा सकें।
+d-s56	scam	hi	आयकर विभाग: आपका 12,500 रुपये का रिफंड मंजूर हुआ है। रिफंड पाने के लिए इस लिंक पर अपना कार्ड नंबर दर्ज करें: itr-refund.top
+d-s57	scam	hi	स्क्रीन शेयर करने के लिए AnyDesk ऐप डाउनलोड करें, हम आपकी समस्या ठीक कर देंगे।
+d-s58	scam	hi	आपका पैसा डबल हो जाएगा! गारंटीड रिटर्न, सिर्फ 10 दिन में।
+d-s59	scam	mr	प्रिय ग्राहक, तुमचे बँक खाते आज बंद होईल. लगेच केवायसी अपडेट करा: sbi-kyc.top
+d-s60	scam	mr	तुमचा वीज पुरवठा आज रात्री खंडित करण्यात येईल. तुमचे मागील बिल अपडेट झाले नाही. ताबडतोब या नंबरवर कॉल करा 9988776655
+d-s61	scam	mr	अभिनंदन! तुम्ही 10 लाखांची लॉटरी जिंकली आहे. बक्षीस मिळवण्यासाठी नोंदणी शुल्क 5000 रुपये भरा.
+d-s62	scam	mr	घरबसल्या कमाई करा! दररोज 2000 रुपये. फक्त व्हिडिओ लाईक करा.
+d-s63	scam	mr	मी सीबीआय अधिकारी बोलतोय. तुमच्या नावावर गुन्हा दाखल आहे. तुम्हाला डिजिटल अरेस्ट केले आहे. कॉल बंद करू नका.
+d-s64	scam	mr	कॅशबॅक मिळवण्यासाठी हा क्यूआर कोड स्कॅन करा आणि पिन टाका.
+d-s65	scam	mr	तुमचा ओटीपी सांगा, नाहीतर तुमचे खाते ब्लॉक होईल.
+d-s66	scam	mr	पैसे दुप्पट योजना! फक्त 20 दिवसांत हमखास परतावा.
+d-s67	scam	mixed	Dear customer आपका account आज block हो जाएगा. KYC update करने के लिए link पर click करें: hdfc-kyc.xyz
+d-s68	scam	en	Your Jio number will be blocked today. Complete your e-KYC by calling 7890123456 and share the OTP you receive.
+d-s69	scam	en	Respected sir, we are from Bajaj Finance. Your loan is approved. Pay the token amount of Rs 4,500 for file charges.
+d-s70	scam	en	PM Kisan Yojana: Rs 6000 installment is pending. Update your Aadhaar details at pmkisan-update.online to receive the money.
+d-l01	legit	en	482913 is your OTP for the transaction of Rs 1,250.00 at AMAZON. Valid for 5 minutes. Do not share this OTP with anyone. - HDFC Bank
+d-l02	legit	en	Dear Customer, Rs 2,500.00 has been debited from your A/c XX4521 on 03-11-26 by UPI ref 431298765432. Not you? Call 18002586161 - SBI
+d-l03	legit	en	Rs 45,000.00 credited to your A/c XX7781 on 01-11-26 towards SALARY. Available balance Rs 52,340.12 - ICICI Bank
+d-l04	legit	en	Your Amazon order #405-1234567 has been shipped and will arrive on Thursday. Track it in the Amazon app.
+d-l05	legit	en	Hi, are we still meeting at 6 for dinner? Let me know.
+d-l06	legit	en	Your appointment with Dr. Mehta is confirmed for 7 Nov at 11:30 AM at Apollo Clinic, Baner. Reply C to cancel.
+d-l07	legit	en	PNR 4523167890: Train 12123 Deccan Queen, Coach C2, Seat 34, departs 07:15 on 08-Nov. Happy journey - IRCTC
+d-l08	legit	en	Your MSEDCL electricity bill of Rs 1,240 for Oct-26 is generated. Due date 15-11-26. Pay using the MSEDCL app or website.
+d-l09	legit	en	Dear customer, your KYC has been successfully updated. Thank you for banking with us. - Kotak Bank
+d-l10	legit	en	Swiggy: Hungry? Get 40% off on your next order with code TRYNEW. T&C apply.
+d-l11	legit	en	OTP for login to your DigiLocker account is 731905. It is valid for 10 minutes. Never share your OTP with anyone.
+d-l12	legit	en	Your Airtel bill of Rs 599 is due on 10-Nov. Pay via Airtel Thanks app to avoid late fees.
+d-l13	legit	en	Can you call me when you reach home? Mom was asking.
+d-l14	legit	en	Reminder: Society maintenance for November is due by the 10th. Please pay through the MyGate app.
+d-l15	legit	en	Your Zomato order from Burger King is on the way. Your delivery partner Ramesh will reach in 15 minutes.
+d-l16	legit	en	RBI says: Never share your OTP, PIN or CVV with anyone. Banks never ask for these details. Be aware, be safe.
+d-l17	legit	en	Your Uber ride with Suresh in a white Swift DL4C1234 is arriving in 3 minutes.
+d-l18	legit	en	Meeting moved to 3 PM tomorrow. Sharing the updated deck on email.
+d-l19	legit	en	Your Flipkart refund of Rs 799 for order OD12345 has been processed to your original payment method. It may take 5-7 days to reflect.
+d-l20	legit	en	Congratulations on your promotion, Anjali! Party soon?
+d-l21	legit	en	Your LIC premium of Rs 12,345 for policy 912345678 is due on 28-Nov. Pay online at licindia.in or through your agent.
+d-l22	legit	en	Rs 25 cashback credited to your Paytm wallet for your recent recharge.
+d-l23	legit	en	Dear parent, the school will remain closed on Friday for Diwali. Classes resume on Monday.
+d-l24	legit	en	Your one time password for the Aadhaar update request is 556104. UIDAI never asks for OTP over call. Do not share it with anyone.
+d-l25	legit	en	Hey, I sent you the Goa trip photos on Google Drive. Check when free.
+d-l26	legit	en	Your Jio prepaid plan expires on 12-Nov. Recharge via MyJio app to continue enjoying unlimited calls.
+d-l27	legit	en	Your cylinder booking with HP Gas is confirmed. Booking ref 12345678. Delivery expected within 2 days.
+d-l28	legit	en	Bro, the match starts at 7.30. Coming to watch at my place?
+d-l29	legit	en	Your SIP of Rs 5,000 in Axis Bluechip Fund has been processed successfully on 05-Nov-26.
+d-l30	legit	en	Payment of Rs 340 to Shree Ganesh Kirana via UPI was successful. UPI Ref 4312987123.
+d-l31	legit	hinglish	Kal subah 8 baje station pe milte hain. Ticket maine book kar diya hai.
+d-l32	legit	hinglish	Mummy ne bola dinner ke liye sabzi le aana. Paneer bhi.
+d-l33	legit	hinglish	Aaj office nahi aa raha, tabiyat thodi kharab hai.
+d-l34	legit	hi	आपका ओटीपी 618204 है। इसे किसी के साथ साझा न करें। - एसबीआई
+d-l35	legit	hi	कल शाम को घर पर पूजा है, ज़रूर आना।
+d-l36	legit	hi	आपके खाते से 1,500 रुपये यूपीआई द्वारा डेबिट किए गए हैं। अगर यह आपने नहीं किया तो बैंक से संपर्क करें।
+d-l37	legit	hi	बेटा, खाना खा लिया? ठंड बढ़ गई है, स्वेटर पहन कर जाना।
+d-l38	legit	hi	आपका बिजली बिल 980 रुपये है। अंतिम तिथि 20 नवंबर। भुगतान आधिकारिक ऐप से करें।
+d-l39	legit	mr	उद्या सकाळी 10 वाजता शाळेत पालक सभा आहे.
+d-l40	legit	mr	तुमचा ओटीपी 402917 आहे. तो कोणालाही सांगू नका. - बँक ऑफ महाराष्ट्र
+d-l41	legit	mr	आई, मी संध्याकाळी उशिरा येईन. जेवण ठेव.
+d-l42	legit	mr	तुमचे वीज बिल 1,120 रुपये आहे. देय दिनांक 18 नोव्हेंबर. महावितरण ॲपवरून भरा.
+d-l43	legit	en	Your Google Pay payment of Rs 150 to Rahul was successful.
+d-l44	legit	en	Dear Customer, your cheque no. 000123 for Rs 10,000 has been cleared. - Bank of Baroda
+d-l45	legit	en	Book your COVID booster dose at the nearest centre. Visit cowin.gov.in for details. - MoHFW
+d-l46	legit	en	Thanks for shopping at DMart. You earned 45 reward points on this purchase.
+d-l47	legit	en	Your OLA Money wallet has been recharged with Rs 200.
+d-l48	legit	en	Please send me the notes from today's lecture, I missed the class.
+d-l49	legit	en	Your verification code for Instagram is 482 113. Don't share it.
+d-l50	legit	en	Interview scheduled with Infosys on 12 Nov, 10:00 AM. Join using the Teams link sent to your registered email.
