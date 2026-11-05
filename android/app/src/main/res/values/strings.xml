@@ -290,4 +290,27 @@
     <string name="rec_report_1930">If money was lost, call 1930 or report at cybercrime.gov.in immediately.</string>
     <string name="rec_report_chakshu">Report fraudulent calls, SMS or WhatsApp messages on the Sanchar Saathi “Chakshu” portal.</string>
     <string name="rec_stay_cautious">No strong red flags were found on this phone. Still verify the sender before acting.</string>
+
+    <!-- Report a scam -->
+    <string name="report_action">Report this</string>
+    <string name="report_title">Report this scam</string>
+    <string name="report_explain">Report fraud calls, SMS and WhatsApp messages on Chakshu. If you have lost money, call 1930 now or file a complaint at cybercrime.gov.in.</string>
+    <string name="report_redacted">OTPs and your card, account and Aadhaar numbers were removed. The sender’s phone number, UPI ID and links are kept because they identify the scammer. Check the text before you share it.</string>
+    <string name="report_copy">Copy</string>
+    <string name="report_copied">Copied. Paste it into the complaint form.</string>
+    <string name="report_share">Share</string>
+    <string name="report_open_chakshu">Open Chakshu</string>
+    <string name="report_open_cybercrime">Open cybercrime.gov.in</string>
+    <string name="report_call_1930">Call 1930</string>
+    <string name="report_close">Close</string>
+    <string name="report_heading">Suspected fraud (checked with CyberShield)</string>
+    <string name="report_type">Type: %1$s</string>
+    <string name="report_risk">Risk: %1$s (%2$s/100)</string>
+    <string name="report_signs">Warning signs:</string>
+    <string name="report_content">Content:</string>
+
+    <!-- QRGuard tips -->
+    <string name="qr_tips_title">Before you pay with a QR code</string>
+    <string name="qr_tip_payee">Check that the payee name in your UPI app is the person or shop you mean to pay.</string>
+    <string name="qr_tip_sticker">In shops and parking lots, check that a new QR sticker has not been pasted over the original.</string>
 </resources>

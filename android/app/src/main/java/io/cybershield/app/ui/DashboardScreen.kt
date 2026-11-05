@@ -119,7 +119,7 @@ fun DashboardScreen(
         ) { Icon(Icons.Default.Tune, stringResource(R.string.settings), tint = CsColors.Ink) }
     }
 
-    Spacer(Modifier.height(20.dp))
+    Spacer(Modifier.height(16.dp))
     Hero(stringResource(R.string.home_tagline))
     Spacer(Modifier.height(6.dp))
     Text(stringResource(R.string.home_title).replace('\n', ' '), color = CsColors.Ink2, modifier = Modifier.enter(1))
@@ -220,7 +220,8 @@ private fun Hero(tagline: String) {
             withStyle(SpanStyle(color = CsColors.Ink)) { append(first) }
             if (second.isNotEmpty()) { append("\n"); withStyle(SpanStyle(color = CsColors.Accent)) { append(second) } }
         },
-        fontSize = 40.sp, lineHeight = 43.sp, fontWeight = FontWeight.ExtraBold, letterSpacing = (-1.2).sp,
+        // Sized so the paste box and the four tools sit in the first screen on a typical phone.
+        fontSize = 30.sp, lineHeight = 33.sp, fontWeight = FontWeight.ExtraBold, letterSpacing = (-0.9).sp,
         modifier = Modifier.enter(1).glint(),
     )
 }

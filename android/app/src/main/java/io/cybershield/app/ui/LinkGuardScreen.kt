@@ -55,6 +55,7 @@ fun LinkGuardScreen(services: AppServices, input: String, onInputChange: (String
     var askConsent by remember { mutableStateOf(false) }
     var confirmOpen by remember { mutableStateOf(false) }
     var openFailed by remember { mutableStateOf(false) }
+    var reporting by remember { mutableStateOf(false) }
 
     fun analyse() {
         val url = input.trim()
@@ -105,7 +106,8 @@ fun LinkGuardScreen(services: AppServices, input: String, onInputChange: (String
 
     val current = result ?: return
     Spacer(Modifier.height(16.dp))
-    ResultCard(current)
+    ResultCard(current, onReport = { reporting = true })
+    if (reporting) ReportDialog(current, checkedUrl, onDismiss = { reporting = false })
 
     val parsed = UrlParser.parse(checkedUrl)
     val openable = parsed != null && parsed.scheme in setOf("http", "https") && parsed.host.isNotEmpty()

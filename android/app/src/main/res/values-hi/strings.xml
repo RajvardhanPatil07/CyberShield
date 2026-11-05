@@ -274,4 +274,27 @@
     <string name="rec_report_1930">पैसे गए हों तो तुरंत 1930 पर कॉल करें या cybercrime.gov.in पर शिकायत करें।</string>
     <string name="rec_report_chakshu">धोखाधड़ी वाले कॉल, SMS या WhatsApp संदेश की शिकायत संचार साथी के “चक्षु” पोर्टल पर करें।</string>
     <string name="rec_stay_cautious">इस फ़ोन पर कोई बड़ा ख़तरा संकेत नहीं मिला। फिर भी कुछ करने से पहले भेजने वाले की पुष्टि करें।</string>
+
+    <!-- Report a scam -->
+    <string name="report_action">शिकायत करें</string>
+    <string name="report_title">इस धोखाधड़ी की शिकायत करें</string>
+    <string name="report_explain">धोखाधड़ी वाले कॉल, SMS और WhatsApp संदेशों की शिकायत चक्षु पर करें। अगर पैसे गए हैं, तो अभी 1930 पर कॉल करें या cybercrime.gov.in पर शिकायत दर्ज करें।</string>
+    <string name="report_redacted">ओटीपी और आपके कार्ड, खाता और आधार नंबर हटा दिए गए हैं। भेजने वाले का फ़ोन नंबर, UPI ID और लिंक रखे गए हैं क्योंकि इनसे धोखेबाज़ की पहचान होती है। शेयर करने से पहले टेक्स्ट जाँच लें।</string>
+    <string name="report_copy">कॉपी करें</string>
+    <string name="report_copied">कॉपी हो गया। इसे शिकायत फ़ॉर्म में पेस्ट करें।</string>
+    <string name="report_share">शेयर करें</string>
+    <string name="report_open_chakshu">चक्षु खोलें</string>
+    <string name="report_open_cybercrime">cybercrime.gov.in खोलें</string>
+    <string name="report_call_1930">1930 पर कॉल करें</string>
+    <string name="report_close">बंद करें</string>
+    <string name="report_heading">संदिग्ध धोखाधड़ी (CyberShield से जाँचा गया)</string>
+    <string name="report_type">प्रकार: %1$s</string>
+    <string name="report_risk">जोखिम: %1$s (%2$s/100)</string>
+    <string name="report_signs">चेतावनी के संकेत:</string>
+    <string name="report_content">सामग्री:</string>
+
+    <!-- QRGuard tips -->
+    <string name="qr_tips_title">QR कोड से भुगतान करने से पहले</string>
+    <string name="qr_tip_payee">जाँच लें कि आपके UPI ऐप में दिखने वाला नाम उसी व्यक्ति या दुकान का है जिसे आप भुगतान करना चाहते हैं।</string>
+    <string name="qr_tip_sticker">दुकानों और पार्किंग में देखें कि असली QR कोड के ऊपर कोई नया स्टिकर तो नहीं चिपकाया गया है।</string>
 </resources>

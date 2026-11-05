@@ -74,6 +74,7 @@ fun ScamLensScreen(
     var ai by remember { mutableStateOf<CloudResult<AiAnalysis>?>(null) }
     var aiLoading by remember { mutableStateOf(false) }
     var consentPreview by remember { mutableStateOf<String?>(null) }
+    var reporting by remember { mutableStateOf(false) }
     var notice by remember { mutableStateOf(showSharedNotice) }
     val language = LocalConfiguration.current.locales[0].language.takeIf { it in setOf("en", "hi", "mr") } ?: "en"
 
@@ -161,7 +162,7 @@ fun ScamLensScreen(
 
     val current = result ?: return
     Spacer(Modifier.height(16.dp))
-    ResultCard(current, showLanguage = true)
+    ResultCard(current, showLanguage = true, onReport = { reporting = true })
     Spacer(Modifier.height(12.dp))
     HighlightedText(analysedText, current.findings)
 
@@ -198,6 +199,8 @@ fun ScamLensScreen(
     ai?.let { outcome ->
         if (outcome is CloudResult.Ok) { Spacer(Modifier.height(12.dp)); AiCard(outcome.value) } else CloudProblem(outcome)
     }
+
+    if (reporting) ReportDialog(current, analysedText, onDismiss = { reporting = false })
 
     consentPreview?.let { preview ->
         CloudConsentDialog(

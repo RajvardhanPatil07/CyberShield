@@ -274,4 +274,27 @@
     <string name="rec_report_1930">पैसे गेले असल्यास लगेच 1930 वर कॉल करा किंवा cybercrime.gov.in वर तक्रार करा.</string>
     <string name="rec_report_chakshu">फसवे कॉल, SMS किंवा WhatsApp संदेशांची तक्रार संचार साथीच्या “चक्षु” पोर्टलवर करा.</string>
     <string name="rec_stay_cautious">या फोनवर कोणतेही मोठे धोक्याचे संकेत आढळले नाहीत. तरीही कृती करण्यापूर्वी पाठवणाऱ्याची खात्री करा.</string>
+
+    <!-- Report a scam -->
+    <string name="report_action">तक्रार करा</string>
+    <string name="report_title">या फसवणुकीची तक्रार करा</string>
+    <string name="report_explain">फसवे कॉल, SMS आणि WhatsApp संदेशांची तक्रार चक्षुवर करा. पैसे गेले असल्यास आत्ताच 1930 वर कॉल करा किंवा cybercrime.gov.in वर तक्रार नोंदवा.</string>
+    <string name="report_redacted">ओटीपी आणि तुमचे कार्ड, खाते व आधार क्रमांक काढून टाकले आहेत. पाठवणाऱ्याचा फोन नंबर, UPI ID आणि लिंक ठेवल्या आहेत कारण त्यावरून फसवणूक करणाऱ्याची ओळख पटते. शेअर करण्यापूर्वी मजकूर तपासा.</string>
+    <string name="report_copy">कॉपी करा</string>
+    <string name="report_copied">कॉपी झाले. ते तक्रार फॉर्ममध्ये पेस्ट करा.</string>
+    <string name="report_share">शेअर करा</string>
+    <string name="report_open_chakshu">चक्षु उघडा</string>
+    <string name="report_open_cybercrime">cybercrime.gov.in उघडा</string>
+    <string name="report_call_1930">1930 वर कॉल करा</string>
+    <string name="report_close">बंद करा</string>
+    <string name="report_heading">संशयित फसवणूक (CyberShield ने तपासले)</string>
+    <string name="report_type">प्रकार: %1$s</string>
+    <string name="report_risk">धोका: %1$s (%2$s/100)</string>
+    <string name="report_signs">धोक्याचे संकेत:</string>
+    <string name="report_content">मजकूर:</string>
+
+    <!-- QRGuard tips -->
+    <string name="qr_tips_title">QR कोडने पैसे देण्यापूर्वी</string>
+    <string name="qr_tip_payee">तुमच्या UPI ॲपमध्ये दिसणारे नाव तुम्हाला ज्यांना पैसे द्यायचे आहेत त्याच व्यक्तीचे किंवा दुकानाचे आहे याची खात्री करा.</string>
+    <string name="qr_tip_sticker">दुकाने आणि पार्किंगमध्ये मूळ QR कोडवर नवीन स्टिकर चिकटवलेला नाही ना, हे तपासा.</string>
 </resources>

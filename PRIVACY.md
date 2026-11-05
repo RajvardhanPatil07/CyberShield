@@ -1,6 +1,6 @@
 # CyberShield privacy policy
 
-_Last updated: 4 November 2026 · applies to app version 0.3.0 and the backend in this repository_
+_Last updated: 5 November 2026 · applies to app version 0.3.0 and the backend in this repository_
 
 CyberShield checks messages, links, QR codes and screenshots for signs of fraud. It is designed so that, by default, nothing you check leaves your phone.
 
@@ -39,6 +39,10 @@ The CyberShield server **does not store** the content you send. Its logs contain
 Third-party providers process the data under their own terms. In particular, Google may use content sent to the free tier of the Gemini API to improve its products; that is why CyberShield redacts personal values first. Do not submit content you are not comfortable sharing.
 
 Names inside a message (for example "Dear Rahul") are **not** removed by redaction. Check the preview before sending.
+
+### Reporting a scam
+
+*Report this* (shown for risky results) prepares a report text **on the phone**. CyberShield does not send it anywhere. You can edit it, copy it, share it with an app you choose, or open the government's Chakshu portal, cybercrime.gov.in or the 1930 dialler yourself. The draft removes OTPs and other codes, card, account, Aadhaar and PAN numbers, and link query strings. It keeps phone numbers, UPI IDs, e-mail addresses, links and rupee amounts, because the authorities need them to trace the sender. Check the text before sharing it. Copied text stays on the Android clipboard until something else replaces it.
 
 ## 3. What is stored on your phone
 

@@ -225,7 +225,8 @@ fun CyberShieldApp(incoming: Incoming? = null, onIncomingConsumed: () -> Unit = 
                             Page.SETTINGS -> SettingsScreen(services)
                         }
                         // Room to scroll the last card clear of the floating tab bar.
-                        Spacer(Modifier.navigationBarsPadding().height(TabBarHeight + 24.dp))
+                        // The bar takes TabBarHeight plus 20 dp of padding; the rest is breathing room.
+                        Spacer(Modifier.navigationBarsPadding().height(TabBarHeight + 40.dp))
                     }
                 }
             }

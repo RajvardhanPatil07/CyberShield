@@ -26,6 +26,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.Warning
@@ -46,6 +47,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -104,8 +106,12 @@ fun ScoreBadge(score: Int, level: RiskLevel, size: Int = 64) {
 /** Last result that produced a haptic, so returning to a page does not buzz again for the same verdict. */
 private var lastBuzzedResult: RiskAssessment? = null
 
+/**
+ * Verdict card. The most important next step is shown right under the verdict, before the reasons,
+ * so it is visible without scrolling. [onReport] adds a "Report this" action for risky results.
+ */
 @Composable
-fun ResultCard(result: RiskAssessment, showLanguage: Boolean = false) {
+fun ResultCard(result: RiskAssessment, showLanguage: Boolean = false, onReport: (() -> Unit)? = null) {
     val tint = levelColor(result.level)
     // A different buzz for a risky verdict than a safe one, once per new result.
     val view = androidx.compose.ui.platform.LocalView.current
@@ -133,8 +139,21 @@ fun ResultCard(result: RiskAssessment, showLanguage: Boolean = false) {
                 Spacer(Modifier.width(12.dp))
                 ScoreBadge(result.score, result.level, size = 84)
             }
+            val mainStep = result.recommendations.firstOrNull()
+            if (mainStep != null) {
+                Spacer(Modifier.height(12.dp))
+                Row(
+                    Modifier.fillMaxWidth().background(levelFill(result.level).copy(alpha = 0.12f), RoundedCornerShape(16.dp))
+                        .padding(horizontal = 14.dp, vertical = 12.dp).testTag("main_step"),
+                    verticalAlignment = Alignment.Top,
+                ) {
+                    Icon(Icons.Default.Lightbulb, null, tint = tint, modifier = Modifier.size(20.dp))
+                    Spacer(Modifier.width(10.dp))
+                    Text(stringResource(mainStep.label()), fontWeight = FontWeight.Bold, color = CsColors.Ink)
+                }
+            }
             if (showLanguage && result.language != DetectedLanguage.UNKNOWN) {
-                Spacer(Modifier.height(6.dp))
+                Spacer(Modifier.height(8.dp))
                 Text(stringResource(R.string.detected_language, stringResource(result.language.label())), style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
@@ -144,17 +163,26 @@ fun ResultCard(result: RiskAssessment, showLanguage: Boolean = false) {
                 Text(stringResource(R.string.why_title), fontWeight = FontWeight.Bold)
                 shown.forEach { finding -> FindingRow(finding) }
             }
-            if (result.recommendations.isNotEmpty()) {
+            val otherSteps = result.recommendations.drop(1)
+            if (otherSteps.isNotEmpty()) {
                 Spacer(Modifier.height(12.dp))
                 HorizontalDivider()
                 Spacer(Modifier.height(12.dp))
                 Text(stringResource(R.string.what_to_do), fontWeight = FontWeight.Bold)
-                result.recommendations.forEach { rec ->
+                otherSteps.forEach { rec ->
                     Row(Modifier.padding(vertical = 4.dp), verticalAlignment = Alignment.Top) {
                         Icon(Icons.Default.Lightbulb, null, tint = CsColors.Accent, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(8.dp))
                         Text(stringResource(rec.label()))
                     }
+                }
+            }
+            if (onReport != null && result.level != RiskLevel.LOW) {
+                Spacer(Modifier.height(12.dp))
+                SoftButton(onClick = onReport, modifier = Modifier.fillMaxWidth().testTag("report_open"), contentColor = CsColors.RiskText) {
+                    Icon(Icons.Default.Flag, null)
+                    Spacer(Modifier.width(8.dp))
+                    Text(stringResource(R.string.report_action))
                 }
             }
             Spacer(Modifier.height(10.dp))
