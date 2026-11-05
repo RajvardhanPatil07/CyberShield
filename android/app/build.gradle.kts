@@ -61,6 +61,13 @@ android {
             buildConfigField("String", "BACKEND_URL", "\"${backendUrl("")}\"")
             if (canSignRelease) signingConfig = signingConfigs.getByName("release")
         }
+        // Same optimised code as release (R8, not debuggable) but signed with the debug key so it can be
+        // installed directly for testing. Debug builds run Compose much slower and are not a fair test of smoothness.
+        create("preview") {
+            initWith(getByName("release"))
+            signingConfig = signingConfigs.getByName("debug")
+            matchingFallbacks += listOf("release")
+        }
     }
     buildFeatures {
         compose = true
@@ -104,6 +111,8 @@ dependencies {
     val bom = platform("androidx.compose:compose-bom:2024.12.01")
     implementation(bom)
     implementation("androidx.core:core-ktx:1.15.0")
+    // Launch screen on every Android version, handing off to the in-app intro.
+    implementation("androidx.core:core-splashscreen:1.0.1")
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("androidx.activity:activity-compose:1.9.3")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.7")
@@ -112,6 +121,8 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.material:material-icons-extended")
+    // Backdrop blur for the floating glass bars (RenderEffect on Android 12+, translucent tint below).
+    implementation("dev.chrisbanes.haze:haze:1.5.4")
     implementation("androidx.camera:camera-camera2:1.4.1")
     implementation("androidx.camera:camera-lifecycle:1.4.1")
     implementation("androidx.camera:camera-view:1.4.1")

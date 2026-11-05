@@ -1,17 +1,32 @@
 package io.cybershield.app.ui
 
 import android.animation.ValueAnimator
+import android.os.Build
+import android.view.HapticFeedbackConstants
+import android.view.View
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.CubicBezierEasing
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.IndicationNodeFactory
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.indication
+import androidx.compose.foundation.interaction.InteractionSource
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.graphics.drawscope.ContentDrawScope
+import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.node.DelegatableNode
+import androidx.compose.ui.node.DrawModifierNode
+import dev.chrisbanes.haze.HazeStyle
+import dev.chrisbanes.haze.HazeTint
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
@@ -22,7 +37,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.runtime.Composable
@@ -32,7 +46,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
@@ -64,52 +77,158 @@ fun levelFill(level: RiskLevel): Color = when (level) {
 }
 
 /**
- * The moving "silk" background: a white top that folds into sky blue and cobalt lower down.
- * Large soft colour fields drift slowly; when animations are off it is drawn still.
+ * The "silk" wallpaper: a white top that folds into sky blue and cobalt lower down.
+ *
+ * It sits in its own graphics layer and reads animation values only while drawing, so it never
+ * recomposes or redraws the screens above it. It is still at rest (no per-frame work, which also
+ * keeps the blurred bars cheap) and glides with a spring when [page] changes, like a wallpaper
+ * shifting behind the home screen.
  */
 @Composable
-fun SilkBackground(modifier: Modifier = Modifier, content: @Composable BoxScope.() -> Unit) {
+fun SilkBackdrop(page: Int, modifier: Modifier = Modifier) {
     val animate = remember { motionEnabled() }
-    val t = if (animate) {
-        val transition = rememberInfiniteTransition(label = "silk")
-        transition.animateFloat(0f, (2 * Math.PI).toFloat(), infiniteRepeatable(tween(26_000, easing = LinearEasing)), label = "t").value
-    } else 0.6f
-    Box(
-        modifier.fillMaxSize().drawBehind {
+    val shift = remember { Animatable(if (animate) -1.2f else page.toFloat()) }
+    val intro = LocalIntro.current
+    LaunchedEffect(page) {
+        intro.awaitReveal() // On launch the wallpaper glides into place as the veil lifts.
+        if (animate) shift.animateTo(page.toFloat(), spring(dampingRatio = 0.82f, stiffness = 60f)) else shift.snapTo(page.toFloat())
+    }
+    androidx.compose.foundation.layout.Spacer(
+        modifier.fillMaxSize().graphicsLayer().drawWithCache {
             val w = size.width; val h = size.height
-            drawRect(Brush.verticalGradient(
+            val base = Brush.verticalGradient(
                 0f to CsColors.Canvas, 0.38f to Color(0xFFF1F6FF), 0.62f to Color(0xFFBFE3FF), 0.85f to Color(0xFF6FB2FF), 1f to Color(0xFF3A86FF),
-            ))
-            fun blob(cx: Float, cy: Float, r: Float, c: Color) =
-                drawCircle(Brush.radialGradient(listOf(c, c.copy(alpha = 0f)), Offset(cx, cy), r), r, Offset(cx, cy))
-            blob(w * (0.95f + 0.08f * sin(t)), h * (0.92f + 0.04f * cos(t)), w * 1.05f, CsColors.Cobalt.copy(alpha = 0.55f))
-            blob(w * (0.15f + 0.10f * cos(t * 2)), h * (0.70f + 0.05f * sin(t)), w * 0.85f, CsColors.Sky.copy(alpha = 0.55f))
-            blob(w * (0.25f + 0.12f * sin(t)), h * (0.10f + 0.03f * cos(t * 2)), w * 0.9f, Color.White.copy(alpha = 0.9f))
-            blob(w * (0.85f + 0.06f * cos(t)), h * (0.38f + 0.05f * sin(t * 2)), w * 0.6f, Color(0xFFD7ECFF).copy(alpha = 0.7f))
+            )
+            onDrawBehind {
+                val t = 0.6f + shift.value * 0.55f
+                drawRect(base)
+                fun blob(cx: Float, cy: Float, r: Float, c: Color) =
+                    drawCircle(Brush.radialGradient(listOf(c, c.copy(alpha = 0f)), Offset(cx, cy), r), r, Offset(cx, cy))
+                blob(w * (0.95f + 0.08f * sin(t)), h * (0.92f + 0.04f * cos(t)), w * 1.05f, CsColors.Cobalt.copy(alpha = 0.55f))
+                blob(w * (0.15f + 0.10f * cos(t * 2)), h * (0.70f + 0.05f * sin(t)), w * 0.85f, CsColors.Sky.copy(alpha = 0.55f))
+                blob(w * (0.25f + 0.12f * sin(t)), h * (0.10f + 0.03f * cos(t * 2)), w * 0.9f, Color.White.copy(alpha = 0.9f))
+                blob(w * (0.85f + 0.06f * cos(t)), h * (0.38f + 0.05f * sin(t * 2)), w * 0.6f, Color(0xFFD7ECFF).copy(alpha = 0.7f))
+            }
         },
-        content = content,
     )
 }
 
-/** Milky white "liquid glass" card with a bright hairline edge. */
+/** Frosted bar material: blur of what scrolls behind, a milky tint, and light grain (OxygenOS 16 style). */
+val BarGlass = HazeStyle(
+    backgroundColor = CsColors.Canvas,
+    tint = HazeTint(Color.White.copy(alpha = 0.58f)),
+    blurRadius = 26.dp,
+    noiseFactor = 0.06f,
+    // Android 11 and older have no blur; use a nearly opaque white so text behind never shows through.
+    fallbackTint = HazeTint(Color.White.copy(alpha = 0.94f)),
+)
+
+/** Bright top edge fading out lower down, like light catching the rim of a glass pane. */
+val GlassRim = Brush.verticalGradient(listOf(Color.White, Color.White.copy(alpha = 0.55f), Color.White.copy(alpha = 0.25f)))
+
+/**
+ * Milky white "liquid glass" card. The fill is a little clearer towards the bottom and the rim is
+ * brighter at the top, which reads as glass over the blue wallpaper without a costly live blur.
+ */
 @Composable
 fun GlassCard(
     modifier: Modifier = Modifier,
     shape: Shape = RoundedCornerShape(24.dp),
-    border: Color = CsColors.GlassEdge,
+    border: Color? = null,
     borderWidth: Dp = 1.dp,
     color: Color = CsColors.Glass,
     onClick: (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    Surface(
-        modifier = modifier.then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier),
-        shape = shape,
-        color = color,
-        contentColor = CsColors.Ink,
-        shadowElevation = 0.dp,
-        border = androidx.compose.foundation.BorderStroke(borderWidth, border),
-    ) { Column(content = content) }
+    val fill = remember(color) { Brush.verticalGradient(listOf(color, color.copy(alpha = color.alpha * 0.86f))) }
+    val rim = if (border != null) Modifier.border(borderWidth, border, shape) else Modifier.border(borderWidth, GlassRim, shape)
+    Column(
+        modifier
+            .clip(shape)
+            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
+            .background(fill)
+            .then(rim),
+        content = {
+            androidx.compose.runtime.CompositionLocalProvider(androidx.compose.material3.LocalContentColor provides CsColors.Ink) { content() }
+        },
+    )
+}
+
+/**
+ * Press feedback used by every clickable in the app (installed as `LocalIndication`): the element
+ * dips slightly while touched and springs back with a small overshoot when released. Large cards
+ * dip less than small buttons so the movement looks the same size everywhere. Runs entirely in the
+ * draw phase, so it never causes recomposition.
+ */
+object SpringPress : IndicationNodeFactory {
+    override fun create(interactionSource: InteractionSource): DelegatableNode = SpringPressNode(interactionSource)
+    override fun equals(other: Any?): Boolean = other === this
+    override fun hashCode(): Int = 7
+}
+
+private class SpringPressNode(private val source: InteractionSource) : Modifier.Node(), DrawModifierNode {
+    private val press = Animatable(0f)
+    private val motion = motionEnabled()
+
+    override fun onAttach() {
+        coroutineScope.launch {
+            var held = 0
+            source.interactions.collect { interaction ->
+                when (interaction) {
+                    is PressInteraction.Press -> held++
+                    is PressInteraction.Release, is PressInteraction.Cancel -> held = (held - 1).coerceAtLeast(0)
+                    else -> return@collect
+                }
+                val down = held > 0
+                launch {
+                    if (!motion) press.snapTo(if (down) 1f else 0f)
+                    else press.animateTo(if (down) 1f else 0f, if (down) spring(stiffness = 1500f) else spring(dampingRatio = 0.42f, stiffness = 520f))
+                }
+            }
+        }
+    }
+
+    override fun ContentDrawScope.draw() {
+        val p = press.value
+        if (p == 0f) { drawContent(); return }
+        val dip = (9.dp.toPx() / maxOf(size.width, size.height, 1f)).coerceIn(0.012f, 0.06f)
+        val s = 1f - dip * p
+        scale(s) {
+            this@draw.drawContent()
+            if (p > 0f) drawRect(CsColors.Ink.copy(alpha = 0.035f * p.coerceIn(0f, 1f)))
+        }
+    }
+}
+
+/** Light haptics in the style of OxygenOS: a tick for navigation, distinct patterns for verdicts. */
+enum class Buzz { TICK, CONFIRM, REJECT }
+
+fun View.buzz(kind: Buzz) {
+    val constant = when (kind) {
+        Buzz.TICK -> HapticFeedbackConstants.CLOCK_TICK
+        Buzz.CONFIRM -> if (Build.VERSION.SDK_INT >= 30) HapticFeedbackConstants.CONFIRM else HapticFeedbackConstants.VIRTUAL_KEY
+        Buzz.REJECT -> if (Build.VERSION.SDK_INT >= 30) HapticFeedbackConstants.REJECT else HapticFeedbackConstants.LONG_PRESS
+    }
+    performHapticFeedback(constant)
+}
+
+/** Primary blue action with the spring press. Same parameters as Material's Button. */
+@Composable
+fun PrimaryButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    content: @Composable androidx.compose.foundation.layout.RowScope.() -> Unit,
+) {
+    val source = remember { MutableInteractionSource() }
+    androidx.compose.material3.Button(
+        onClick = onClick,
+        modifier = modifier.indication(source, SpringPress),
+        enabled = enabled,
+        interactionSource = source,
+        elevation = androidx.compose.material3.ButtonDefaults.buttonElevation(defaultElevation = 0.dp, pressedElevation = 0.dp),
+        content = content,
+    )
 }
 
 /** Text field colours for the glass look: white fill, blue focus ring. */
@@ -130,11 +249,19 @@ fun glassFieldColors(): TextFieldColors = OutlinedTextFieldDefaults.colors(
 /** Fades and lifts content in on first composition, staggered by [index]. */
 fun Modifier.enter(index: Int = 0): Modifier = composed {
     if (!remember { motionEnabled() }) return@composed this
+    val intro = LocalIntro.current
     val progress = remember { Animatable(0f) }
-    LaunchedEffect(Unit) { progress.animateTo(1f, tween(650, delayMillis = 60 * index.coerceAtMost(8), easing = EaseOut)) }
+    val lift = remember { Animatable(1f) }
+    LaunchedEffect(Unit) {
+        intro.awaitReveal()
+        // Rise on a soft spring after a stagger; cards settle rather than stop.
+        delay(60L * index.coerceAtMost(8))
+        launch { progress.animateTo(1f, tween(520, easing = EaseOut)) }
+        lift.animateTo(0f, spring(dampingRatio = 0.72f, stiffness = 260f))
+    }
     graphicsLayer {
         alpha = progress.value
-        translationY = (1f - progress.value) * 18.dp.toPx()
+        translationY = lift.value * 22.dp.toPx()
     }
 }
 
@@ -153,7 +280,8 @@ fun ActivityRings(
 ) {
     val animate = remember { motionEnabled() }
     val progress = remember { Animatable(if (animate) 0f else 1f) }
-    LaunchedEffect(rings) { if (animate) { progress.snapTo(0f); progress.animateTo(1f, tween(1400, delayMillis = 200, easing = EaseOut)) } }
+    val intro = LocalIntro.current
+    LaunchedEffect(rings) { if (animate) { progress.snapTo(0f); intro.awaitReveal(); progress.animateTo(1f, tween(1400, delayMillis = 200, easing = EaseOut)) } }
     Box(modifier.size(size), contentAlignment = Alignment.Center) {
         Canvas(Modifier.fillMaxSize()) {
             val sw = stroke.toPx(); val g = gap.toPx()
@@ -178,7 +306,8 @@ fun ActivityRings(
 fun CountUpText(value: Int, fontSize: TextUnit, color: Color = CsColors.Ink, weight: FontWeight = FontWeight.Bold, modifier: Modifier = Modifier) {
     val animate = remember { motionEnabled() }
     val shown = remember { Animatable(if (animate) 0f else value.toFloat()) }
-    LaunchedEffect(value) { if (animate) shown.animateTo(value.toFloat(), tween(1200, delayMillis = 200, easing = EaseOut)) else shown.snapTo(value.toFloat()) }
+    val intro = LocalIntro.current
+    LaunchedEffect(value) { if (animate) intro.awaitReveal(); if (animate) shown.animateTo(value.toFloat(), tween(1200, delayMillis = 200, easing = EaseOut)) else shown.snapTo(value.toFloat()) }
     Text(shown.value.roundToInt().toString(), fontSize = fontSize, color = color, fontWeight = weight, letterSpacing = (-0.5).sp, modifier = modifier)
 }
 
@@ -204,10 +333,12 @@ fun SoftButton(
     contentColor: Color = CsColors.Ink,
     content: @Composable androidx.compose.foundation.layout.RowScope.() -> Unit,
 ) {
+    val source = remember { MutableInteractionSource() }
     androidx.compose.material3.Button(
         onClick = onClick,
-        modifier = modifier,
+        modifier = modifier.indication(source, SpringPress),
         enabled = enabled,
+        interactionSource = source,
         colors = androidx.compose.material3.ButtonDefaults.buttonColors(
             containerColor = CsColors.GlassStrong, contentColor = contentColor,
             disabledContainerColor = CsColors.Glass.copy(alpha = 0.6f), disabledContentColor = CsColors.Muted,

@@ -82,6 +82,11 @@ jobs:
         working-directory: android
         run: ./gradlew --no-daemon :app:assembleRelease
 
+      # Release-optimised build signed with the debug key: installable on a phone, and runs at real speed.
+      - name: Build preview APKs
+        working-directory: android
+        run: ./gradlew --no-daemon :app:assemblePreview
+
       - name: Summary
         if: always()
         working-directory: android/app/build
@@ -110,6 +115,13 @@ jobs:
         with:
           name: cybershield-debug-apk
           path: android/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+
+      - name: Upload preview APKs
+        uses: actions/upload-artifact@v7
+        with:
+          name: cybershield-preview-apk
+          path: android/app/build/outputs/apk/preview/*.apk
           if-no-files-found: error
 
       - name: Upload release APKs

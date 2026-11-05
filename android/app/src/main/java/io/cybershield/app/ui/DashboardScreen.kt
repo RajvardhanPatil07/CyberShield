@@ -2,17 +2,12 @@ package io.cybershield.app.ui
 
 import android.text.format.DateUtils
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,7 +29,6 @@ import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.QrCodeScanner
-import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.VerifiedUser
 import androidx.compose.material.icons.filled.Warning
@@ -47,6 +41,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,8 +51,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.foundation.Canvas
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
@@ -101,17 +100,22 @@ fun DashboardScreen(
     var draft by rememberSaveable { mutableStateOf("") }
 
     // Header: brand, language switch, settings.
-    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.enter(0)) {
-        Box(Modifier.size(32.dp).clip(RoundedCornerShape(10.dp)).background(CsColors.Accent), contentAlignment = Alignment.Center) {
-            Icon(Icons.Default.Shield, null, tint = Color.White, modifier = Modifier.size(18.dp))
-        }
+    // The logo does not fade in with the rest: on launch the intro's shield flies into this spot.
+    val intro = LocalIntro.current
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Canvas(
+            Modifier.size(32.dp)
+                .onGloballyPositioned { intro.logoBounds = it.boundsInRoot() }
+                .graphicsLayer { alpha = if (intro.done) 1f else 0f },
+        ) { drawBrandMark(Offset.Zero, size.width, check = 1f) }
         Spacer(Modifier.width(9.dp))
-        Text("CyberShield", fontWeight = FontWeight.ExtraBold, fontSize = 20.sp, letterSpacing = (-0.4).sp, color = CsColors.Ink, modifier = Modifier.weight(1f))
-        LanguageSwitch()
+        Text("CyberShield", fontWeight = FontWeight.ExtraBold, fontSize = 20.sp, letterSpacing = (-0.4).sp, color = CsColors.Ink,
+            modifier = Modifier.weight(1f).enter(0))
+        Box(Modifier.enter(1)) { LanguageSwitch() }
         Spacer(Modifier.width(6.dp))
         IconButton(
             onClick = { onNavigate(Page.SETTINGS) },
-            modifier = Modifier.size(40.dp).clip(CircleShape).background(CsColors.GlassStrong).testTag("open_settings"),
+            modifier = Modifier.enter(1).size(40.dp).clip(CircleShape).background(CsColors.GlassStrong).testTag("open_settings"),
         ) { Icon(Icons.Default.Tune, stringResource(R.string.settings), tint = CsColors.Ink) }
     }
 
@@ -217,7 +221,7 @@ private fun Hero(tagline: String) {
             if (second.isNotEmpty()) { append("\n"); withStyle(SpanStyle(color = CsColors.Accent)) { append(second) } }
         },
         fontSize = 40.sp, lineHeight = 43.sp, fontWeight = FontWeight.ExtraBold, letterSpacing = (-1.2).sp,
-        modifier = Modifier.enter(1),
+        modifier = Modifier.enter(1).glint(),
     )
 }
 
@@ -247,12 +251,17 @@ private fun LanguageSwitch() {
 @Composable
 private fun CheckButton(enabled: Boolean, onClick: () -> Unit) {
     val animate = remember { motionEnabled() }
-    val pulse by rememberInfiniteTransition(label = "pulse").animateFloat(0f, 1f, infiniteRepeatable(tween(2200, easing = LinearEasing)), label = "p")
+    // The halo runs only while there is text to check, and is read while drawing so it never recomposes.
+    val pulse = remember { Animatable(0f) }
+    LaunchedEffect(enabled, animate) {
+        if (enabled && animate) pulse.animateTo(1f, infiniteRepeatable(tween(2200, easing = LinearEasing))) else pulse.snapTo(0f)
+    }
     val label = stringResource(R.string.home_check)
     Box(
         Modifier.size(52.dp)
             .drawBehind {
-                if (enabled && animate) drawCircle(CsColors.Accent.copy(alpha = 0.35f * (1f - pulse)), radius = size.minDimension / 2 * (0.82f + 0.18f * pulse))
+                val p = pulse.value
+                if (p > 0f) drawCircle(CsColors.Accent.copy(alpha = 0.35f * (1f - p)), radius = size.minDimension / 2 * (0.82f + 0.18f * p))
             }
             .padding(4.dp).clip(CircleShape)
             .background(if (enabled) CsColors.Accent else CsColors.Accent.copy(alpha = 0.35f))
@@ -264,15 +273,8 @@ private fun CheckButton(enabled: Boolean, onClick: () -> Unit) {
 
 @Composable
 private fun Feature(title: String, detail: String, icon: ImageVector, tag: String, order: Int, modifier: Modifier, action: () -> Unit) {
-    val interaction = remember { MutableInteractionSource() }
-    val pressed by interaction.collectIsPressedAsState()
-    val scale by animateFloatAsState(if (pressed) 0.95f else 1f, label = "press")
-    Surface(
-        modifier = modifier.enter(order).graphicsLayer { scaleX = scale; scaleY = scale }.testTag(tag)
-            .clip(RoundedCornerShape(22.dp)).clickable(interactionSource = interaction, indication = androidx.compose.material3.ripple(), onClick = action),
-        shape = RoundedCornerShape(22.dp), color = CsColors.Glass, contentColor = CsColors.Ink, shadowElevation = 0.dp,
-        border = BorderStroke(1.dp, CsColors.GlassEdge),
-    ) {
+    // Press feedback comes from the app-wide spring indication.
+    GlassCard(modifier.enter(order).testTag(tag), shape = RoundedCornerShape(22.dp), onClick = action) {
         Column(Modifier.padding(14.dp)) {
             Box(Modifier.size(38.dp).clip(RoundedCornerShape(12.dp)).background(CsColors.AccentSoft), contentAlignment = Alignment.Center) {
                 Icon(icon, null, tint = CsColors.Accent, modifier = Modifier.size(20.dp))

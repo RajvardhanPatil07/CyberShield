@@ -108,7 +108,7 @@ fun QrGuardScreen(services: AppServices, onInspectLink: (String) -> Unit) {
     val target = current.openTarget
     when {
         target != null && current.type == QrContentType.WEB_URL -> {
-            Button(onClick = { onInspectLink(target) }, modifier = Modifier.fillMaxWidth().height(54.dp)) { Text(stringResource(R.string.analyse_in_linkguard)) }
+            PrimaryButton(onClick = { onInspectLink(target) }, modifier = Modifier.fillMaxWidth().height(54.dp)) { Text(stringResource(R.string.analyse_in_linkguard)) }
             Spacer(Modifier.height(8.dp))
             SoftButton(onClick = { confirm = true }, modifier = Modifier.fillMaxWidth(), contentColor = levelColor(current.assessment.level)) {
                 Icon(Icons.AutoMirrored.Filled.OpenInNew, null); Spacer(Modifier.width(6.dp)); Text(stringResource(R.string.open_link))

@@ -57,7 +57,7 @@ fun QrScanner(onDetected: (String) -> Unit) {
     if (!granted) {
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Text(stringResource(R.string.qr_camera_rationale))
-            Button(onClick = { permission.launch(android.Manifest.permission.CAMERA) }) { Text(stringResource(R.string.qr_allow_camera)) }
+            PrimaryButton(onClick = { permission.launch(android.Manifest.permission.CAMERA) }) { Text(stringResource(R.string.qr_allow_camera)) }
         }
         return
     }

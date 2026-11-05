@@ -101,9 +101,20 @@ fun ScoreBadge(score: Int, level: RiskLevel, size: Int = 64) {
     }
 }
 
+/** Last result that produced a haptic, so returning to a page does not buzz again for the same verdict. */
+private var lastBuzzedResult: RiskAssessment? = null
+
 @Composable
 fun ResultCard(result: RiskAssessment, showLanguage: Boolean = false) {
     val tint = levelColor(result.level)
+    // A different buzz for a risky verdict than a safe one, once per new result.
+    val view = androidx.compose.ui.platform.LocalView.current
+    androidx.compose.runtime.LaunchedEffect(result) {
+        if (lastBuzzedResult !== result) {
+            lastBuzzedResult = result
+            view.buzz(if (result.level == RiskLevel.LOW) Buzz.CONFIRM else Buzz.REJECT)
+        }
+    }
     GlassCard(Modifier.fillMaxWidth().enter(2), border = levelFill(result.level).copy(alpha = 0.5f), borderWidth = 1.5.dp, color = CsColors.GlassStrong) {
         Column(Modifier.padding(20.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {

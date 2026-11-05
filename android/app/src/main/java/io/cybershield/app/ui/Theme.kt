@@ -4,7 +4,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.lightColorScheme
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
@@ -82,6 +84,9 @@ fun CyberShieldTheme(content: @Composable () -> Unit) {
             large = RoundedCornerShape(28.dp),
             extraLarge = RoundedCornerShape(32.dp),
         ),
-        content = content,
-    )
+    ) {
+        // MaterialTheme installs a ripple as the default indication; replace it with the spring press
+        // for everything built on clickable / selectable. Material buttons use PrimaryButton / SoftButton.
+        CompositionLocalProvider(LocalIndication provides SpringPress, content = content)
+    }
 }

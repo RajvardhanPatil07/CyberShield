@@ -97,7 +97,7 @@ fun LinkGuardScreen(services: AppServices, input: String, onInputChange: (String
         colors = glassFieldColors(),
     )
     Spacer(Modifier.height(12.dp))
-    Button(onClick = { analyse() }, enabled = input.isNotBlank(), modifier = Modifier.fillMaxWidth().height(54.dp).testTag("check_link")) {
+    PrimaryButton(onClick = { analyse() }, enabled = input.isNotBlank(), modifier = Modifier.fillMaxWidth().height(54.dp).testTag("check_link")) {
         Icon(Icons.Default.Security, null)
         Spacer(Modifier.width(8.dp))
         Text(stringResource(R.string.action_check_link))

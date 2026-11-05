@@ -4,22 +4,27 @@ import android.content.Context
 import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkHorizontally
-import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,6 +32,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -38,8 +46,6 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -52,9 +58,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.unit.IntOffset
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.hazeEffect
+import dev.chrisbanes.haze.hazeSource
+import androidx.compose.runtime.CompositionLocalProvider
+import kotlinx.coroutines.delay
+import kotlin.math.abs
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -155,27 +171,47 @@ fun CyberShieldApp(incoming: Incoming? = null, onIncomingConsumed: () -> Unit = 
 
     BackHandler(enabled = page != Page.HOME) { page = Page.HOME }
 
-    CyberShieldTheme {
-        SilkBackground {
-            Scaffold(
-                containerColor = Color.Transparent,
-                contentColor = CsColors.Ink,
-                bottomBar = { FloatingTabBar(page) { page = it } },
-            ) { padding ->
+    val view = LocalView.current
+    val go: (Page) -> Unit = { target -> if (target != page) { view.buzz(Buzz.TICK); page = target } }
+
+    // Launch intro: only when opened normally on Home (not from a share or shortcut) and only once per launch.
+    var introPending by rememberSaveable { mutableStateOf(incoming == null && motionEnabled()) }
+    val intro = remember { IntroState(play = introPending && page == Page.HOME) }
+    LaunchedEffect(intro.done) { if (intro.done) introPending = false }
+    // The tab bar slides up from below as the home screen is revealed.
+    val barIn = remember { Animatable(if (intro.play) 0f else 1f) }
+    LaunchedEffect(intro.revealed) {
+        if (intro.revealed && barIn.value < 1f) { delay(160); barIn.animateTo(1f, spring(dampingRatio = 0.7f, stiffness = 280f)) }
+    }
+
+    CyberShieldTheme { CompositionLocalProvider(LocalIntro provides intro) {
+        // Wallpaper and pages are the blur source; the frosted bars float above them and blur whatever scrolls behind.
+        val haze = remember { HazeState() }
+        Box(Modifier.fillMaxSize()) {
+            Box(Modifier.fillMaxSize().hazeSource(haze)) {
+                SilkBackdrop(page = if (page == Page.SETTINGS) 0 else page.ordinal)
                 AnimatedContent(
                     targetState = page,
                     transitionSpec = {
-                        (fadeIn(tween(280, delayMillis = 60)) + slideInVertically(tween(320)) { it / 30 }) togetherWith fadeOut(tween(140))
+                        // Pages glide in from the side they are on in the tab bar and settle with a soft spring.
+                        val dir = if (targetState.ordinal >= initialState.ordinal) 1 else -1
+                        val settle = spring(dampingRatio = 0.86f, stiffness = 420f, visibilityThreshold = IntOffset.VisibilityThreshold)
+                        (slideInHorizontally(settle) { dir * it / 8 } + fadeIn(tween(190)) + scaleIn(spring(0.86f, 420f), initialScale = 0.985f)) togetherWith
+                            (slideOutHorizontally(tween(200)) { -dir * it / 14 } + fadeOut(tween(130))) using SizeTransform(clip = false)
                     },
                     label = "page",
-                    modifier = Modifier.fillMaxSize().padding(padding),
+                    modifier = Modifier.fillMaxSize(),
                 ) { shown ->
                     // Each page gets its own scroll position; otherwise a scrolled result hides the next page's header.
-                    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 12.dp)) {
+                    // Content runs edge to edge and scrolls under the status bar and tab bar, which frost it.
+                    Column(
+                        Modifier.fillMaxSize().verticalScroll(rememberScrollState())
+                            .windowInsetsPadding(WindowInsets.statusBars).padding(horizontal = 20.dp, vertical = 12.dp),
+                    ) {
                         when (shown) {
                             Page.HOME -> DashboardScreen(
-                                services, onNavigate = { page = it }, onScreenshot = { pendingImage = it; page = Page.MESSAGE },
-                                onCheck = checkFromHome,
+                                services, onNavigate = go, onScreenshot = { pendingImage = it; page = Page.MESSAGE },
+                                onCheck = { view.buzz(Buzz.TICK); checkFromHome(it) },
                             )
                             Page.MESSAGE -> ScamLensScreen(
                                 services, messageInput, { messageInput = it }, pendingImage, { pendingImage = null },
@@ -188,11 +224,36 @@ fun CyberShieldApp(incoming: Incoming? = null, onIncomingConsumed: () -> Unit = 
                             Page.HISTORY -> HistoryScreen(services)
                             Page.SETTINGS -> SettingsScreen(services)
                         }
+                        // Room to scroll the last card clear of the floating tab bar.
+                        Spacer(Modifier.navigationBarsPadding().height(TabBarHeight + 24.dp))
                     }
                 }
             }
+            StatusFrost(haze, Modifier.align(Alignment.TopCenter))
+            FloatingTabBar(
+                page, haze, onSelect = go,
+                modifier = Modifier.align(Alignment.BottomCenter).graphicsLayer {
+                    translationY = (1f - barIn.value) * 140.dp.toPx()
+                    alpha = barIn.value.coerceIn(0f, 1f)
+                },
+            )
+            IntroOverlay(intro)
         }
-    }
+    } }
+}
+
+private val TabBarHeight = 66.dp
+
+/** Frosted strip behind the status bar so scrolled content blurs out instead of colliding with the clock. */
+@Composable
+private fun StatusFrost(haze: HazeState, modifier: Modifier) {
+    Spacer(
+        modifier.fillMaxWidth()
+            .hazeEffect(haze, BarGlass) {
+                mask = Brush.verticalGradient(0f to Color.Black, 0.55f to Color.Black, 1f to Color.Transparent)
+            }
+            .windowInsetsPadding(WindowInsets.statusBars).height(14.dp),
+    )
 }
 
 private data class Tab(val page: Page, val icon: ImageVector, val label: Int)
@@ -205,34 +266,54 @@ private val tabs = listOf(
     Tab(Page.HISTORY, Icons.Default.History, R.string.nav_history),
 )
 
-/** Floating glass pill. The selected tab widens into a blue capsule that shows its label. */
+/** Bright rim on top, a faint dark edge underneath so the bar separates from the blue wallpaper. */
+private val BarRim = Brush.verticalGradient(listOf(Color.White, Color.White.copy(alpha = 0.5f), CsColors.Ink.copy(alpha = 0.10f)))
+
+/**
+ * Translucent floating bar (OxygenOS 16 / liquid-glass style): it blurs the page scrolling behind it.
+ * A blue capsule glides to the selected tab on a spring and stretches slightly while it travels.
+ * Only the capsule's draw layer animates, so switching tabs does not re-measure the bar.
+ */
 @Composable
-private fun FloatingTabBar(current: Page, onSelect: (Page) -> Unit) {
-    Surface(
-        shape = RoundedCornerShape(50),
-        color = Color.White,
-        shadowElevation = 12.dp,
-        border = BorderStroke(1.dp, Color.White),
-        modifier = Modifier.navigationBarsPadding().padding(horizontal = 16.dp, vertical = 10.dp).fillMaxWidth().height(64.dp),
+private fun FloatingTabBar(current: Page, haze: HazeState, onSelect: (Page) -> Unit, modifier: Modifier = Modifier) {
+    val selectedIndex = tabs.indexOfFirst { it.page == current }.coerceAtLeast(0) // Settings belongs to Home.
+    val shape = RoundedCornerShape(50)
+    Box(
+        modifier.navigationBarsPadding().padding(horizontal = 16.dp, vertical = 10.dp).fillMaxWidth().height(TabBarHeight)
+            .clip(shape).hazeEffect(haze, BarGlass).border(1.dp, BarRim, shape),
     ) {
-        Row(Modifier.padding(6.dp), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-            tabs.forEach { tab ->
-                val selected = current == tab.page || (tab.page == Page.HOME && current == Page.SETTINGS)
-                val weight by animateFloatAsState(if (selected) 2.3f else 1f, spring(dampingRatio = 0.72f, stiffness = 380f), label = "w")
-                val bg by animateColorAsState(if (selected) CsColors.Accent else Color.Transparent, tween(250), label = "bg")
-                val fg by animateColorAsState(if (selected) Color.White else CsColors.Muted, tween(250), label = "fg")
-                val label = stringResource(tab.label)
-                Row(
-                    Modifier.weight(weight).fillMaxHeight().clip(RoundedCornerShape(50)).background(bg)
-                        .selectable(selected = selected, role = Role.Tab, onClick = { onSelect(tab.page) })
-                        .testTag("nav_${tab.page.name.lowercase()}"),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Icon(tab.icon, if (selected) null else label, tint = fg, modifier = Modifier.size(22.dp))
-                    AnimatedVisibility(selected, enter = fadeIn() + expandHorizontally(), exit = fadeOut() + shrinkHorizontally()) {
-                        Text(label, color = fg, fontWeight = FontWeight.SemiBold, fontSize = 13.sp, maxLines = 1, overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.padding(start = 6.dp))
+        BoxWithConstraints(Modifier.fillMaxSize().padding(5.dp)) {
+            val slot = maxWidth / tabs.size
+            val animate = remember { motionEnabled() }
+            val position = remember { Animatable(selectedIndex.toFloat()) }
+            LaunchedEffect(selectedIndex) {
+                if (animate) position.animateTo(selectedIndex.toFloat(), spring(dampingRatio = 0.66f, stiffness = 430f))
+                else position.snapTo(selectedIndex.toFloat())
+            }
+            Box(
+                Modifier.width(slot).fillMaxHeight()
+                    .graphicsLayer {
+                        translationX = position.value * slot.toPx()
+                        val stretch = (abs(position.velocity) * 0.035f).coerceAtMost(0.22f)
+                        scaleX = 1f + stretch
+                        scaleY = 1f - stretch * 0.3f
+                    }
+                    .clip(shape).background(CsColors.Accent),
+            )
+            Row(Modifier.fillMaxSize()) {
+                tabs.forEachIndexed { i, tab ->
+                    val selected = i == selectedIndex
+                    val fg by animateColorAsState(if (selected) Color.White else CsColors.Ink2, tween(180), label = "fg")
+                    Column(
+                        Modifier.weight(1f).fillMaxHeight().clip(shape)
+                            .selectable(selected = selected, role = Role.Tab, onClick = { onSelect(tab.page) })
+                            .testTag("nav_${tab.page.name.lowercase()}"),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                    ) {
+                        Icon(tab.icon, null, tint = fg, modifier = Modifier.size(22.dp))
+                        Text(stringResource(tab.label), color = fg, fontWeight = FontWeight.SemiBold, fontSize = 10.5.sp, lineHeight = 12.sp,
+                            maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(horizontal = 4.dp))
                     }
                 }
             }

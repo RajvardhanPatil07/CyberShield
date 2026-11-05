@@ -79,7 +79,9 @@ fun HistoryScreen(services: AppServices) {
         }
     }
     Spacer(Modifier.height(16.dp))
-    SoftButton(onClick = { confirmClear = true }, enabled = services.history.all().isNotEmpty(), modifier = Modifier.fillMaxWidth().testTag("clear_history")) {
+    // Parsing stored history is not free; do it when history changes, not on every recomposition.
+    val hasAny = remember(version) { services.history.all().isNotEmpty() }
+    SoftButton(onClick = { confirmClear = true }, enabled = hasAny, modifier = Modifier.fillMaxWidth().testTag("clear_history")) {
         Text(stringResource(R.string.clear_history))
     }
     if (confirmClear) {

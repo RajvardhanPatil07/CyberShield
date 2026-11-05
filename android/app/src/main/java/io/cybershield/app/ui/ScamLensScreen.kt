@@ -134,7 +134,7 @@ fun ScamLensScreen(
         minLines = 5, maxLines = 12, shape = RoundedCornerShape(22.dp), colors = glassFieldColors(),
     )
     Spacer(Modifier.height(12.dp))
-    Button(
+    PrimaryButton(
         onClick = { notice = false; analyse(input, if (ocr == OcrState.DONE) ScanKind.SCREENSHOT else ScanKind.MESSAGE) },
         enabled = input.isNotBlank(),
         modifier = Modifier.fillMaxWidth().height(54.dp).testTag("analyse_message"),
