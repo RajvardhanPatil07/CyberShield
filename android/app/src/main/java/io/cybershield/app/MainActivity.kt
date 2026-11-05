@@ -10,6 +10,7 @@ import androidx.activity.enableEdgeToEdge
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.mutableStateOf
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import io.cybershield.app.ui.CyberShieldApp
 import io.cybershield.app.ui.Incoming
 import io.cybershield.app.ui.Page
@@ -23,6 +24,9 @@ class MainActivity : AppCompatActivity() {
     private val incoming = mutableStateOf<Incoming?>(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // The launch screen shows the brand mark; remove it the moment Compose draws, because the
+        // intro starts from the same mark in the same place, so the hand-off is invisible.
+        installSplashScreen().setOnExitAnimationListener { it.remove() }
         // The app is always light (white into blue), so system bars need dark icons regardless of system theme.
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT),
