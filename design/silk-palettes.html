@@ -1,0 +1,507 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CyberShield · Silk palettes</title>
+<!--
+  Moving backgrounds: @shadergradient/react (MIT, ruucm) loaded from esm.sh.
+  Glass: refraction, rim, blur and tint math adapted from liquid-glass-js (MIT, dashersw).
+  liquid-glass-js samples a one-off html2canvas snapshot, which cannot see a WebGL gradient,
+  so here each phone has one WebGL canvas that samples the live gradient every frame and
+  draws every glass panel of that phone in a single pass.
+-->
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+  body { background:#F5F6F8; color:#0E1116; font-family:-apple-system,"SF Pro Display","Inter",system-ui,sans-serif; padding:44px 24px 80px; }
+  .page { max-width:1300px; margin:0 auto; }
+  .page > header { display:flex; align-items:flex-end; justify-content:space-between; gap:20px; flex-wrap:wrap; }
+  .page h1 { font-size:32px; letter-spacing:-.03em; font-weight:800; }
+  .page header p { color:#5F6470; font-size:15px; margin-top:8px; max-width:820px; line-height:1.5; }
+  .replay { border:0; background:#fff; color:#0E1116; border-radius:999px; padding:10px 16px; font-weight:600; font-size:13px; font-family:inherit; cursor:pointer; box-shadow:0 1px 2px rgba(0,0,0,.06), inset 0 0 0 1px rgba(0,0,0,.08); }
+  .replay:active { transform:scale(.96); }
+  section.scheme { margin-top:54px; }
+  .sh { display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; }
+  .sh h2 { font-size:24px; letter-spacing:-.025em; }
+  .sh em { font-style:normal; color:#7A7F8A; font-size:14px; }
+  .scheme > p { color:#5F6470; font-size:14.5px; line-height:1.55; margin:8px 0 14px; max-width:820px; }
+  .sw { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:26px; }
+  .sw span { display:flex; align-items:center; gap:7px; font:500 11.5px/1 ui-monospace,Menlo,monospace; color:#4A4F5A; background:#fff; box-shadow:inset 0 0 0 1px rgba(0,0,0,.06); padding:6px 10px 6px 6px; border-radius:999px; }
+  .sw i { width:16px; height:16px; border-radius:50%; box-shadow:inset 0 0 0 1px rgba(0,0,0,.12); }
+  .row { display:flex; flex-wrap:wrap; justify-content:center; gap:40px; }
+  .src { position:fixed; left:-10000px; top:0; width:375px; height:812px; pointer-events:none; }
+
+  /* ================= palettes (Arcade-style silk: white fading into one saturated colour) ================= */
+  .phone[data-p="cobalt"] { --ink:#0E1424; --ink2:#2E3547; --muted:#667085; --dim:#A3AAB8; --edge:rgba(255,255,255,.9); --track:rgba(14,20,36,.08);
+    --accentInk:#FFFFFF; --safe:#12A87A; --safe2:#3CCB9C; --warn:#E08A00; --warn2:#F6B947; --risk:#E5383B; --risk2:#FF7A72;
+    --accent:#2448F5; --accentGlow:rgba(36,72,245,.35); --heroEm:#2448F5;
+    --fbBg:linear-gradient(160deg,#F7F8FA 25%,#8FD3FF 55%,#0A5CFF 100%); --fbGlass:rgba(255,255,255,.72); }
+  .phone[data-p="aqua"] { --ink:#0E1424; --ink2:#2E3547; --muted:#667085; --dim:#A3AAB8; --edge:rgba(255,255,255,.9); --track:rgba(14,20,36,.08);
+    --accentInk:#FFFFFF; --safe:#12A87A; --safe2:#3CCB9C; --warn:#E08A00; --warn2:#F6B947; --risk:#E5383B; --risk2:#FF7A72;
+    --accent:#008F7A; --accentGlow:rgba(0,143,122,.32); --heroEm:#008F7A; --safe:#0B9A6C;
+    --fbBg:linear-gradient(160deg,#F7F9F8 25%,#8EF0DA 55%,#00B39B 100%); --fbGlass:rgba(255,255,255,.72); }
+  .phone[data-p="violet"] { --ink:#0E1424; --ink2:#2E3547; --muted:#667085; --dim:#A3AAB8; --edge:rgba(255,255,255,.9); --track:rgba(14,20,36,.08);
+    --accentInk:#FFFFFF; --safe:#12A87A; --safe2:#3CCB9C; --warn:#E08A00; --warn2:#F6B947; --risk:#E5383B; --risk2:#FF7A72;
+    --accent:#5A2EF0; --accentGlow:rgba(90,46,240,.33); --heroEm:#5A2EF0;
+    --fbBg:linear-gradient(160deg,#F8F7FB 25%,#C9B6FF 55%,#6A3BFF 100%); --fbGlass:rgba(255,255,255,.72); }
+
+  /* ---------- device ---------- */
+  .device { width:399px; height:836px; border-radius:62px; padding:12px; background:#15161A; box-shadow:0 0 0 1.5px #2C2C31, 0 40px 80px -30px rgba(20,30,60,.45); }
+  .phone { position:relative; width:375px; height:812px; border-radius:50px; overflow:hidden; color:var(--ink); isolation:isolate; background:var(--fbBg); }
+  .phone > canvas.gl { position:absolute; inset:0; width:375px; height:812px; z-index:0; }
+  .island { position:absolute; top:11px; left:50%; transform:translateX(-50%); width:122px; height:35px; background:#000; border-radius:20px; z-index:50; }
+  .status { position:absolute; top:0; left:0; right:0; height:52px; display:flex; align-items:center; justify-content:space-between; padding:6px 30px 0 40px; font:600 16px/1 -apple-system,system-ui,sans-serif; z-index:40; }
+  .status .r { display:flex; gap:6px; align-items:center; font-size:13px; }
+  .status svg { height:12px; fill:currentColor; }
+  .content { position:absolute; inset:0; padding:62px 20px 110px; display:flex; flex-direction:column; gap:12px; z-index:1; }
+
+  /* Glass panels are painted by WebGL underneath; the DOM only adds a hairline edge. */
+  .glass { position:relative; border-radius:26px; box-shadow:inset 0 0 0 1px var(--edge); }
+  body.fallback .glass { background:var(--fbGlass); backdrop-filter:blur(22px) saturate(1.5); -webkit-backdrop-filter:blur(22px) saturate(1.5); }
+  svg.i { width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; flex:none; }
+
+  .bar { display:flex; align-items:center; gap:8px; height:44px; }
+  .brand { display:flex; align-items:center; gap:9px; font-weight:800; font-size:20px; letter-spacing:-.03em; margin-right:auto; }
+  .logo { width:30px; height:30px; border-radius:10px; background:var(--accent); color:var(--accentInk); display:grid; place-items:center; box-shadow:0 0 18px var(--accentGlow); }
+  .logo svg.i { width:17px; height:17px; stroke-width:2.6; }
+  .lang { display:flex; gap:2px; padding:3px; border-radius:999px; font-size:12.5px; font-weight:700; }
+  .lang b { padding:6px 9px; border-radius:999px; color:var(--muted); cursor:pointer; transition:background .25s, color .25s; }
+  .lang b.on { background:var(--accent); color:var(--accentInk); }
+  .round { width:40px; height:40px; border-radius:50%; border:0; background:none; color:var(--ink); display:grid; place-items:center; cursor:pointer; flex:none; transition:transform .2s; }
+  .round:active { transform:scale(.9); }
+  .title { flex:1; text-align:center; font-weight:700; font-size:17px; margin-right:40px; }
+
+  h2.hero { font-size:41px; line-height:1.02; letter-spacing:-.045em; font-weight:800; margin:14px 0 8px; }
+  h2.hero em { font-style:normal; display:block; color:var(--heroEm); }
+
+  .search { display:flex; align-items:center; gap:10px; padding:8px 8px 8px 20px; border-radius:999px; }
+  .search .ph { flex:1; font-size:15.5px; color:var(--muted); white-space:nowrap; overflow:hidden; }
+  .search .ph::after { content:""; display:inline-block; width:1.5px; height:17px; background:var(--ink); margin-left:2px; vertical-align:-3px; animation:caret 1s steps(1) infinite; }
+  @keyframes caret { 50% { opacity:0; } }
+  .go { width:46px; height:46px; border-radius:50%; border:0; background:var(--accent); color:var(--accentInk); display:grid; place-items:center; cursor:pointer; animation:breathe 2.6s ease-out infinite; transition:transform .2s; }
+  .go:active { transform:scale(.9); }
+  .go svg.i { stroke-width:2.6; }
+  @keyframes breathe { 0% { box-shadow:0 0 0 0 var(--accentGlow); } 70%,100% { box-shadow:0 0 0 12px transparent; } }
+
+  .chips { display:flex; gap:8px; }
+  .chip { flex:1; display:flex; align-items:center; justify-content:center; gap:7px; padding:12px 0; border-radius:999px; font-size:13.5px; font-weight:650; cursor:pointer; transition:transform .25s cubic-bezier(.3,1.6,.5,1); }
+  .chip svg.i { width:17px; height:17px; }
+  .chip:active { transform:scale(.94); }
+
+  .month { display:flex; align-items:center; justify-content:space-between; padding:18px 18px 18px 20px; }
+  .month small { font-size:13px; color:var(--muted); font-weight:600; }
+  .num { font-size:52px; font-weight:750; letter-spacing:-.05em; line-height:1; font-variant-numeric:tabular-nums; margin:4px 0 8px; }
+  .keys { display:flex; flex-direction:column; gap:5px; font-size:12.5px; font-weight:600; color:var(--muted); }
+  .keys span { display:flex; align-items:center; gap:7px; }
+  .keys i { width:8px; height:8px; border-radius:50%; }
+  .keys b { color:var(--ink); font-variant-numeric:tabular-nums; }
+
+  .ring { position:relative; display:grid; place-items:center; flex:none; }
+  .ring svg { position:absolute; inset:0; overflow:visible; }
+  .ring .p { filter:drop-shadow(0 0 4px color-mix(in srgb, var(--rc) 45%, transparent)); }
+  .go-in .ring .p { animation:fill 1.6s cubic-bezier(.2,.85,.25,1) both; animation-delay:calc(var(--base,0ms) + 450ms); }
+  @keyframes fill { from { stroke-dashoffset:var(--c); } }
+  .ring .in { position:relative; text-align:center; line-height:1; }
+
+  .list { padding:4px 0; }
+  .item { display:flex; align-items:center; gap:13px; padding:11px 16px; cursor:pointer; }
+  .item + .item { border-top:1px solid var(--edge); }
+  .item .ring .in { font-size:13px; font-weight:800; font-variant-numeric:tabular-nums; }
+  .item .m { flex:1; min-width:0; }
+  .item b { display:block; font-size:15px; font-weight:650; }
+  .item small { display:block; font-size:12.5px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px; }
+  .item .chev { color:var(--dim); }
+
+  .tabs { position:absolute; left:18px; right:18px; bottom:24px; height:64px; padding:7px; border-radius:999px; display:flex; z-index:20; }
+  .tabs .pill { position:absolute; top:7px; bottom:7px; left:7px; border-radius:999px; background:var(--accent); box-shadow:0 0 22px var(--accentGlow); transition:transform .5s cubic-bezier(.3,1.35,.45,1); }
+  .tab { position:relative; flex:1; display:grid; place-items:center; color:var(--ink2); cursor:pointer; transition:color .3s; }
+  .tab.on { color:var(--accentInk); }
+  .tab svg.i { width:22px; height:22px; }
+
+  .verdict { padding:20px; display:flex; align-items:center; gap:16px; }
+  .verdict .l { flex:1; }
+  .verdict small { font-size:12.5px; color:var(--muted); font-weight:650; }
+  .verdict h3 { font-size:36px; letter-spacing:-.045em; font-weight:800; color:var(--risk); margin:4px 0 6px; line-height:1; }
+  .verdict p { font-size:14px; line-height:1.4; color:var(--ink2); }
+  .verdict .ring .in { font-size:26px; font-weight:800; letter-spacing:-.04em; font-variant-numeric:tabular-nums; }
+  .verdict .ring .in .of { display:block; font-size:10px; letter-spacing:.08em; color:var(--muted); margin-top:3px; font-weight:700; }
+
+  .msg { padding:16px 18px; font-size:14.5px; line-height:1.6; color:var(--ink2); }
+  .msg mark { color:var(--ink); border-radius:5px; padding:0 2px; background:linear-gradient(color-mix(in srgb, var(--risk) 38%, transparent),color-mix(in srgb, var(--risk) 38%, transparent)) no-repeat 0 100% / 100% 100%; -webkit-box-decoration-break:clone; box-decoration-break:clone; }
+  .msg mark.amb { background-image:linear-gradient(color-mix(in srgb, var(--warn) 38%, transparent),color-mix(in srgb, var(--warn) 38%, transparent)); }
+  .go-in .msg mark { animation:hl .6s cubic-bezier(.6,.1,.2,1) both; animation-delay:calc(var(--base,0ms) + 900ms + var(--k,0) * 280ms); }
+  @keyframes hl { from { background-size:0% 100%; } }
+
+  .why { padding:4px 18px; }
+  .why div { display:flex; gap:12px; padding:12px 0; }
+  .why div + div { border-top:1px solid var(--edge); }
+  .why i { width:8px; height:8px; border-radius:50%; background:var(--risk); margin-top:6px; flex:none; box-shadow:0 0 10px var(--risk); }
+  .why b { display:block; font-size:14px; font-weight:600; }
+  .why q { display:block; font-size:12.5px; color:var(--muted); margin-top:3px; font-style:italic; }
+  .why q::before, .why q::after { content:""; }
+
+  .btn { width:100%; border:0; border-radius:999px; height:54px; font-weight:700; font-size:16px; font-family:inherit; display:flex; align-items:center; justify-content:center; gap:9px; cursor:pointer; transition:transform .2s; color:var(--ink); background:none; }
+  .btn:active { transform:scale(.97); }
+  .btn.primary { background:var(--accent); color:var(--accentInk); box-shadow:0 10px 30px var(--accentGlow); }
+  .btn.link { color:var(--risk); height:30px; font-size:15px; }
+
+  .pay { padding:20px; text-align:center; }
+  .pay small { font-size:12.5px; color:var(--muted); font-weight:600; }
+  .pay h4 { font-size:19px; letter-spacing:-.02em; margin-top:8px; }
+  .pay code { font:500 12.5px/1 ui-monospace,Menlo,monospace; color:var(--muted); display:block; margin-top:6px; }
+  .amt { font-size:58px; font-weight:750; letter-spacing:-.05em; margin:12px 0; font-variant-numeric:tabular-nums; line-height:1; }
+  .note { display:inline-block; padding:8px 14px; border-radius:999px; font-size:13px; font-style:italic; color:var(--ink2); box-shadow:inset 0 0 0 1px var(--edge); }
+  .alert { display:flex; gap:12px; align-items:center; padding:14px 16px; box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--risk) 45%, transparent); }
+  .alert p { font-size:13.5px; line-height:1.4; flex:1; }
+  .alert b { color:var(--risk); }
+  .alert .ring .in { font-size:13px; font-weight:800; color:var(--risk); }
+  .pin { display:flex; gap:12px; align-items:flex-start; padding:14px 16px; font-size:13.5px; line-height:1.45; }
+  .pin svg.i { color:var(--safe); margin-top:1px; }
+  .pin span { display:block; color:var(--muted); font-size:13px; margin-top:2px; }
+
+  .rise { opacity:0; transform:translateY(16px) scale(.985); }
+  .go-in .rise { animation:rise .75s cubic-bezier(.2,.9,.25,1.04) forwards; animation-delay:var(--d,0ms); }
+  @keyframes rise { to { opacity:1; transform:none; } }
+  @media (prefers-reduced-motion:reduce) { *, *::before, *::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; } }
+</style>
+<script type="importmap">{"imports":{
+  "react":"https://esm.sh/react@18.3.1",
+  "react/jsx-runtime":"https://esm.sh/react@18.3.1/jsx-runtime",
+  "react-dom":"https://esm.sh/react-dom@18.3.1?external=react",
+  "react-dom/client":"https://esm.sh/react-dom@18.3.1/client?external=react",
+  "three":"https://esm.sh/three@0.169.0",
+  "@react-three/fiber":"https://esm.sh/@react-three/fiber@8.17.10?external=react,react-dom,three",
+  "@shadergradient/react":"https://esm.sh/*@shadergradient/react@2.4.20"
+}}</script>
+</head>
+<body>
+<div class="page">
+  <header>
+    <div><h1>CyberShield · silk palettes</h1>
+      <p>Inspired by Arcade’s hero: a soft white canvas flowing into one saturated colour like folded silk. Same layout as before. The background is a live ShaderGradient, cards are milky liquid glass, and a coral glow rises from the corner on risky screens.</p></div>
+    <button class="replay" id="replay">↻ Replay motion</button>
+  </header>
+  <div id="schemes"></div>
+</div>
+
+<script type="module">
+// ---------------- palettes ----------------
+const BASE = { control:'props', type:'plane', animate:'on', uSpeed:0.18, uStrength:2.2, uDensity:1.0, uFrequency:5.5, uAmplitude:1,
+  cAzimuthAngle:180, cPolarAngle:90, cDistance:3.6, cameraZoom:1, positionX:-1.4, positionY:0, positionZ:0,
+  rotationX:0, rotationY:10, rotationZ:50, reflection:0.1, lightType:'3d', brightness:1.15, grain:'off' };
+const GLASS = { overlay:[1,1,1], overlayAmt:0.0, tint:[1,1,1], tintAmt:0.74, rim:0.45, shadow:0.10 };
+const PALETTES = [
+  { id:'cobalt', name:'1 · Cobalt Silk', tag:'white into electric blue, the Arcade look',
+    blurb:'The closest to your reference. A soft white top that flows into sky blue and deep electric cobalt like folded silk. Cards are milky white glass, text is dark navy, and the main buttons are royal blue. Blue also reads as trust, which suits a safety app.',
+    sg:{ color1:'#0A5CFF', color2:'#8FD3FF', color3:'#F7F8FA' },
+    sw:[['#F7F8FA','white'],['#8FD3FF','sky'],['#0A5CFF','cobalt'],['#2448F5','action'],['#12A87A','safe'],['#E5383B','risk']] },
+  { id:'aqua', name:'2 · Aqua Silk', tag:'white into mint and emerald',
+    blurb:'The same silky white-to-colour flow, in fresh mint and emerald teal. Green is the natural colour for “safe”, so the app feels calm and reassuring. The main buttons are deep teal.',
+    sg:{ color1:'#00B39B', color2:'#8EF0DA', color3:'#F7F9F8' },
+    sw:[['#F7F9F8','white'],['#8EF0DA','mint'],['#00B39B','emerald'],['#008F7A','action'],['#0B9A6C','safe'],['#E5383B','risk']] },
+  { id:'violet', name:'3 · Violet Silk', tag:'white into lavender and electric violet',
+    blurb:'White into lavender and electric violet. It feels modern and premium, like a fintech app, and the violet button stands out clearly against white cards.',
+    sg:{ color1:'#6A3BFF', color2:'#C9B6FF', color3:'#F8F7FB' },
+    sw:[['#F8F7FB','white'],['#C9B6FF','lavender'],['#6A3BFF','violet'],['#5A2EF0','action'],['#12A87A','safe'],['#E5383B','risk']] },
+];
+
+// ---------------- markup ----------------
+const P = {
+  shield:'<path d="M12 3l7 3v6c0 4.5-3 7.7-7 9-4-1.3-7-4.5-7-9V6l7-3z"/>',
+  arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',
+  qr:'<rect x="4" y="4" width="6" height="6" rx="1.5"/><rect x="14" y="4" width="6" height="6" rx="1.5"/><rect x="4" y="14" width="6" height="6" rx="1.5"/><path d="M14 14h2.5v2.5H14zM17.5 17.5H20V20h-2.5z"/>',
+  img:'<rect x="4" y="4" width="16" height="16" rx="4"/><circle cx="9.5" cy="9.5" r="1.6"/><path d="M20 15.5l-4.5-4.5L6.5 20"/>',
+  link:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+  msg:'<path d="M5 5h14a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H9l-4 3.5V6a1 1 0 0 1 1-1z"/>',
+  home:'<path d="M4 10.5L12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5.5h-5V20H5a1 1 0 0 1-1-1z"/>',
+  clock:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+  sliders:'<path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/>',
+  back:'<path d="M15 5l-7 7 7 7"/>',
+  chev:'<path d="M9 6l6 6-6 6"/>',
+  phone:'<path d="M5 4h3.5l2 5-2.4 1.5a11 11 0 0 0 5.4 5.4L15 13.5l5 2V19a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/>',
+  lock:'<rect x="5" y="11" width="14" height="9" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+};
+const ic = n => `<svg class="i" viewBox="0 0 24 24">${P[n]}</svg>`;
+const GR = { main:['--safe','--safe2'], warn:['--warn','--warn2'], risk:['--risk','--risk2'] };
+let uid = 0;
+function ring(size, sw, gap, items, inner = '') {
+  const c0 = size / 2; let out = '', defs = '';
+  items.forEach(([g, pct], k) => {
+    const id = `g${uid++}`, r = (size - sw) / 2 - k * (sw + gap), c = 2 * Math.PI * r;
+    defs += `<linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color:var(${GR[g][0]})"/><stop offset="1" style="stop-color:var(${GR[g][1]})"/></linearGradient>`;
+    out += `<circle cx="${c0}" cy="${c0}" r="${r}" fill="none" stroke="var(--track)" stroke-width="${sw}"/>
+      <circle class="p" cx="${c0}" cy="${c0}" r="${r}" fill="none" stroke="url(#${id})" stroke-width="${sw}" stroke-linecap="round"
+      stroke-dasharray="${c}" transform="rotate(-90 ${c0} ${c0})" style="--c:${c};--rc:var(${GR[g][0]});stroke-dashoffset:${c * (1 - pct / 100)}"/>`;
+  });
+  return `<div class="ring" style="width:${size}px;height:${size}px"><svg width="${size}" height="${size}"><defs>${defs}</defs>${out}</svg><div class="in">${inner}</div></div>`;
+}
+const count = (to, fmt = '') => `<span class="count" data-to="${to}" data-fmt="${fmt}">0</span>`;
+const chrome = (p, view, risky, inner, tab) => `
+  <div class="phone" data-p="${p}" data-view="${view}" data-risky="${risky ? 1 : 0}">
+    <div class="island"></div>
+    <div class="status"><span>9:41</span><span class="r">5G
+      <svg viewBox="0 0 26 12" style="width:26px"><rect x=".5" y=".5" width="22" height="11" rx="3.5" fill="none" stroke="currentColor" opacity=".45"/><rect x="2" y="2" width="17" height="8" rx="2"/></svg></span></div>
+    <div class="content">${inner}</div>
+    <nav class="tabs glass" data-on="${tab}"><div class="pill"></div>
+      ${['home','msg','link','qr','clock'].map((n, i) => `<div class="tab ${i === tab ? 'on' : ''}" data-i="${i}">${ic(n)}</div>`).join('')}
+    </nav>
+  </div>`;
+const home = p => chrome(p, 0, false, `
+  <div class="bar rise"><div class="brand"><span class="logo">${ic('shield')}</span>CyberShield</div>
+    <div class="lang glass"><b class="on">EN</b><b>हि</b><b>मरा</b></div><button class="round glass">${ic('sliders')}</button></div>
+  <h2 class="hero rise">Check first.<em>Click with confidence.</em></h2>
+  <div class="glass search rise"><div class="ph" data-type>Paste a message or link</div><button class="go" aria-label="Check">${ic('arrow')}</button></div>
+  <div class="chips rise"><div class="glass chip">${ic('qr')}QR code</div><div class="glass chip">${ic('img')}Screenshot</div><div class="glass chip">${ic('link')}Link</div></div>
+  <div class="glass month rise">
+    <div><small>This month</small><div class="num">${count(14)}</div>
+      <div class="keys"><span><i style="background:var(--safe)"></i><b>10</b> safe</span><span><i style="background:var(--warn)"></i><b>3</b> suspicious</span><span><i style="background:var(--risk)"></i><b>1</b> high risk</span></div></div>
+    ${ring(128, 14, 3, [['main', 71], ['warn', 21], ['risk', 7]])}
+  </div>
+  <div class="glass list rise">
+    <div class="item">${ring(44, 4, 0, [['risk', 92]], count(92))}<div class="m"><b>Message</b><small>KYC threat · 2h ago</small></div><span class="chev">${ic('chev')}</span></div>
+    <div class="item">${ring(44, 4, 0, [['warn', 61]], count(61))}<div class="m"><b>Link</b><small>sbi-kyc-update.xyz · yesterday</small></div><span class="chev">${ic('chev')}</span></div>
+  </div>`, 0);
+const message = p => chrome(p, 1, true, `
+  <div class="bar rise"><button class="round glass">${ic('back')}</button><div class="title">Message</div></div>
+  <div class="glass verdict rise">
+    <div class="l"><small>VERDICT</small><h3>High risk</h3><p>Don’t reply, share the OTP or open the link.</p></div>
+    ${ring(96, 10, 0, [['risk', 100]], `${count(100)}<span class="of">/ 100</span>`)}
+  </div>
+  <div class="glass msg rise">Dear customer, your SBI account <mark>will be blocked today</mark>. <mark>Share OTP</mark> 482913 and <mark class="amb">update KYC immediately</mark> at <mark>sbi-kyc-update.xyz</mark>/login</div>
+  <div class="glass why rise">
+    <div><i></i><span><b>Asks for an OTP. Banks never do.</b><q>“Share OTP”</q></span></div>
+    <div><i></i><span><b>SBI’s name on a domain SBI doesn’t own.</b><q>sbi-kyc-update.xyz</q></span></div>
+  </div>
+  <div class="rise" style="display:flex;flex-direction:column;gap:10px;margin-top:2px">
+    <button class="btn primary">${ic('phone')}Call 1930</button><button class="btn glass" style="border-radius:999px">Report on Chakshu</button>
+  </div>`, 1);
+const upi = p => chrome(p, 2, true, `
+  <div class="bar rise"><button class="round glass">${ic('back')}</button><div class="title">UPI request</div></div>
+  <div class="glass pay rise">
+    <small>You would pay</small><h4>SBI Refund Desk</h4><code>refund.helpdesk@okaxis</code>
+    <div class="amt">₹${count(49999, 'inr')}</div>
+    <span class="note">“KYC refund, approve to receive”</span>
+  </div>
+  <div class="glass alert rise">${ring(46, 4, 0, [['risk', 88]], count(88))}<p><b>Scanning this pays them.</b> It is not a refund.</p></div>
+  <div class="glass pin rise">${ic('lock')}<div>Your UPI PIN is only for sending money.<span>पैसे पाने के लिए UPI PIN कभी नहीं लगता।</span></div></div>
+  <div class="rise" style="display:flex;flex-direction:column;gap:6px;margin-top:4px">
+    <button class="btn primary">Don’t pay</button><button class="btn link">Open UPI app anyway</button>
+  </div>`, 3);
+
+const root = document.getElementById('schemes');
+PALETTES.forEach(pl => {
+  const sec = document.createElement('section'); sec.className = 'scheme';
+  sec.innerHTML = `<div class="sh"><h2>${pl.name}</h2><em>${pl.tag}</em></div><p>${pl.blurb}</p>
+    <div class="sw">${pl.sw.map(([c, n]) => `<span><i style="background:${c}"></i>${c} ${n}</span>`).join('')}</div>
+    <div class="row">${[home, message, upi].map(f => `<div class="device">${f(pl.id)}</div>`).join('')}</div>
+    <div class="src" id="src-${pl.id}"></div>`;
+  root.appendChild(sec);
+});
+
+// ---------------- UI motion ----------------
+const fmt = (n, f) => f === 'inr' ? n.toLocaleString('en-IN') : String(n);
+function countUp(el) {
+  const to = +el.dataset.to, f = el.dataset.fmt, t0 = performance.now(), dur = 1400;
+  const step = now => { const p = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - p, 4);
+    el.textContent = fmt(Math.round(to * e), f); if (p < 1) requestAnimationFrame(step); };
+  requestAnimationFrame(step);
+}
+function placeTab(nav) {
+  const tabs = nav.querySelectorAll('.tab'), on = +nav.dataset.on, w = tabs[0].offsetWidth;
+  const pill = nav.querySelector('.pill'); pill.style.width = w + 'px'; pill.style.transform = `translateX(${on * w}px)`;
+  tabs.forEach((t, i) => t.classList.toggle('on', i === on));
+}
+function play() {
+  document.querySelectorAll('.row').forEach(row => row.querySelectorAll('.phone').forEach((ph, pi) => {
+    ph.classList.remove('go-in'); void ph.offsetWidth;
+    ph.style.setProperty('--base', `${pi * 120}ms`);
+    ph.querySelectorAll('.rise').forEach((el, i) => el.style.setProperty('--d', `${pi * 120 + i * 70}ms`));
+    ph.querySelectorAll('mark').forEach((k, i) => k.style.setProperty('--k', i));
+    ph.classList.add('go-in');
+    ph.querySelectorAll('.count').forEach(el => { el.textContent = fmt(0, el.dataset.fmt); setTimeout(() => countUp(el), 450 + pi * 120); });
+  }));
+}
+document.querySelectorAll('.tabs').forEach(nav => {
+  placeTab(nav);
+  nav.addEventListener('click', e => { const t = e.target.closest('.tab'); if (t) { nav.dataset.on = t.dataset.i; placeTab(nav); } });
+});
+document.querySelectorAll('.lang').forEach(l => l.addEventListener('click', e => {
+  const b = e.target.closest('b'); if (b) l.querySelectorAll('b').forEach(x => x.classList.toggle('on', x === b));
+}));
+const lines = ['Paste a message or link', 'Your KYC expires today…', 'sbi-kyc-update.xyz', 'आपका खाता बंद हो जाएगा…'];
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+document.querySelectorAll('[data-type]').forEach(async (ph, k) => {
+  let li = 0; await sleep(k * 700);
+  for (;;) {
+    const s = lines[li++ % lines.length];
+    for (let i = 0; i <= s.length; i++) { ph.textContent = s.slice(0, i); await sleep(45); }
+    await sleep(1800);
+    for (let i = s.length; i >= 0; i--) { ph.textContent = s.slice(0, i); await sleep(18); }
+    await sleep(250);
+  }
+});
+document.getElementById('replay').onclick = play;
+setTimeout(play, 150);
+
+// ---------------- liquid glass renderer ----------------
+const MAX = 14;
+const VS = `attribute vec2 a; varying vec2 v; void main(){ v = vec2(a.x * .5 + .5, .5 - a.y * .5); gl_Position = vec4(a, 0., 1.); }`;
+const FS = `precision highp float;
+varying vec2 v;
+uniform sampler2D u_src;
+uniform vec2 u_size;              // phone size in CSS px
+uniform vec4 u_rect[${MAX}];      // x, y, w, h (CSS px)
+uniform vec2 u_meta[${MAX}];      // radius, opacity
+uniform int u_n;
+uniform vec3 u_map;               // flipX, flipY, zoom
+uniform float u_risk;
+uniform vec3 u_overlay; uniform float u_overlayAmt;
+uniform vec3 u_tint; uniform float u_tintAmt;
+uniform float u_rim; uniform float u_shadow;
+
+vec3 bg(vec2 uv) {
+  vec2 sp = uv;                   // screen position, used for the white silk wash
+  if (u_map.x > .5) uv.x = 1. - uv.x;
+  if (u_map.y > .5) uv.y = 1. - uv.y;
+  uv = (uv - .5) / u_map.z + .5;
+  vec3 c = texture2D(u_src, clamp(uv, .001, .999)).rgb;
+  // Arcade-style silk: a white canvas at the top that folds into the colour lower down.
+  // The edge follows the gradient's own brightness, so it ripples like fabric as it moves.
+  float lum = dot(c, vec3(.3, .59, .11));
+  float t = sp.y * 1.05 + (1. - sp.x) * .16 - (lum - .5) * .42;
+  c = mix(vec3(.972, .976, .986), c, smoothstep(.26, .66, t));
+  return mix(c, u_overlay, u_overlayAmt);
+}
+float sdRR(vec2 p, vec4 r, float rad) {
+  vec2 hs = r.zw * .5; vec2 q = abs(p - (r.xy + hs)) - (hs - rad);
+  return length(max(q, 0.)) + min(max(q.x, q.y), 0.) - rad;
+}
+void main() {
+  vec2 p = v * u_size;
+  vec3 col = bg(v);
+  float glowR = 1. - smoothstep(0., 1.05, length((v - vec2(1., 0.)) * vec2(1., u_size.y / u_size.x * .55)));
+  vec3 coral = vec3(1., .45, .42);
+
+  // soft drop shadow under the panels
+  float sh = 0.;
+  int hit = -1; float hd = 1e5; vec4 hr = vec4(0.); float hrad = 0.; float hop = 0.;
+  for (int i = 0; i < ${MAX}; i++) {
+    if (i >= u_n) break;
+    vec4 r = u_rect[i]; float rad = u_meta[i].x; float op = u_meta[i].y;
+    float ds = sdRR(p - vec2(0., 10.), r, rad);
+    sh = max(sh, (1. - smoothstep(-6., 26., ds)) * op);
+    float d = sdRR(p, r, rad);
+    if (d < 1.5 && op > .01) { hit = i; hd = d; hr = r; hrad = rad; hop = op; }
+  }
+  col *= 1. - sh * u_shadow;
+
+  if (hit >= 0) {
+    // liquid-glass-js style refraction: edge + rim + corner terms push samples along the surface normal
+    vec2 e = vec2(1., 0.);
+    vec2 n = vec2(sdRR(p + e.xy, hr, hrad) - sdRR(p - e.xy, hr, hrad), sdRR(p + e.yx, hr, hrad) - sdRR(p - e.yx, hr, hrad));
+    n = length(n) > 0. ? normalize(n) : vec2(0., 1.);
+    float dist = max(-hd, 0.);
+    float edgeI = exp(-dist * .15), rimI = exp(-dist * .8);
+    float minDim = min(hr.z, hr.w);
+    float total = edgeI * .035 + rimI * .05 + (1. - exp(-dist * .1)) * .006;
+    vec2 local = (p - hr.xy) / hr.zw;
+    float cornerD = max(min(local.x, 1. - local.x), min(local.y, 1. - local.y)) * minDim;
+    total += exp(-cornerD * .3) * .02;
+    vec2 perp = vec2(-n.y, n.x);
+    vec2 refr = n * total + perp * sin(dist / minDim * 25.) * .02 * rimI;
+    vec2 uv = v + refr * vec2(minDim / u_size.x, minDim / u_size.y) * 1.6;
+
+    // gaussian blur of the refracted background
+    vec3 acc = vec3(0.); float wsum = 0.;
+    vec2 stp = vec2(3.2) / u_size;
+    for (int i = -3; i <= 3; i++) for (int j = -3; j <= 3; j++) {
+      float d2 = float(i * i + j * j); if (d2 > 10.) continue;
+      float w = exp(-d2 / 6.);
+      acc += bg(uv + vec2(float(i), float(j)) * stp) * w; wsum += w;
+    }
+    vec3 g = acc / wsum;
+    g = mix(g, coral, u_risk * glowR * .35);
+    g = mix(g, u_tint, u_tintAmt * mix(.85, 1.1, local.y));
+    g += vec3(1.) * .06 * (1. - local.y);                          // top sheen
+    float rimLight = exp(-dist * .45) * (.55 + .45 * clamp(-n.y, 0., 1.));
+    g += vec3(1.) * rimLight * u_rim;
+    g += vec3(1.) * exp(-dist * .9) * clamp(n.y, 0., 1.) * u_rim * .35; // faint lower caustic
+    float mask = (1. - smoothstep(-1., 1., hd)) * hop;
+    col = mix(col, g, mask);
+  }
+  col = mix(col, coral, u_risk * glowR * .7 * (hit >= 0 ? .3 : 1.));
+  gl_FragColor = vec4(col, 1.);
+}`;
+
+class GlassPhone {
+  constructor(phone, palette, src) {
+    this.phone = phone; this.pal = palette; this.src = src;
+    this.risk = +phone.dataset.risky; this.view = +phone.dataset.view;
+    const c = this.canvas = document.createElement('canvas'); c.className = 'gl';
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    c.width = 375 * dpr; c.height = 812 * dpr; phone.prepend(c);
+    const gl = this.gl = c.getContext('webgl', { antialias:false, alpha:false });
+    if (!gl) throw new Error('no webgl');
+    const sh = (t, s) => { const o = gl.createShader(t); gl.shaderSource(o, s); gl.compileShader(o);
+      if (!gl.getShaderParameter(o, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(o)); return o; };
+    const pr = this.pr = gl.createProgram();
+    gl.attachShader(pr, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, FS)); gl.linkProgram(pr);
+    if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(pr));
+    gl.useProgram(pr);
+    gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, -1,1, 1,-1, 1,1]), gl.STATIC_DRAW);
+    const a = gl.getAttribLocation(pr, 'a'); gl.enableVertexAttribArray(a); gl.vertexAttribPointer(a, 2, gl.FLOAT, false, 0, 0);
+    this.tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, this.tex);
+    for (const [k, val] of [[gl.TEXTURE_MIN_FILTER, gl.LINEAR], [gl.TEXTURE_MAG_FILTER, gl.LINEAR], [gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE], [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE]]) gl.texParameteri(gl.TEXTURE_2D, k, val);
+    const U = n => gl.getUniformLocation(pr, n);
+    this.u = { rect:U('u_rect'), meta:U('u_meta'), n:U('u_n') };
+    const g = GLASS;
+    gl.uniform2f(U('u_size'), 375, 812);
+    gl.uniform3f(U('u_map'), this.view === 1 ? 1 : 0, this.view === 2 ? 1 : 0, this.view === 0 ? 1.0 : 1.15);
+    gl.uniform1f(U('u_risk'), this.risk);
+    gl.uniform3fv(U('u_overlay'), g.overlay); gl.uniform1f(U('u_overlayAmt'), g.overlayAmt);
+    gl.uniform3fv(U('u_tint'), g.tint); gl.uniform1f(U('u_tintAmt'), g.tintAmt);
+    gl.uniform1f(U('u_rim'), g.rim); gl.uniform1f(U('u_shadow'), g.shadow);
+    gl.viewport(0, 0, c.width, c.height);
+    this.els = [...phone.querySelectorAll('.glass')].slice(0, MAX);
+    this.rects = new Float32Array(MAX * 4); this.meta = new Float32Array(MAX * 2);
+  }
+  opacity(el) { let o = 1; for (let n = el; n && n !== this.phone; n = n.parentElement) o *= +getComputedStyle(n).opacity; return o; }
+  frame() {
+    const srcCanvas = this.src.querySelector('canvas'); if (!srcCanvas || !srcCanvas.width) return false;
+    const gl = this.gl, base = this.phone.getBoundingClientRect();
+    this.els.forEach((el, i) => {
+      const r = el.getBoundingClientRect();
+      const rad = Math.min(parseFloat(getComputedStyle(el).borderTopLeftRadius) || 0, r.width / 2, r.height / 2);
+      this.rects.set([r.left - base.left, r.top - base.top, r.width, r.height], i * 4);
+      this.meta.set([rad, this.opacity(el)], i * 2);
+    });
+    gl.uniform4fv(this.u.rect, this.rects); gl.uniform2fv(this.u.meta, this.meta); gl.uniform1i(this.u.n, this.els.length);
+    gl.bindTexture(gl.TEXTURE_2D, this.tex);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, srcCanvas);
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
+    return true;
+  }
+}
+
+function fallback(why) { console.warn('Glass fallback:', why); document.body.classList.add('fallback'); document.querySelectorAll('canvas.gl').forEach(c => c.remove()); }
+
+try {
+  const React = (await import('react')).default;
+  const { createRoot } = await import('react-dom/client');
+  const { ShaderGradientCanvas, ShaderGradient } = await import('@shadergradient/react');
+  const phones = [];
+  PALETTES.forEach(pl => {
+    const src = document.getElementById(`src-${pl.id}`);
+    createRoot(src).render(React.createElement(ShaderGradientCanvas,
+      { lazyLoad:false, preserveDrawingBuffer:true, pixelDensity:1, fov:45, style:{ width:'375px', height:'812px' } },
+      React.createElement(ShaderGradient, { ...BASE, ...pl.sg })));
+    document.querySelectorAll(`.phone[data-p="${pl.id}"]`).forEach(ph => phones.push(new GlassPhone(ph, pl, src)));
+  });
+  let last = 0;
+  const loop = t => { if (t - last > 30) { last = t; phones.forEach(g => g.frame()); } requestAnimationFrame(loop); };
+  requestAnimationFrame(loop);
+} catch (e) { fallback(e.message); }
+</script>
+</body>
+</html>

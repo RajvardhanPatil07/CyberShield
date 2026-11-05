@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CyberShield · Three UI styles</title>
+<style>
+  :root { --page:#E9E9EE; }
+  * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+  body { background:var(--page); font-family:-apple-system,"SF Pro Text","Inter",system-ui,sans-serif; color:#111; padding:48px 24px 80px; }
+  .page-head { max-width:1240px; margin:0 auto 40px; text-align:center; }
+  .page-head h1 { font-size:34px; letter-spacing:-.03em; font-weight:800; }
+  .page-head p { color:#6b6b74; margin-top:8px; font-size:15px; }
+  .row { display:flex; flex-wrap:wrap; justify-content:center; gap:56px; }
+  .col { display:flex; flex-direction:column; align-items:center; gap:18px; }
+  .label { width:375px; }
+  .label .t { display:flex; align-items:center; justify-content:space-between; }
+  .label h2 { font-size:20px; letter-spacing:-.02em; }
+  .label p { color:#62626b; font-size:13.5px; line-height:1.5; margin-top:6px; }
+  .replay { border:0; background:#fff; border-radius:999px; padding:7px 14px; font:600 12.5px/1 inherit; cursor:pointer; box-shadow:0 1px 3px rgba(0,0,0,.08); }
+  .replay:active { transform:scale(.96); }
+  .sw { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
+  .sw span { display:flex; align-items:center; gap:6px; font:500 11px/1 ui-monospace,Menlo,monospace; color:#55555c; background:#fff; padding:5px 8px 5px 5px; border-radius:999px; }
+  .sw i { width:14px; height:14px; border-radius:50%; display:block; box-shadow:inset 0 0 0 1px rgba(0,0,0,.08); }
+
+  /* ---------- Phone frame ---------- */
+  .device { width:399px; height:836px; border-radius:62px; padding:12px; background:#0d0d0f; box-shadow:0 0 0 2px #2a2a2e, 0 40px 80px -20px rgba(0,0,0,.35), 0 20px 30px -15px rgba(0,0,0,.25); }
+  .phone { position:relative; width:375px; height:812px; border-radius:50px; overflow:hidden; background:var(--bg); color:var(--ink); font-family:var(--font); }
+  .island { position:absolute; top:11px; left:50%; transform:translateX(-50%); width:122px; height:35px; background:#000; border-radius:20px; z-index:50; }
+  .status { position:absolute; top:0; left:0; right:0; height:52px; display:flex; align-items:center; justify-content:space-between; padding:6px 32px 0 40px; font:600 16px/1 -apple-system,system-ui,sans-serif; z-index:40; color:var(--ink); pointer-events:none; }
+  .status .r { display:flex; gap:6px; align-items:center; }
+  .status svg { width:18px; height:12px; fill:currentColor; }
+
+  /* ---------- Screens ---------- */
+  .screen { position:absolute; inset:0; transition:transform .55s cubic-bezier(.32,.72,0,1), opacity .4s ease; }
+  .screen.result { transform:translateX(100%); }
+  .screen.result.active { transform:none; }
+  .screen.home.behind { transform:translateX(-28%); opacity:.0; }
+  .scroll { position:absolute; inset:0; overflow-y:auto; padding:58px 20px 130px; scrollbar-width:none; }
+  .scroll::-webkit-scrollbar { display:none; }
+
+  .top { display:flex; align-items:center; justify-content:space-between; margin:6px 0 14px; }
+  .brand { display:flex; align-items:center; gap:8px; font-weight:800; font-size:21px; letter-spacing:-.03em; }
+  .logo { width:30px; height:30px; border-radius:9px; background:var(--fab); color:var(--fabInk); display:grid; place-items:center; }
+  .logo svg { width:18px; height:18px; }
+  .pill { display:flex; align-items:center; gap:6px; background:var(--card); box-shadow:var(--shadow); border-radius:999px; padding:7px 12px; font-weight:700; font-size:14px; }
+  .langs { display:flex; background:var(--soft); border-radius:999px; padding:3px; font-size:12px; font-weight:700; }
+  .langs b { padding:5px 9px; border-radius:999px; color:var(--muted); cursor:pointer; transition:all .25s; }
+  .langs b.on { background:var(--card); color:var(--ink); box-shadow:var(--shadow); }
+  .hello { font-size:13px; color:var(--muted); font-weight:600; margin-bottom:2px; }
+
+  .week { display:flex; justify-content:space-between; margin:4px 0 18px; }
+  .day { display:flex; flex-direction:column; align-items:center; gap:7px; cursor:pointer; padding:7px 0 9px; width:44px; border-radius:16px; transition:background .3s, transform .2s; }
+  .day:active { transform:scale(.92); }
+  .day small { font-size:12px; font-weight:600; color:var(--muted); }
+  .day .d { width:34px; height:34px; border-radius:50%; display:grid; place-items:center; font-size:13.5px; font-weight:700; border:1.6px dashed var(--line2); }
+  .day.done .d { border:2px solid var(--safe); border-style:solid; }
+  .day.alert .d { border:2px solid var(--danger); border-style:solid; }
+  .day.today { background:var(--card); box-shadow:var(--shadow); }
+  .day.today .d { border-color:var(--ink); border-style:solid; }
+  .day.future { opacity:.45; }
+
+  .card { background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:18px; }
+  .hero { display:flex; align-items:center; justify-content:space-between; padding:22px 20px; }
+  .big { font-size:54px; font-weight:800; letter-spacing:-.05em; line-height:1; font-variant-numeric:tabular-nums; }
+  .big sup { font-size:18px; color:var(--muted); letter-spacing:0; vertical-align:top; margin-left:2px; font-weight:700; position:relative; top:8px; }
+  .muted { color:var(--muted); font-size:14px; font-weight:500; }
+  .chip { display:inline-flex; align-items:center; gap:6px; margin-top:12px; font-size:12px; font-weight:700; padding:6px 10px; border-radius:999px; white-space:nowrap; }
+  .chip.safe { background:var(--chipSafe); color:var(--safe); }
+  .chip.warn { background:var(--chipWarn); color:var(--warn); }
+  .chip.danger { background:var(--chipDanger); color:var(--danger); }
+  .chip .dot { width:6px; height:6px; border-radius:50%; background:currentColor; animation:blink 2s infinite; }
+  @keyframes blink { 50% { opacity:.25; } }
+
+  .legend { display:flex; flex-direction:column; gap:10px; margin-top:14px; }
+  .legend div { display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600; }
+  .legend i { width:10px; height:10px; border-radius:50%; }
+  .legend b { font-variant-numeric:tabular-nums; margin-left:auto; padding-left:12px; }
+
+  .ring { position:relative; display:grid; place-items:center; flex:none; }
+  .ring svg { position:absolute; inset:0; overflow:visible; }
+  .ring .rp { transition:stroke-dashoffset 1.5s cubic-bezier(.2,.85,.25,1); }
+  .ring-in { position:relative; display:grid; place-items:center; text-align:center; }
+  .ring-in svg { position:static; width:28px; height:28px; }
+
+  .trio { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:12px; }
+  .mini { padding:14px 12px 14px; border-radius:calc(var(--radius) - 4px); }
+  .mini .n { font-size:24px; font-weight:800; letter-spacing:-.03em; font-variant-numeric:tabular-nums; }
+  .mini .l { font-size:12px; color:var(--muted); font-weight:600; margin:1px 0 12px; }
+  .mini .ring-in svg { width:18px; height:18px; }
+
+  .sec { display:flex; justify-content:space-between; align-items:baseline; margin:24px 2px 10px; font-weight:800; font-size:18px; letter-spacing:-.02em; }
+  .sec a { font-size:13.5px; color:var(--muted); font-weight:600; cursor:pointer; }
+
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .tile { display:flex; flex-direction:column; gap:14px; padding:16px; cursor:pointer; transition:transform .25s cubic-bezier(.3,1.6,.5,1), box-shadow .25s; border-radius:calc(var(--radius) - 2px); }
+  .tile:hover { transform:translateY(-2px); }
+  .tile:active { transform:scale(.95); }
+  .tile .ic { width:40px; height:40px; border-radius:13px; display:grid; place-items:center; }
+  .tile .ic svg { width:21px; height:21px; }
+  .tile b { font-size:15px; letter-spacing:-.01em; }
+  .tile span { font-size:12px; color:var(--muted); font-weight:500; margin-top:-10px; }
+
+  .rows { display:flex; flex-direction:column; gap:10px; }
+  .rec { display:flex; align-items:center; gap:12px; padding:12px 14px; }
+  .rec .ic { width:44px; height:44px; border-radius:14px; display:grid; place-items:center; background:var(--soft); flex:none; }
+  .rec .ic svg { width:20px; height:20px; }
+  .rec .m { flex:1; min-width:0; }
+  .rec .m b { display:block; font-size:14.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .rec .m small { color:var(--muted); font-size:12px; font-weight:500; }
+  .badge { font-size:11.5px; font-weight:800; padding:5px 9px; border-radius:999px; flex:none; }
+  .badge.safe { background:var(--chipSafe); color:var(--safe); }
+  .badge.warn { background:var(--chipWarn); color:var(--warn); }
+  .badge.danger { background:var(--chipDanger); color:var(--danger); }
+
+  .tip { margin-top:12px; display:flex; gap:12px; align-items:flex-start; font-size:14px; line-height:1.45; font-weight:500; }
+  .tip .ic { font-size:20px; }
+
+  /* tab bar */
+  .tabbar { position:absolute; left:0; right:0; bottom:0; height:96px; padding:10px 22px 30px; display:flex; align-items:center; gap:4px; background:var(--tabBg); backdrop-filter:blur(20px) saturate(1.6); -webkit-backdrop-filter:blur(20px) saturate(1.6); border-top:1px solid var(--line); z-index:20; }
+  .tab { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; font-size:11px; font-weight:700; color:var(--muted); cursor:pointer; }
+  .tab svg { width:23px; height:23px; }
+  .tab.on { color:var(--ink); }
+  .fab { width:62px; height:62px; border-radius:50%; border:0; background:var(--fab); color:var(--fabInk); display:grid; place-items:center; cursor:pointer; margin-left:10px; margin-top:-26px; box-shadow:var(--fabShadow); transition:transform .35s cubic-bezier(.3,1.6,.5,1); }
+  .fab svg { width:28px; height:28px; transition:transform .4s cubic-bezier(.3,1.6,.5,1); }
+  .fab:active { transform:scale(.9); }
+  .phone.sheet-open .fab svg { transform:rotate(45deg); }
+
+  /* sheet */
+  .backdrop { position:absolute; inset:0; background:rgba(0,0,0,.35); opacity:0; pointer-events:none; transition:opacity .35s; z-index:25; }
+  .sheet { position:absolute; left:10px; right:10px; bottom:108px; background:var(--card); border-radius:30px; padding:18px; z-index:30; transform:translateY(30px) scale(.92); opacity:0; pointer-events:none; transform-origin:85% 100%; transition:transform .45s cubic-bezier(.3,1.4,.5,1), opacity .25s; box-shadow:0 20px 60px rgba(0,0,0,.25); }
+  .sheet h3 { font-size:17px; margin:2px 4px 12px; letter-spacing:-.02em; }
+  .sheet .tile { background:var(--soft); box-shadow:none; }
+  .phone.sheet-open .backdrop { opacity:1; pointer-events:auto; }
+  .phone.sheet-open .sheet { transform:none; opacity:1; pointer-events:auto; }
+  .phone.sheet-open .sheet .tile { animation:pop .45s cubic-bezier(.3,1.5,.5,1) both; }
+  .sheet .tile:nth-child(2){animation-delay:.04s!important}.sheet .tile:nth-child(3){animation-delay:.08s!important}.sheet .tile:nth-child(4){animation-delay:.12s!important}
+  @keyframes pop { from { opacity:0; transform:translateY(14px) scale(.9); } }
+
+  /* analyzing overlay */
+  .analyzing { position:absolute; inset:0; background:var(--bg); z-index:35; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:26px; opacity:0; pointer-events:none; transition:opacity .3s; }
+  .phone.scanning .analyzing { opacity:1; pointer-events:auto; }
+  .scanbox { position:relative; width:150px; height:150px; display:grid; place-items:center; }
+  .scanbox .orbit { position:absolute; inset:0; border-radius:50%; border:3px solid var(--track); border-top-color:var(--scanC); animation:spin 1s linear infinite; }
+  .scanbox .pulse { position:absolute; inset:18px; border-radius:50%; background:var(--scanC); opacity:.12; animation:pulse 1.4s ease-in-out infinite; }
+  .scanbox .shield { width:64px; height:64px; color:var(--ink); position:relative; overflow:hidden; }
+  .scanbox .shield svg { width:64px; height:64px; }
+  .scanbox .beam { position:absolute; left:-10px; right:-10px; height:3px; background:var(--scanC); box-shadow:0 0 12px var(--scanC); animation:beam 1.2s ease-in-out infinite alternate; top:0; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  @keyframes pulse { 50% { transform:scale(1.25); opacity:.05; } }
+  @keyframes beam { to { top:61px; } }
+  .steps { display:flex; flex-direction:column; gap:10px; font-weight:600; font-size:14.5px; }
+  .steps div { display:flex; gap:10px; align-items:center; opacity:0; transform:translateY(6px); }
+  .phone.scanning .steps div { animation:step .4s ease forwards; }
+  .phone.scanning .steps div:nth-child(2){animation-delay:.45s}.phone.scanning .steps div:nth-child(3){animation-delay:.9s}
+  .steps i { width:20px; height:20px; border-radius:50%; background:var(--safe); color:#fff; display:grid; place-items:center; font-style:normal; font-size:12px; }
+  @keyframes step { to { opacity:1; transform:none; } }
+  .analyzing h4 { font-size:22px; letter-spacing:-.03em; }
+
+  /* result */
+  .back { width:40px; height:40px; border-radius:50%; border:0; background:var(--card); box-shadow:var(--shadow); color:var(--ink); font-size:24px; cursor:pointer; display:grid; place-items:center; }
+  .back svg { width:20px; height:20px; }
+  .rtitle { font-weight:800; font-size:17px; }
+  .gauge { display:flex; flex-direction:column; align-items:center; padding:26px 20px 22px; text-align:center; }
+  .gauge .num { font-size:50px; font-weight:800; letter-spacing:-.05em; line-height:1; font-variant-numeric:tabular-nums; }
+  .gauge .of { font-size:12px; color:var(--muted); font-weight:700; letter-spacing:.06em; margin-top:4px; }
+  .verdict { margin-top:18px; font-size:24px; font-weight:800; letter-spacing:-.03em; color:var(--danger); display:flex; align-items:center; gap:8px; }
+  .verdict svg { width:22px; height:22px; }
+  .gauge .muted { margin-top:4px; }
+
+  .msg { font-size:15px; line-height:1.6; font-weight:500; position:relative; border-top-left-radius:8px; }
+  .msg .from { font-size:12px; color:var(--muted); font-weight:700; margin-bottom:6px; display:block; }
+  .msg mark { color:inherit; padding:1px 3px; border-radius:6px; background:linear-gradient(var(--markC),var(--markC)) no-repeat 0 0 / 0% 100%; transition:background-size .7s cubic-bezier(.6,.1,.2,1); box-decoration-break:clone; -webkit-box-decoration-break:clone; }
+  .msg.lit mark { background-size:100% 100%; }
+  .msg.lit mark:nth-of-type(2){transition-delay:.25s}.msg.lit mark:nth-of-type(3){transition-delay:.5s}.msg.lit mark:nth-of-type(4){transition-delay:.75s}
+
+  .reason { display:flex; gap:12px; align-items:center; padding:14px; }
+  .reason .ic { width:40px; height:40px; border-radius:13px; display:grid; place-items:center; flex:none; background:var(--chipDanger); color:var(--danger); }
+  .reason .ic.w { background:var(--chipWarn); color:var(--warn); }
+  .reason .ic svg { width:19px; height:19px; }
+  .reason .m { flex:1; }
+  .reason b { font-size:14.5px; display:block; }
+  .reason small { font-size:12px; color:var(--muted); font-weight:500; }
+  .bar { height:6px; border-radius:6px; background:var(--track); margin-top:8px; overflow:hidden; }
+  .bar i { display:block; height:100%; width:0; border-radius:6px; background:var(--danger); transition:width 1.2s cubic-bezier(.2,.85,.25,1); }
+  .bar i.w { background:var(--warn); }
+  .pts { font-weight:800; font-size:13px; color:var(--muted); font-variant-numeric:tabular-nums; }
+
+  .cta { width:100%; border:0; border-radius:999px; padding:18px; font:700 16px/1 var(--font); background:var(--fab); color:var(--fabInk); display:flex; align-items:center; justify-content:center; gap:10px; cursor:pointer; margin-top:4px; transition:transform .2s; box-shadow:var(--fabShadow); }
+  .cta svg { width:19px; height:19px; }
+  .cta:active, .ghost:active { transform:scale(.97); }
+  .ghost { width:100%; border:0; border-radius:999px; padding:17px; font:700 15px/1 var(--font); background:var(--soft); color:var(--ink); cursor:pointer; margin-top:10px; transition:transform .2s; }
+
+  /* entrance motion */
+  .rise { opacity:0; transform:translateY(18px) scale(.985); }
+  .rise.in { animation:rise .7s cubic-bezier(.2,.9,.25,1.05) forwards; animation-delay:var(--d,0ms); }
+  @keyframes rise { to { opacity:1; transform:none; } }
+
+  /* ================= THEME 1 · DAYLIGHT (closest to Cal AI) ================= */
+  .phone[data-theme="daylight"] {
+    --bg:#F6F6F8; --card:#FFFFFF; --ink:#0B0B0D; --muted:#8B8B94; --line:#EDEDF1; --line2:#CFCFD6; --track:#EFEFF3; --soft:#F3F3F6;
+    --shadow:0 1px 2px rgba(16,16,24,.04), 0 10px 28px rgba(16,16,24,.06);
+    --fab:#0B0B0D; --fabInk:#FFFFFF; --fabShadow:0 10px 24px rgba(0,0,0,.28);
+    --safe:#1FA971; --warn:#F2A10C; --danger:#F04E58;
+    --chipSafe:#E7F7EF; --chipWarn:#FEF3DC; --chipDanger:#FDE8E9; --markC:#FFD9DC; --scanC:#0B0B0D;
+    --tabBg:rgba(246,246,248,.86); --radius:26px;
+    --font:-apple-system,"SF Pro Display","Inter",system-ui,sans-serif;
+  }
+  .phone[data-theme="daylight"] .tile .ic { background:var(--soft); }
+
+  /* ================= THEME 2 · MIDNIGHT RINGS (Apple Fitness night) ================= */
+  .phone[data-theme="midnight"] {
+    --bg:#000000; --card:#121214; --ink:#F5F5F7; --muted:#8E8E96; --line:rgba(255,255,255,.07); --line2:#3A3A40; --track:rgba(255,255,255,.09); --soft:#1C1C20;
+    --shadow:inset 0 0 0 1px rgba(255,255,255,.06);
+    --fab:#B6FF3B; --fabInk:#0A0A0A; --fabShadow:0 0 0 6px rgba(182,255,59,.12), 0 10px 34px rgba(182,255,59,.35);
+    --safe:#3CF0A0; --warn:#FFB340; --danger:#FF375F;
+    --chipSafe:rgba(60,240,160,.13); --chipWarn:rgba(255,179,64,.14); --chipDanger:rgba(255,55,95,.15); --markC:rgba(255,55,95,.32); --scanC:#B6FF3B;
+    --tabBg:rgba(0,0,0,.78); --radius:24px;
+    --font:-apple-system,"SF Pro Display","Inter",system-ui,sans-serif;
+  }
+  .phone[data-theme="midnight"] .rp { filter:drop-shadow(0 0 6px var(--glow, transparent)); }
+  .phone[data-theme="midnight"] .big, .phone[data-theme="midnight"] .gauge .num { font-weight:700; }
+  .phone[data-theme="midnight"] .day.today { background:#1C1C20; }
+  .phone[data-theme="midnight"] .tile .ic { background:#1F1F24; }
+  .phone[data-theme="midnight"] .status { color:#fff; }
+  .phone[data-theme="midnight"] .hero { background:radial-gradient(120% 100% at 100% 0%, rgba(182,255,59,.08), transparent 60%), var(--card); }
+
+  /* ================= THEME 3 · SAFFRON CALM (warm, rooted in India) ================= */
+  .phone[data-theme="saffron"] {
+    --bg:#FBF5EC; --card:#FFFDF9; --ink:#1F1A14; --muted:#8E8172; --line:#F0E5D5; --line2:#D9C9B2; --track:#F3E9DB; --soft:#F7EEE1;
+    --shadow:0 2px 4px rgba(120,80,20,.04), 0 14px 32px rgba(120,80,20,.08);
+    --fab:#26338A; --fabInk:#FFF6E8; --fabShadow:0 12px 28px rgba(38,51,138,.35);
+    --safe:#0E8A7C; --warn:#E28C05; --danger:#DC4B26;
+    --chipSafe:#E0F2EE; --chipWarn:#FDEFD6; --chipDanger:#FBE4DC; --markC:#FFD8B8; --scanC:#E28C05;
+    --tabBg:rgba(251,245,236,.86); --radius:28px;
+    --font:ui-rounded,"SF Pro Rounded",-apple-system,"Nunito",system-ui,sans-serif;
+  }
+  .phone[data-theme="saffron"]::before { content:""; position:absolute; width:340px; height:340px; top:-150px; right:-120px; border-radius:50%; background:radial-gradient(circle, rgba(242,159,5,.30), transparent 65%); filter:blur(10px); animation:float 9s ease-in-out infinite; }
+  .phone[data-theme="saffron"]::after { content:""; position:absolute; width:300px; height:300px; top:120px; left:-170px; border-radius:50%; background:radial-gradient(circle, rgba(38,51,138,.16), transparent 65%); filter:blur(10px); animation:float 11s ease-in-out infinite reverse; }
+  @keyframes float { 50% { transform:translate(-24px,22px) scale(1.08); } }
+  .phone[data-theme="saffron"] .screen { z-index:1; }
+  .phone[data-theme="saffron"] .tile:nth-child(1) .ic { background:#FDEBD0; color:#B86B00; }
+  .phone[data-theme="saffron"] .tile:nth-child(2) .ic { background:#E3E6F7; color:#26338A; }
+  .phone[data-theme="saffron"] .tile:nth-child(3) .ic { background:#DDF1EC; color:#0E8A7C; }
+  .phone[data-theme="saffron"] .tile:nth-child(4) .ic { background:#FBE1D8; color:#C2401E; }
+  .phone[data-theme="saffron"] .hero { background:linear-gradient(135deg,#FFFDF9 40%,#FFF3E1); }
+  .phone[data-theme="saffron"] .big { color:#26338A; }
+
+  /* Narrow viewports: shrink the three phones so they sit side by side. */
+  @media (max-width:820px) {
+    body { background:transparent; padding:0; }
+    .page-head { display:none; }
+    .row { flex-wrap:nowrap; gap:10px; }
+    .col { gap:10px; }
+    .device { zoom:.565; }
+    .label { width:226px; }
+    .label h2 { font-size:15px; color:var(--foreground,#111); }
+    .label p { font-size:11.5px; color:var(--muted-foreground,#62626b); }
+    .replay { padding:5px 9px; font-size:11px; background:var(--secondary,#fff); color:var(--foreground,#111); }
+    .sw { gap:4px; }
+    .sw span { font-size:9.5px; padding:3px 6px 3px 3px; background:var(--secondary,#fff); color:var(--muted-foreground,#55555c); }
+    .sw i { width:10px; height:10px; }
+  }
+</style>
+</head>
+<body>
+  <div class="page-head">
+    <h1>CyberShield: three UI directions</h1>
+    <p>In the style of Cal AI: big numbers, soft cards, progress rings, a week strip and a floating “+”. Tap “+”, a quick-check tile, or a day to see the motion.</p>
+  </div>
+  <div class="row" id="row"></div>
+
+<script>
+const I = {
+  shield:'<path d="M12 3l7 3v6c0 4.5-3 7.7-7 9-4-1.3-7-4.5-7-9V6l7-3z"/>',
+  check:'<path d="M12 3l7 3v6c0 4.5-3 7.7-7 9-4-1.3-7-4.5-7-9V6l7-3z"/><path d="M8.7 12.2l2.3 2.3 4.3-4.6"/>',
+  msg:'<path d="M5 5h14a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H9l-4 3.5V6a1 1 0 0 1 1-1z"/>',
+  link:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+  qr:'<rect x="4" y="4" width="6" height="6" rx="1.5"/><rect x="14" y="4" width="6" height="6" rx="1.5"/><rect x="4" y="14" width="6" height="6" rx="1.5"/><path d="M14 14h2.5v2.5H14zM17.5 17.5H20V20h-2.5zM14 20h1M20 14v1"/>',
+  img:'<rect x="4" y="4" width="16" height="16" rx="4"/><circle cx="9.5" cy="9.5" r="1.6"/><path d="M20 15.5l-4.5-4.5L6.5 20"/>',
+  home:'<path d="M4 10.5L12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5.5h-5V20H5a1 1 0 0 1-1-1z"/>',
+  clock:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+  gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
+  alert:'<path d="M10.3 4.3L2.8 17.5A2 2 0 0 0 4.5 20.5h15a2 2 0 0 0 1.7-3L13.7 4.3a2 2 0 0 0-3.4 0z"/><path d="M12 10v4M12 17.2h.01"/>',
+  lock:'<rect x="5" y="11" width="14" height="9" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+  bolt:'<path d="M13 3L5 13.5h6L10 21l8-10.5h-6z"/>',
+  phone:'<path d="M5 4h3.5l2 5-2.4 1.5a11 11 0 0 0 5.4 5.4L15 13.5l5 2V19a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  back:'<path d="M15 5l-7 7 7 7"/>',
+  clockA:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+};
+const ic = (n, sw = 2) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round">${I[n]}</svg>`;
+
+const THEMES = [
+  { id:'daylight', name:'1 · Daylight', hello:'Today',
+    blurb:'The closest match to Cal AI. Off-white canvas, white cards, black type and a black “+” button. Colour appears only where it carries meaning: green for safe, amber for suspicious, coral for high risk.',
+    sw:[['#F6F6F8','canvas'],['#0B0B0D','ink'],['#1FA971','safe'],['#F2A10C','warn'],['#F04E58','risk']],
+    g:{ score:['#0B0B0D','#0B0B0D'], a:['#0B0B0D','#3A3A40'], safe:['#22C07F','#1FA971'], warn:['#F7B733','#F2A10C'], danger:['#FF7A7F','#F04E58'] },
+    hero:'single' },
+  { id:'midnight', name:'2 · Midnight Rings', hello:'Summary',
+    blurb:'A dark mode modelled on Apple Fitness. True-black OLED canvas with three glowing concentric rings for safety, weekly checks and streak. The “+” button is electric lime, so the main action is easy to find.',
+    sw:[['#000000','canvas'],['#B6FF3B','action'],['#3CF0A0','safe'],['#64D2FF','checks'],['#FF375F','risk']],
+    g:{ score:['#3CF0A0','#B6FF3B'], a:['#3AA8FF','#64D2FF'], safe:['#3CF0A0','#B6FF3B'], warn:['#FF9F0A','#FFD60A'], danger:['#FF375F','#FF6482'] },
+    glow:{ score:'rgba(160,255,90,.55)', a:'rgba(100,210,255,.55)', warn:'rgba(255,190,40,.5)', danger:'rgba(255,55,95,.55)', safe:'rgba(60,240,160,.5)' },
+    hero:'triple' },
+  { id:'saffron', name:'3 · Saffron Calm', hello:'Namaste 🙏',
+    blurb:'A warm version for first-time smartphone users. Cream paper background, rounded type, an indigo “+” button and saffron accents, with soft colour shapes drifting behind the cards. It feels friendly while still looking trustworthy.',
+    sw:[['#FBF5EC','paper'],['#26338A','indigo'],['#E28C05','saffron'],['#0E8A7C','teal'],['#DC4B26','vermilion']],
+    g:{ score:['#26338A','#0E8A7C'], a:['#26338A','#5566D6'], safe:['#0E8A7C','#3BB89F'], warn:['#E28C05','#F5C04A'], danger:['#DC4B26','#F28A5B'] },
+    hero:'single' },
+];
+
+function rings(t, size, sw, gap, items, inner = '') {
+  const c0 = size / 2;
+  let circles = '';
+  items.forEach((it, k) => {
+    const r = (size - sw) / 2 - k * (sw + gap);
+    const c = 2 * Math.PI * r;
+    const glow = t.glow ? `style="--glow:${t.glow[it.g]}"` : '';
+    circles += `<circle cx="${c0}" cy="${c0}" r="${r}" fill="none" stroke="var(--track)" stroke-width="${sw}"/>
+      <circle class="rp" ${glow} cx="${c0}" cy="${c0}" r="${r}" fill="none" stroke="url(#${t.id}-${it.g})" stroke-width="${sw}" stroke-linecap="round"
+        stroke-dasharray="${c}" stroke-dashoffset="${c}" data-c="${c}" data-pct="${it.pct}" transform="rotate(-90 ${c0} ${c0})"/>`;
+  });
+  return `<div class="ring" style="width:${size}px;height:${size}px"><svg width="${size}" height="${size}">${circles}</svg><div class="ring-in">${inner}</div></div>`;
+}
+
+function defs(t) {
+  return `<svg width="0" height="0" style="position:absolute"><defs>${Object.entries(t.g).map(([k, [a, b]]) =>
+    `<linearGradient id="${t.id}-${k}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient>`).join('')}</defs></svg>`;
+}
+
+function hero(t) {
+  if (t.hero === 'triple') {
+    return `<div class="card hero rise">
+      <div>
+        <div class="big"><span class="count" data-to="92">0</span><sup>%</sup></div>
+        <div class="muted">Protected this week</div>
+        <div class="legend">
+          <div><i style="background:linear-gradient(135deg,#3CF0A0,#B6FF3B)"></i>Safe checks<b>92%</b></div>
+          <div><i style="background:#64D2FF"></i>Weekly goal<b>24/30</b></div>
+          <div><i style="background:#FFB340"></i>Streak<b>12/14</b></div>
+        </div>
+      </div>
+      ${rings(t, 140, 16, 3, [{ g:'score', pct:92 }, { g:'a', pct:80 }, { g:'warn', pct:86 }])}
+    </div>`;
+  }
+  return `<div class="card hero rise">
+    <div>
+      <div class="big"><span class="count" data-to="92">0</span></div>
+      <div class="muted">Safety score</div>
+      <div class="chip safe"><span class="dot"></span>Checks run on-device</div>
+    </div>
+    ${rings(t, 120, 11, 0, [{ g:'score', pct:92 }], `<div style="width:52px;height:52px;border-radius:50%;background:var(--soft);display:grid;place-items:center;color:var(--ink)">${ic('check', 1.8)}</div>`)}
+  </div>`;
+}
+
+function mini(t, n, l, g, pct, icon, color) {
+  return `<div class="card mini rise">
+    <div class="n"><span class="count" data-to="${n}">0</span></div>
+    <div class="l">${l}</div>
+    ${rings(t, 54, 6, 0, [{ g, pct }], `<span style="color:${color}">${ic(icon, 2.2)}</span>`)}
+  </div>`;
+}
+
+const tiles = (cls = 'card') => [
+  ['msg', 'Message', 'SMS, WhatsApp'],
+  ['link', 'Link', 'Before you tap'],
+  ['qr', 'QR / UPI', 'Scan to check'],
+  ['img', 'Screenshot', 'Reads Hindi too'],
+].map(([i, b, s]) => `<div class="tile ${cls} ${cls === 'card' ? 'rise' : ''}" data-action="check"><div class="ic">${ic(i)}</div><b>${b}</b><span>${s}</span></div>`).join('');
+
+function phone(t) {
+  const days = [['S',1,'done'],['M',2,'done'],['T',3,'alert'],['W',4,'done'],['T',5,'today'],['F',6,'future'],['S',7,'future']]
+    .map(([d, n, c]) => `<div class="day ${c}" data-action="day"><small>${d}</small><div class="d">${n}</div></div>`).join('');
+  const recent = [
+    ['link', 'sbi-kyc-update.xyz', 'Link · 2m ago', 'danger', 'High risk'],
+    ['qr', 'UPI collect · ₹4,999', 'QR · 1h ago', 'warn', 'Suspicious'],
+    ['msg', '“Electricity will be cut tonight”', 'Message · Yesterday', 'danger', 'High risk'],
+    ['link', 'amazon.in', 'Link · Tue', 'safe', 'Looks safe'],
+  ].map(([i, b, s, c, l]) => `<div class="card rec rise"><div class="ic">${ic(i)}</div><div class="m"><b>${b}</b><small>${s}</small></div><span class="badge ${c}">${l}</span></div>`).join('');
+
+  return `
+  <div class="phone" data-theme="${t.id}">
+    ${defs(t)}
+    <div class="island"></div>
+    <div class="status"><span>9:41</span><span class="r">
+      <svg viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2.5" width="3" height="9.5" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+      <svg viewBox="0 0 26 12" style="width:26px"><rect x=".5" y=".5" width="22" height="11" rx="3.5" fill="none" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="17" height="8" rx="2"/><rect x="23.5" y="4" width="1.8" height="4" rx="1" opacity=".4"/></svg>
+    </span></div>
+
+    <section class="screen home">
+      <div class="scroll">
+        <div class="top rise">
+          <div class="brand"><span class="logo">${ic('shield', 2.4)}</span>CyberShield</div>
+          <div class="pill">🔥 12</div>
+        </div>
+        <div class="rise" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div><div class="hello">${t.hello}</div><div style="font-weight:800;font-size:15px">Thursday, 5 Nov</div></div>
+          <div class="langs"><b class="on">EN</b><b>हि</b><b>म</b></div>
+        </div>
+        <div class="week rise">${days}</div>
+        ${hero(t)}
+        <div class="trio">
+          ${mini(t, 24, 'Checked', 'a', 80, 'check', 'var(--ink)')}
+          ${mini(t, 3, 'Suspicious', 'warn', 35, 'alert', 'var(--warn)')}
+          ${mini(t, 1, 'High risk', 'danger', 15, 'bolt', 'var(--danger)')}
+        </div>
+        <div class="sec rise">Quick check</div>
+        <div class="grid">${tiles()}</div>
+        <div class="sec rise">Recently checked <a>See all</a></div>
+        <div class="rows">${recent}</div>
+        <div class="card tip rise"><span class="ic">💡</span><span>Banks never ask for your OTP or UPI PIN. You only need a PIN to <b>send</b> money, never to receive it.</span></div>
+      </div>
+
+      <nav class="tabbar">
+        <div class="tab on">${ic('home')}Home</div>
+        <div class="tab">${ic('clock')}History</div>
+        <div class="tab">${ic('gear', 1.8)}Settings</div>
+        <button class="fab" data-action="sheet" aria-label="New check">${ic('plus', 2.6)}</button>
+      </nav>
+      <div class="backdrop" data-action="close"></div>
+      <div class="sheet"><h3>What do you want to check?</h3><div class="grid">${tiles('')}</div></div>
+    </section>
+
+    <div class="analyzing">
+      <div class="scanbox"><div class="pulse"></div><div class="orbit"></div><div class="shield">${ic('shield', 1.6)}<div class="beam"></div></div></div>
+      <h4>Checking on your phone…</h4>
+      <div class="steps">
+        <div><i>✓</i>Nothing leaves your device</div>
+        <div><i>✓</i>Matching 20+ scam patterns</div>
+        <div><i>✓</i>English · हिन्दी · मराठी</div>
+      </div>
+    </div>
+
+    <section class="screen result">
+      <div class="scroll">
+        <div class="top rise"><button class="back" data-action="home" aria-label="Back">${ic('back', 2.4)}</button><div class="rtitle">ScamLens</div><div style="width:40px"></div></div>
+        <div class="card gauge rise">
+          ${rings(t, 178, 16, 0, [{ g:'danger', pct:86 }], `<div class="num"><span class="count" data-to="86">0</span></div><div class="of">RISK / 100</div>`)}
+          <div class="verdict">${ic('alert', 2.4)}High risk</div>
+          <div class="muted">Matches 4 known scam patterns. Don’t reply.</div>
+        </div>
+        <div class="sec rise">The message</div>
+        <div class="card msg rise"><span class="from">From: VK-SBIUPD · SMS</span>Dear customer, your SBI account will be <mark>blocked today</mark>. <mark>Update your KYC</mark> at sbi-kyc-update.xyz and <mark>share the OTP</mark> to verify. <mark>Do not tell anyone</mark>.</div>
+        <div class="sec rise">Why it’s risky</div>
+        <div class="rows">
+          <div class="card reason rise"><div class="ic">${ic('lock')}</div><div class="m"><b>Asks for your OTP</b><small>Banks never ask for this</small><div class="bar"><i data-w="95"></i></div></div><span class="pts">+35</span></div>
+          <div class="card reason rise"><div class="ic">${ic('clockA')}</div><div class="m"><b>Account-block threat</b><small>Creates panic so you act fast</small><div class="bar"><i data-w="70"></i></div></div><span class="pts">+25</span></div>
+          <div class="card reason rise"><div class="ic w">${ic('link')}</div><div class="m"><b>Fake bank link</b><small>“sbi” on a .xyz domain</small><div class="bar"><i class="w" data-w="55"></i></div></div><span class="pts">+18</span></div>
+          <div class="card reason rise"><div class="ic w">${ic('msg')}</div><div class="m"><b>Asks for secrecy</b><small>Common in fraud scripts</small><div class="bar"><i class="w" data-w="30"></i></div></div><span class="pts">+8</span></div>
+        </div>
+        <div class="sec rise">What to do</div>
+        <div class="rise"><button class="cta">${ic('phone', 2.2)}Call 1930 cyber helpline</button><button class="ghost">Report on Chakshu</button></div>
+      </div>
+    </section>
+  </div>`;
+}
+
+// ---------- Motion ----------
+function countUp(el) {
+  const to = +el.dataset.to, dur = 1300, t0 = performance.now();
+  const step = now => {
+    const p = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+    el.textContent = Math.round(to * e);
+    if (p < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+function animateIn(screen) {
+  screen.querySelectorAll('.rise').forEach((el, i) => {
+    el.classList.remove('in'); void el.offsetWidth;
+    el.style.setProperty('--d', `${i * 55}ms`); el.classList.add('in');
+  });
+  screen.querySelectorAll('.rp').forEach(c => {
+    c.style.transition = 'none'; c.style.strokeDashoffset = c.dataset.c; void c.getBoundingClientRect();
+    c.style.transition = '';
+    setTimeout(() => { c.style.strokeDashoffset = c.dataset.c * (1 - c.dataset.pct / 100); }, 250);
+  });
+  screen.querySelectorAll('.count').forEach(el => { el.textContent = 0; setTimeout(() => countUp(el), 250); });
+  screen.querySelectorAll('.bar i').forEach(b => { b.style.width = 0; setTimeout(() => b.style.width = b.dataset.w + '%', 600); });
+  const msg = screen.querySelector('.msg');
+  if (msg) { msg.classList.remove('lit'); setTimeout(() => msg.classList.add('lit'), 700); }
+}
+
+function wire(p) {
+  const home = p.querySelector('.home'), res = p.querySelector('.result');
+  p.addEventListener('click', e => {
+    const lang = e.target.closest('.langs b');
+    if (lang) { lang.parentNode.querySelectorAll('b').forEach(b => b.classList.toggle('on', b === lang)); return; }
+    const a = e.target.closest('[data-action]'); if (!a) return;
+    const act = a.dataset.action;
+    if (act === 'sheet') p.classList.toggle('sheet-open');
+    if (act === 'close') p.classList.remove('sheet-open');
+    if (act === 'day') { p.querySelectorAll('.day').forEach(d => d.classList.toggle('today', d === a)); }
+    if (act === 'check') {
+      p.classList.remove('sheet-open'); p.classList.add('scanning');
+      setTimeout(() => {
+        home.classList.add('behind'); res.classList.add('active'); res.querySelector('.scroll').scrollTop = 0;
+        animateIn(res); p.classList.remove('scanning');
+      }, 1900);
+    }
+    if (act === 'home') { res.classList.remove('active'); home.classList.remove('behind'); animateIn(home); }
+  });
+}
+
+const row = document.getElementById('row');
+THEMES.forEach(t => {
+  const col = document.createElement('div');
+  col.className = 'col';
+  col.innerHTML = `<div class="device">${phone(t)}</div>
+    <div class="label"><div class="t"><h2>${t.name}</h2><button class="replay">↻ Replay</button></div>
+    <p>${t.blurb}</p><div class="sw">${t.sw.map(([c, n]) => `<span><i style="background:${c}"></i>${c} ${n}</span>`).join('')}</div></div>`;
+  row.appendChild(col);
+  const p = col.querySelector('.phone');
+  wire(p);
+  col.querySelector('.replay').onclick = () => {
+    p.querySelector('.result').classList.remove('active'); p.querySelector('.home').classList.remove('behind');
+    p.querySelector('.home .scroll').scrollTop = 0; animateIn(p.querySelector('.home'));
+  };
+  setTimeout(() => animateIn(p.querySelector('.home')), 150);
+});
+</script>
+</body>
+</html>
