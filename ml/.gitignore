@@ -1,5 +1,7 @@
 # Generated artefacts. Keep the repo clean; models are reproducible from a snapshot + config.
 data/snapshots/
+# Real, donated user messages (even redacted) never go into git.
+data/real/
 models/*/
 !models/README.md
 __pycache__/

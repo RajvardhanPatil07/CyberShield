@@ -37,6 +37,14 @@ class MlFusionTest {
         assertTrue(fused.reasons.any { it == FindingCode.ML_PATTERN_MATCH.english })
     }
 
+    @Test fun raisedResultDoesNotSayNoRedFlags() {
+        val base = ScamLens.analyze("Please review the attached note when you get a moment.")
+        assertTrue(Recommendation.STAY_CAUTIOUS in base.recommendations)
+        val fused = MlFusion.fuse(base, mlProb = 0.9)
+        assertFalse(Recommendation.STAY_CAUTIOUS in fused.recommendations)
+        assertTrue(Recommendation.VERIFY_OFFICIAL_CHANNEL in fused.recommendations)
+    }
+
     @Test fun modelNeverLowersAStrongRuleScore() {
         val base = ScamLens.analyze("Share your OTP and UPI PIN now or your account will be blocked.")
         assertTrue(base.score >= 60)

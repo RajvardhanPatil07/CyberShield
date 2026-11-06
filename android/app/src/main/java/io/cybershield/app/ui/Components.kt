@@ -186,7 +186,8 @@ fun ResultCard(result: RiskAssessment, showLanguage: Boolean = false, onReport: 
                 }
             }
             Spacer(Modifier.height(10.dp))
-            Text(stringResource(R.string.disclaimer), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            val usedMl = result.findings.any { it.code == io.cybershield.app.security.FindingCode.ML_PATTERN_MATCH }
+            Text(stringResource(if (usedMl) R.string.disclaimer_ml else R.string.disclaimer), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }
@@ -260,7 +261,14 @@ fun ConfirmOpenDialog(title: String, body: String, highRisk: Boolean, onConfirm:
 }
 
 @Composable
-fun CloudConsentDialog(body: String, preview: String?, alreadyAllowed: Boolean, onSend: (remember: Boolean) -> Unit, onDismiss: () -> Unit) {
+fun CloudConsentDialog(
+    body: String,
+    preview: String?,
+    alreadyAllowed: Boolean,
+    onSend: (remember: Boolean) -> Unit,
+    onDismiss: () -> Unit,
+    rememberLabel: String = stringResource(R.string.cloud_remember),
+) {
     var rememberChoice by remember { mutableStateOf(alreadyAllowed) }
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -274,7 +282,7 @@ fun CloudConsentDialog(body: String, preview: String?, alreadyAllowed: Boolean, 
                         Text(it.take(1200), style = MaterialTheme.typography.bodySmall)
                     }
                 }
-                if (!alreadyAllowed) CheckboxRow(rememberChoice, stringResource(R.string.cloud_remember), small = true) { rememberChoice = it }
+                if (!alreadyAllowed) CheckboxRow(rememberChoice, rememberLabel, small = true) { rememberChoice = it }
             }
         },
         confirmButton = { TextButton(onClick = { onSend(rememberChoice) }) { Text(stringResource(R.string.cloud_send)) } },

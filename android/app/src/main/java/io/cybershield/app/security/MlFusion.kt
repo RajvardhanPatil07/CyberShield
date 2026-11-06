@@ -28,12 +28,17 @@ object MlFusion {
         // Reasons mirror RiskAssessment.from: one line per distinct finding code, plus the ML line.
         val reasons = base.findings.map { it.code }.distinct().map { it.english } + FindingCode.ML_PATTERN_MATCH.english
 
+        // "No strong red flags were found" would contradict a raised verdict, so replace it with real advice.
+        val recommendations = (base.recommendations - Recommendation.STAY_CAUTIOUS)
+            .ifEmpty { listOf(Recommendation.VERIFY_OFFICIAL_CHANNEL, Recommendation.REPORT_CHAKSHU) }
+
         return base.copy(
             score = mlScore,
             level = level,
             verdict = RiskAssessment.verdictFor(level),
             findings = findings,
             reasons = reasons,
+            recommendations = recommendations,
         )
     }
 }

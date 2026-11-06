@@ -73,6 +73,7 @@
     <string name="why_title">का</string>
     <string name="what_to_do">काय करावे</string>
     <string name="disclaimer">हा निकाल फोनवरील नियमांवर आधारित आहे. एखादी गोष्ट धोकादायक किंवा सुरक्षित असल्याचा हा पुरावा नाही.</string>
+    <string name="disclaimer_ml">हा निकाल फोनवरील नियम आणि प्रायोगिक AI मॉडेलवर आधारित आहे. एखादी गोष्ट धोकादायक किंवा सुरक्षित असल्याचा हा पुरावा नाही.</string>
     <string name="detected_language">ओळखलेली भाषा: %1$s (अंदाज)</string>
     <string name="level_low">कोणताही स्पष्ट धोका दिसला नाही</string>
     <string name="level_medium">सावधगिरी बाळगा</string>
@@ -183,6 +184,7 @@
     <string name="ml_unavailable">या बिल्डमध्ये अद्याप कोणतेही AI मॉडेल समाविष्ट नाही, त्यामुळे या सेटिंगचा काही परिणाम होत नाही.</string>
     <string name="donate_button">ओळख सुधारण्यात मदत करा</string>
     <string name="donate_consent">घोटाळा ओळख सुधारण्यात मदत करण्यासाठी हा संपादित (रिडॅक्टेड) संदेश पाठवा. तो संशयित घोटाळा म्हणून पाठवला जातो. वैयक्तिक तपशील काढून टाकले आहेत (खाली दाखवले आहेत) आणि काहीही तुमची ओळख दर्शवत नाही. यासाठी बॅकएंड कॉन्फिगर असणे आवश्यक आहे, आणि तुम्ही पाठवा टॅप केल्यावरच हे घडते.</string>
+    <string name="donate_remember">दान करण्यापूर्वी पुन्हा विचारू नका (सेटिंग्जमध्ये बंद करता येते)</string>
     <string name="donate_sending">पाठवत आहे…</string>
     <string name="donate_sent">धन्यवाद. ओळख सुधारण्यात मदत करण्यासाठी तुमचा रिडॅक्टेड नमुना पाठवला गेला.</string>
     <string name="backend_label">सर्व्हरचा पत्ता</string>

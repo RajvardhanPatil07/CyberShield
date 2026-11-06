@@ -232,6 +232,7 @@ fun ScamLensScreen(
             body = stringResource(R.string.donate_consent),
             preview = preview,
             alreadyAllowed = services.donationConsent,
+            rememberLabel = stringResource(R.string.donate_remember),
             onDismiss = { donatePreview = null },
             onSend = { rememberChoice ->
                 donatePreview = null
