@@ -123,22 +123,53 @@ export function createApp(config, { fetchImpl = fetch, now = Date.now, providers
     };
   }
 
-  /** What a person sees when they open the server address in a browser. */
-  function index() {
-    return {
-      body: {
-        service: 'CyberShield backend',
-        version: VERSION,
-        status: 'ok',
-        endpoints: {
-          'GET /health': 'Liveness and which providers are configured',
-          'POST /v1/url/check': 'Link reputation (Safe Browsing, VirusTotal, URLhaus)',
-          'POST /v1/ai/analyze': 'AI explanation of a redacted message',
-          'POST /v1/contribute': 'Opt-in, redacted training-data donation',
-        },
-        docs: 'https://github.com/RajvardhanPatil07/CyberShield/tree/main/backend',
-      },
-    };
+  const ENDPOINTS = {
+    'GET /health': 'Liveness and which providers are configured',
+    'POST /v1/url/check': 'Link reputation (Safe Browsing, VirusTotal, URLhaus)',
+    'POST /v1/ai/analyze': 'AI explanation of a redacted message',
+    'POST /v1/contribute': 'Opt-in, redacted training-data donation',
+  };
+  const DOCS = 'https://github.com/RajvardhanPatil07/CyberShield/tree/main/backend';
+
+  /**
+   * What you see when you open the server address. Browsers (Accept: text/html) get a readable
+   * status page; API clients get the same information as JSON.
+   */
+  function index(req) {
+    const body = { service: 'CyberShield backend', version: VERSION, status: 'ok', endpoints: ENDPOINTS, docs: DOCS };
+    const wantsHtml = String(req.headers.accept ?? '').toLowerCase().includes('text/html');
+    return wantsHtml ? { body, html: statusPage() } : { body };
+  }
+
+  function statusPage() {
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+    const label = { google_safe_browsing: 'Google Safe Browsing', virustotal: 'VirusTotal', urlhaus: 'URLhaus' };
+    const features = [
+      ['AI explanations (Gemini)', ai.configured],
+      ...intel.map((p) => [`Link check: ${label[p.name] ?? p.name}`, p.configured]),
+      ['Training-data donations', contributions.configured],
+    ];
+    const rows = features.map(([name, on]) =>
+      `<li><span>${esc(name)}</span><b class="${on ? 'on' : 'off'}">${on ? 'On' : 'Not set up'}</b></li>`).join('');
+    const eps = Object.entries(ENDPOINTS).map(([k, v]) => `<li><code>${esc(k)}</code><span>${esc(v)}</span></li>`).join('');
+    return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CyberShield backend</title><style>
+body{margin:0;font:16px/1.5 system-ui,-apple-system,Segoe UI,sans-serif;background:#eef3ff;color:#0f1d3d}
+main{max-width:640px;margin:48px auto;padding:0 20px}
+.card{background:#fff;border-radius:20px;padding:24px 28px;margin-bottom:16px;box-shadow:0 6px 24px rgba(30,60,140,.08)}
+h1{margin:0 0 4px;font-size:28px}.sub{margin:0;color:#4b5a7a}
+.ok{display:inline-block;margin-top:14px;background:#e3f6ec;color:#0b7a43;font-weight:700;border-radius:99px;padding:4px 14px}
+h2{font-size:17px;margin:0 0 12px}ul{list-style:none;margin:0;padding:0}
+li{display:flex;justify-content:space-between;gap:16px;padding:9px 0;border-top:1px solid #edf0f7}li:first-child{border-top:0}
+b.on{color:#0b7a43}b.off{color:#8a94ab;font-weight:600}
+code{font:600 14px ui-monospace,Menlo,monospace;color:#2347e6;white-space:nowrap}li span{color:#4b5a7a;text-align:right}
+a{color:#2347e6}footer{color:#4b5a7a;font-size:14px;text-align:center}
+</style></head><body><main>
+<div class="card"><h1>CyberShield backend</h1><p class="sub">Version ${esc(VERSION)}. This server is used by the CyberShield app for optional cloud checks.</p><span class="ok">● Running</span></div>
+<div class="card"><h2>Features</h2><ul>${rows}</ul></div>
+<div class="card"><h2>API endpoints</h2><ul>${eps}</ul></div>
+<footer>Documentation: <a href="${esc(DOCS)}">github.com/RajvardhanPatil07/CyberShield</a></footer>
+</main></body></html>`;
   }
 
   const routes = {
@@ -185,6 +216,20 @@ export function createApp(config, { fetchImpl = fetch, now = Date.now, providers
         throw known ? new HttpError(405, 'method_not_allowed', 'Method not allowed.') : new HttpError(404, 'not_found', 'Not found.');
       }
       const out = await route(req);
+      if (out.html) {
+        // Static page, no scripts: a strict CSP blocks everything except its own inline styles.
+        res.writeHead(200, {
+          'Content-Type': 'text/html; charset=utf-8',
+          'Content-Security-Policy': "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
+          'Cache-Control': 'no-store',
+          'X-Content-Type-Options': 'nosniff',
+          'Referrer-Policy': 'no-referrer',
+          Vary: 'Accept',
+        });
+        res.end(out.html);
+        log({ method: req.method, path, status: 200, ms: now() - started });
+        return;
+      }
       payload = out.body;
       cached = out.cached;
     } catch (err) {
