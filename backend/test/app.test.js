@@ -66,6 +66,17 @@ describe('health', () => {
     assert.equal((await fetch(ctx.base + '/', { method: 'POST' })).status, 405);
   });
 
+  it('shows browsers a readable status page with a strict CSP', async () => {
+    const res = await fetch(ctx.base + '/', { headers: { accept: 'text/html,application/xhtml+xml,*/*;q=0.8' } });
+    assert.equal(res.status, 200);
+    assert.match(res.headers.get('content-type'), /^text\/html/);
+    assert.match(res.headers.get('content-security-policy'), /default-src 'none'/);
+    const html = await res.text();
+    assert.match(html, /CyberShield backend/);
+    assert.match(html, /AI explanations \(Gemini\)<\/span><b class="off">Not set up/);
+    assert.doesNotMatch(html, /<script/i);
+  });
+
   it('returns 404 and 405 for unknown routes and methods', async () => {
     assert.equal((await fetch(ctx.base + '/nope')).status, 404);
     assert.equal((await fetch(ctx.base + '/health', { method: 'POST' })).status, 405);
