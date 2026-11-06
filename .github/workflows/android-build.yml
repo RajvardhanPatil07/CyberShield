@@ -32,6 +32,24 @@ jobs:
       - name: Unit tests
         run: npm test
 
+  web:
+    name: Web demo tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+      - name: Generated files match the Android sources
+        run: |
+          npm run sync
+          git diff --exit-code -- src/engine/phrases.js src/strings.js
+      - name: Engine parity with Kotlin and translations
+        run: npm test
+
   android:
     name: Android tests, lint and APKs
     runs-on: ubuntu-latest

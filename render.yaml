@@ -1,0 +1,39 @@
+# Render Blueprint for the CyberShield backend (backend/). Render → New → Blueprint → pick this repository.
+# Render asks for every "sync: false" value once, when the Blueprint is first created. All of them are optional;
+# a missing key only turns that provider off. See backend/README.md for how to get each key.
+services:
+  - type: web
+    name: cybershield-api
+    runtime: docker
+    plan: free
+    region: singapore
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      # Render puts a proxy in front of the service; the client IP comes from X-Forwarded-For.
+      - key: TRUST_PROXY
+        value: "true"
+      # Web demo address(es) allowed to call the API from a browser, comma-separated, e.g. https://cybershield.vercel.app
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GOOGLE_SAFE_BROWSING_API_KEY
+        sync: false
+      - key: VIRUSTOTAL_API_KEY
+        sync: false
+      - key: URLHAUS_AUTH_KEY
+        sync: false
+    # Opt-in training-data donations (POST /v1/contribute) are OFF here on purpose. The free plan's
+    # filesystem is wiped on every restart, redeploy and spin-down, so saved donations would be lost.
+    # To collect them, switch to a paid plan, attach a disk and set CONTRIBUTIONS_DIR to a folder on it:
+    #   plan: starter
+    #   disk:
+    #     name: contributions
+    #     mountPath: /var/data
+    #     sizeGB: 1
+    # and add under envVars:
+    #   - key: CONTRIBUTIONS_DIR
+    #     value: /var/data/contributions

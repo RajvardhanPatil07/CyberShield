@@ -3,8 +3,8 @@
 A small Node.js service that the Android app calls **only when the user taps** "Check with threat intelligence" or "Explain with AI". It keeps every provider API key on the server.
 
 - No npm dependencies (Node ≥ 22.9 built-ins only), so there is nothing to `npm install` or patch.
-- Stateless apart from in-memory caches and rate limits.
-- No database. Supabase was considered and not used: the service stores nothing, so a database would add attack surface without a feature that needs it.
+- Stateless apart from in-memory caches and rate limits, unless you turn on donations (below).
+- No database. Supabase was considered and not used. The only thing the service can store is opt-in, redacted donations, written as daily JSONL files when `CONTRIBUTIONS_DIR` is set.
 
 ## Endpoints
 
@@ -13,6 +13,9 @@ A small Node.js service that the Android app calls **only when the user taps** "
 | GET | `/health` | Liveness, plus which providers are configured (booleans only) |
 | POST | `/v1/url/check` | `{"url": "..."}` → reputation from Safe Browsing, VirusTotal, URLhaus |
 | POST | `/v1/ai/analyze` | `{"text", "kind", "language", "localFindings"}` → structured AI explanation |
+| POST | `/v1/contribute` | `{"text", "label", "language", "findings"}` → stores an opt-in, redacted sample for ML training. 503 `not_configured` unless `CONTRIBUTIONS_DIR` is set |
+
+`/v1/contribute` rejects text that still looks like it has personal data (e-mail address, Indian mobile number, or 5+ digits in a row) with 400 `unredacted`, because the app must redact before sending. A stored record has the redacted text, label, language, finding codes and a timestamp. It has no install ID or IP address. Its `id` is a hash of the text and label. Fold the files into the training data with `cd ml && make ingest` (see `ml/data/README.md`).
 
 `/v1/url/check` response:
 
@@ -39,7 +42,7 @@ Errors are always `{"error": {"code", "message"}}`: `invalid_request` / `invalid
 cd backend
 cp .env.example .env      # fill in whichever keys you have
 npm start                 # http://localhost:8787
-npm test                  # 19 tests, no network or keys needed
+npm test                  # 28 tests, no network or keys needed
 ```
 
 The Android debug build calls `http://10.0.2.2:8787`, which the emulator maps to your computer. For a physical phone over USB run `adb reverse tcp:8787 tcp:8787` and set the server address to `http://127.0.0.1:8787` in the app's Settings.
@@ -86,7 +89,11 @@ docker build -t cybershield-backend backend
 docker run -p 8787:8787 --env-file backend/.env cybershield-backend
 ```
 
-Set the keys as the host's secret environment variables, serve over HTTPS, set `TRUST_PROXY=true` if the platform puts a proxy in front, then build the app with:
+On Render, `render.yaml` at the repository root sets this up as a Blueprint (Docker, `/health` check, `TRUST_PROXY=true`); see `web/README.md` for the step-by-step.
+
+To collect donations, `CONTRIBUTIONS_DIR` must point at storage that survives restarts. Render's free plan wipes the filesystem on every restart, redeploy and spin-down, so the Blueprint leaves donations off; `render.yaml` shows the paid-plan disk settings that turn them on.
+
+Set the keys as the host's secret environment variables, serve over HTTPS, set `TRUST_PROXY=true` if the platform puts a proxy in front, and set `ALLOWED_ORIGINS` to the web demo's address (for example `https://cybershield.vercel.app`; comma-separate several) so browsers may call the API. Without `ALLOWED_ORIGINS` the server sends no CORS headers, which is fine for the Android app. Then build the app with:
 
 ```bash
 CYBERSHIELD_BACKEND_URL=https://your-host.example ./gradlew :app:assembleRelease
