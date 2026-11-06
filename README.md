@@ -53,7 +53,7 @@ CyberShield answers one question, **"is this a scam?"**, on the phone, without r
 
 | Home | Result | Report this | QRGuard |
 |:---:|:---:|:---:|:---:|
-| <img src="design/device/01-home.png" width="200" alt="Home"> | <img src="design/device/03-message-high-scrolled.png" width="200" alt="High-risk result"> | <img src="design/device/11-report.png" width="200" alt="Report this"> | <img src="design/device/10-qrguard.png" width="200" alt="QRGuard"> |
+| <img src="docs/screenshots/app/home.png" width="200" alt="Home"> | <img src="docs/screenshots/app/result.png" width="200" alt="High-risk result"> | <img src="docs/screenshots/app/report.png" width="200" alt="Report this"> | <img src="docs/screenshots/app/qrguard.png" width="200" alt="QRGuard"> |
 
 <sub>Debug build on an Android 15 (API 35) emulator, Cobalt Silk design (5 Nov 2026).</sub>
 
