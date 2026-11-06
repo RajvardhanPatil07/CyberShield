@@ -1,0 +1,5 @@
+# Only the static site is deployed; tests, fixtures and scripts stay in the repository.
+test
+scripts
+package.json
+README.md
