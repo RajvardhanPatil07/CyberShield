@@ -177,6 +177,14 @@
     <string name="cloud_title">क्लाउड जाँच (वैकल्पिक)</string>
     <string name="cloud_toggle">मेरे टैप करने पर क्लाउड जाँच की अनुमति दें</string>
     <string name="cloud_toggle_detail">डिफ़ॉल्ट रूप से बंद। कुछ भी अपने आप नहीं भेजा जाता।</string>
+    <string name="ml_title">ऑन-डिवाइस AI सहायता (प्रयोगात्मक)</string>
+    <string name="ml_toggle">ऑन-डिवाइस AI मॉडल का उपयोग करें</string>
+    <string name="ml_toggle_detail">एक प्रशिक्षित ऑन-डिवाइस जाँच जोड़ता है, जो उन संदेशों का जोखिम स्तर बढ़ा सकती है जिनकी भाषा घोटाले जैसी लगती है, भले ही कोई नियम न मिले। पूरी तरह आपके फ़ोन पर चलती है। मूल्यांकन के दौरान डिफ़ॉल्ट रूप से बंद।</string>
+    <string name="ml_unavailable">इस बिल्ड में अभी कोई AI मॉडल शामिल नहीं है, इसलिए इस सेटिंग का कोई असर नहीं होता।</string>
+    <string name="donate_button">पहचान बेहतर बनाने में मदद करें</string>
+    <string name="donate_consent">स्कैम पहचान बेहतर बनाने में मदद के लिए यह संपादित (रिडैक्टेड) संदेश भेजें। इसे संदिग्ध स्कैम के रूप में भेजा जाता है। व्यक्तिगत विवरण हटा दिए गए हैं (नीचे दिखाया गया है) और कुछ भी आपकी पहचान नहीं करता। इसके लिए बैकएंड कॉन्फ़िगर होना चाहिए, और यह केवल तभी होता है जब आप भेजें टैप करते हैं।</string>
+    <string name="donate_sending">भेजा जा रहा है…</string>
+    <string name="donate_sent">धन्यवाद। पहचान बेहतर बनाने में मदद के लिए आपका रिडैक्टेड नमूना भेज दिया गया।</string>
     <string name="backend_label">सर्वर का पता</string>
     <string name="backend_hint">https://your-cybershield-backend.example</string>
     <string name="backend_current">उपयोग में: %1$s</string>
@@ -228,6 +236,7 @@
     <string name="f_callback_request">टेक्स्ट में दिए नंबर पर कॉल या संदेश करने को कहता है।</string>
     <string name="f_contains_link">इसमें लिंक है। उसकी अलग से जाँच नीचे दी गई है।</string>
     <string name="f_suspicious_link">इसमें जोखिम वाली विशेषताओं वाला लिंक है।</string>
+    <string name="f_ml_pattern_match">इसकी भाषा जाने-पहचाने घोटालों जैसी है, भले ही कोई खास चेतावनी वाला वाक्यांश न मिला हो।</string>
     <string name="f_url_parse_failed">यह होस्ट वाला पूरा वेब पता नहीं है।</string>
     <string name="f_url_dangerous_scheme">ऐसा लिंक प्रकार इस्तेमाल करता है जो सीधे कोड चला सकता है या ऐप खोल सकता है।</string>
     <string name="f_url_no_scheme">पते में http:// या https:// नहीं था; इसे https:// मानकर जाँचा गया।</string>

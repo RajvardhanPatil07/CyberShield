@@ -190,6 +190,14 @@
     <string name="cloud_title">Cloud checks (optional)</string>
     <string name="cloud_toggle">Allow cloud checks when I tap them</string>
     <string name="cloud_toggle_detail">Off by default. Nothing is ever sent automatically.</string>
+    <string name="ml_title">On-device AI assist (experimental)</string>
+    <string name="ml_toggle">Use the on-device AI model</string>
+    <string name="ml_toggle_detail">Adds a trained on-device check that can raise the risk level for messages whose wording looks like a scam, even when no rule matches. Runs entirely on your phone. Off by default while it is being evaluated.</string>
+    <string name="ml_unavailable">No AI model is bundled in this build yet, so this setting has no effect.</string>
+    <string name="donate_button">Help improve detection</string>
+    <string name="donate_consent">Send this redacted message to help improve scam detection. It is submitted as a suspected scam. Personal details have been removed (shown below) and nothing identifies you. This needs the backend to be configured, and happens only when you tap Send.</string>
+    <string name="donate_sending">Sending…</string>
+    <string name="donate_sent">Thanks. Your redacted sample was sent to help improve detection.</string>
     <string name="backend_label">Server address</string>
     <string name="backend_hint">https://your-cybershield-backend.example</string>
     <string name="backend_current">Using: %1$s</string>
@@ -243,6 +251,7 @@
     <string name="f_callback_request">Asks you to call or message a number given in the text.</string>
     <string name="f_contains_link">Contains a link. Its destination was checked separately below.</string>
     <string name="f_suspicious_link">Contains a link with risky characteristics.</string>
+    <string name="f_ml_pattern_match">Its wording resembles known scams, even without a specific red-flag phrase.</string>
     <string name="f_url_parse_failed">This is not a complete web address with a host.</string>
     <string name="f_url_dangerous_scheme">Uses a link type that can run code or open apps directly.</string>
     <string name="f_url_no_scheme">The address had no http:// or https://; it was checked as https://.</string>

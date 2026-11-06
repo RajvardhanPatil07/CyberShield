@@ -18,9 +18,16 @@ export function loadConfig(env = process.env) {
     host: env.HOST || '0.0.0.0',
     port: int(env.PORT, 8787, 0, 65535),
     trustProxy: env.TRUST_PROXY === 'true',
+    // Web origins (e.g. https://cybershield.vercel.app) whose pages may call the API from a browser. Exact matches only.
+    allowedOrigins: new Set(
+      String(env.ALLOWED_ORIGINS ?? '').split(',').map((o) => o.trim().toLowerCase().replace(/\/+$/, '')).filter(Boolean),
+    ),
     maxBodyBytes: int(env.MAX_BODY_BYTES, 16 * 1024, 1024, 64 * 1024),
     urlRatePerMinute: int(env.RATE_LIMIT_PER_MINUTE, 20, 1, 1000),
     aiRatePerMinute: int(env.AI_RATE_LIMIT_PER_MINUTE, 5, 1, 1000),
+    contributeRatePerMinute: int(env.CONTRIBUTE_RATE_LIMIT_PER_MINUTE, 10, 1, 1000),
+    // Directory for opt-in, redacted scam-message contributions. Unset disables the endpoint.
+    contributionsDir: ((env.CONTRIBUTIONS_DIR ?? '').trim()) || null,
     // Safe Browsing forbids caching beyond 24 hours; the code also honours its cacheDuration.
     cacheTtlSeconds: int(env.CACHE_TTL_SECONDS, 3600, 0, 86400),
     providerTimeoutMs: int(env.PROVIDER_TIMEOUT_MS, 5000, 500, 20000),

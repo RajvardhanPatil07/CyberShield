@@ -1,0 +1,7 @@
+# Generated artefacts. Keep the repo clean; models are reproducible from a snapshot + config.
+data/snapshots/
+models/*/
+!models/README.md
+__pycache__/
+*.pyc
+.venv/

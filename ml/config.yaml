@@ -1,0 +1,44 @@
+# CyberShield ML pipeline configuration (Phase 0).
+# Plain key: value and simple nesting only, parsed by a tiny stdlib reader (no PyYAML dependency).
+
+model_version: "0.1.0-baseline"
+
+data:
+  # Paths are relative to the ml/ directory. These are the existing labelled eval sets;
+  # they are the Phase-0 seed corpus (synthetic, see docs/EVALUATION.md).
+  eval_dir: "../android/app/src/test/resources/eval"
+  messages_dev: "messages-dev.tsv"
+  messages_holdout: "messages-holdout.tsv"
+  # Fraction of the dev set held out internally for temperature calibration (never trained on).
+  calibration_fraction: 0.2
+
+features:
+  char_ngrams: [3, 4, 5]   # character n-grams: script-agnostic, handles Devanagari + romanised
+  word_ngrams: [1, 2]      # word unigrams + bigrams
+  dim: 8192                # hashed feature dimension
+  lowercase: true
+
+train:
+  seed: 20261106
+  epochs: 40
+  learning_rate: 0.5
+  l2: 0.0005
+
+contributions:
+  # Path to a JSONL of opt-in, redacted contributions from the backend (empty = none collected yet).
+  jsonl: ""
+  # Percentage of ingested samples frozen into the real holdout (deterministic by record id).
+  real_holdout_pct: 20
+  # Where ingested TSVs are written (relative to ml/).
+  out_dir: "data/real"
+
+gate:
+  # "report" = measure only, always exit 0 (Phase 0 shadow mode).
+  # "enforce" = exit non-zero if the model fails the floors (flip on in Phase 3).
+  enforce: false
+  # The threshold at which a probability counts as "flagged", mirroring the app's MEDIUM band.
+  flag_threshold: 0.5
+  # Rule-based baseline on the holdout, from docs/EVALUATION.md (5 Nov 2026) and EvaluationTest.kt.
+  # The ML model must beat recall WITHOUT exceeding the false-positive ceiling.
+  baseline_recall: 0.80
+  max_false_positive_rate: 0.0

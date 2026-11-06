@@ -16,6 +16,22 @@ class AppSettings(context: Context) {
         get() = prefs.getBoolean(KEY_HISTORY, true)
         set(value) = prefs.edit().putBoolean(KEY_HISTORY, value).apply()
 
+    /**
+     * Opt-in on-device ML assist for message analysis. Off by default: it only takes effect when a
+     * model is bundled AND the user turns it on (see docs/AI_ML_PLAN.md). Runs entirely on-device.
+     */
+    var mlAssist: Boolean
+        get() = prefs.getBoolean(KEY_ML_ASSIST, false)
+        set(value) = prefs.edit().putBoolean(KEY_ML_ASSIST, value).apply()
+
+    /**
+     * Opt-in consent to donate a redacted copy of a flagged message to improve detection. Off by
+     * default; the text is redacted on-device and previewed before anything is sent.
+     */
+    var donationConsent: Boolean
+        get() = prefs.getBoolean(KEY_DONATION, false)
+        set(value) = prefs.edit().putBoolean(KEY_DONATION, value).apply()
+
     /** Optional override of the build-time backend URL, for demos against a self-hosted backend. */
     var backendOverride: String
         get() = prefs.getString(KEY_BACKEND, "").orEmpty()
@@ -37,6 +53,8 @@ class AppSettings(context: Context) {
     private companion object {
         const val KEY_CLOUD = "cloud_consent"
         const val KEY_HISTORY = "save_history"
+        const val KEY_ML_ASSIST = "ml_assist"
+        const val KEY_DONATION = "donation_consent"
         const val KEY_BACKEND = "backend_override"
         const val KEY_INSTALL = "install_id"
     }

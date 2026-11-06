@@ -1,0 +1,39 @@
+{
+  "$comment": "Label taxonomy for the CyberShield scam-message classifier. Kept in 1:1 sync with FindingCode in android/app/src/main/java/io/cybershield/app/security/Model.kt so ML category heads (Phase 5) line up with the rule findings. If you add/rename a FindingCode in Model.kt, update this file and run `make test`.",
+  "version": "0.1.0",
+  "source_of_truth": "android/app/src/main/java/io/cybershield/app/security/Model.kt",
+  "binary": {
+    "task": "scam_vs_legit",
+    "positive": "scam",
+    "negative": "legit",
+    "$comment": "Primary Phase-0/1 task. Matches the 'label' column (scam|legit) in the eval TSVs."
+  },
+  "languages": ["en", "hi", "mr", "hinglish", "mixed"],
+  "$comment_categories": "Multi-label message categories for the Phase-5 per-category head. 'weight' mirrors FindingCode.weight; it is NOT a training target, it is recorded so the ML taxonomy and the rule taxonomy cannot silently drift apart.",
+  "categories": [
+    { "code": "URGENCY", "weight": 20, "desc": "Urgency or pressure language." },
+    { "code": "ACCOUNT_THREAT", "weight": 25, "desc": "Threatens account/card/SIM block." },
+    { "code": "SERVICE_DISCONNECTION", "weight": 25, "desc": "Threatens to cut electricity/gas/mobile." },
+    { "code": "OTP_REQUEST", "weight": 40, "desc": "Asks to share an OTP." },
+    { "code": "UPI_PIN_REQUEST", "weight": 45, "desc": "Asks for UPI PIN / MPIN." },
+    { "code": "CARD_DETAILS_REQUEST", "weight": 40, "desc": "Asks for card number / CVV / expiry." },
+    { "code": "PASSWORD_REQUEST", "weight": 35, "desc": "Asks for password / net-banking login." },
+    { "code": "SECRET_MENTION", "weight": 10, "desc": "Mentions OTP/PIN/CVV/password." },
+    { "code": "RECEIVE_MONEY_TRICK", "weight": 45, "desc": "PIN/QR/approve to RECEIVE money trick." },
+    { "code": "PAYMENT_REQUEST", "weight": 15, "desc": "Pushes a payment or approval." },
+    { "code": "KYC_UPDATE", "weight": 20, "desc": "Asks to update/verify KYC/PAN/Aadhaar." },
+    { "code": "REWARD_LURE", "weight": 20, "desc": "Prize/lottery/reward/cashback." },
+    { "code": "REFUND_LURE", "weight": 15, "desc": "Refund to claim." },
+    { "code": "LOAN_LURE", "weight": 15, "desc": "Instant/pre-approved loan." },
+    { "code": "JOB_TASK_SCAM", "weight": 25, "desc": "Work-from-home / prepaid-task scam." },
+    { "code": "INVESTMENT_LURE", "weight": 25, "desc": "Guaranteed/high investment returns." },
+    { "code": "FEE_REQUEST", "weight": 15, "desc": "Upfront fee / deposit / charge." },
+    { "code": "AUTHORITY_IMPERSONATION", "weight": 25, "desc": "Police/CBI/court impersonation (digital arrest)." },
+    { "code": "REMOTE_ACCESS_APP", "weight": 35, "desc": "AnyDesk/TeamViewer-style remote access." },
+    { "code": "APK_LURE", "weight": 35, "desc": "Install an APK from outside Play Store." },
+    { "code": "SECRECY", "weight": 20, "desc": "Keep it secret / stay on the call." },
+    { "code": "CALLBACK_REQUEST", "weight": 10, "desc": "Call/message a number in the text." },
+    { "code": "CONTAINS_LINK", "weight": 10, "desc": "Contains a link (checked separately)." },
+    { "code": "SUSPICIOUS_LINK", "weight": 0, "desc": "Link with risky characteristics." }
+  ]
+}

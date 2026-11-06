@@ -1,0 +1,11 @@
+# PRODUCTION (Phase 1+) dependencies ONLY — the MuRIL -> LiteRT path.
+# The Phase-0 baseline pipeline (make all) needs NONE of these; it is pure Python stdlib.
+# Pin exact versions when this path is implemented; the ranges below are indicative targets.
+#
+# transformers>=4.44         # load/fine-tune a distilled MuRIL / IndicBERT encoder
+# torch>=2.3                 # training backend
+# datasets>=2.20             # data pipeline
+# ai-edge-torch>=0.2         # export the trained model to LiteRT (.tflite)
+# tensorflow>=2.17           # LiteRT conversion / quantisation tooling
+# scikit-learn>=1.5          # calibration (isotonic) and metrics cross-checks
+# onnxruntime>=1.18          # optional: web-demo parity path

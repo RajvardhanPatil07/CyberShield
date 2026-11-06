@@ -177,6 +177,14 @@
     <string name="cloud_title">क्लाउड तपासणी (पर्यायी)</string>
     <string name="cloud_toggle">मी टॅप केल्यावर क्लाउड तपासणीला परवानगी द्या</string>
     <string name="cloud_toggle_detail">डीफॉल्टनुसार बंद. काहीही आपोआप पाठवले जात नाही.</string>
+    <string name="ml_title">ऑन-डिव्हाइस AI सहाय्य (प्रायोगिक)</string>
+    <string name="ml_toggle">ऑन-डिव्हाइस AI मॉडेल वापरा</string>
+    <string name="ml_toggle_detail">एक प्रशिक्षित ऑन-डिव्हाइस तपासणी जोडते, जी ज्या संदेशांची भाषा घोटाळ्यासारखी वाटते त्यांचा धोका स्तर वाढवू शकते, जरी कोणताही नियम जुळला नाही तरी. पूर्णपणे तुमच्या फोनवर चालते. मूल्यांकन सुरू असताना डीफॉल्टनुसार बंद.</string>
+    <string name="ml_unavailable">या बिल्डमध्ये अद्याप कोणतेही AI मॉडेल समाविष्ट नाही, त्यामुळे या सेटिंगचा काही परिणाम होत नाही.</string>
+    <string name="donate_button">ओळख सुधारण्यात मदत करा</string>
+    <string name="donate_consent">घोटाळा ओळख सुधारण्यात मदत करण्यासाठी हा संपादित (रिडॅक्टेड) संदेश पाठवा. तो संशयित घोटाळा म्हणून पाठवला जातो. वैयक्तिक तपशील काढून टाकले आहेत (खाली दाखवले आहेत) आणि काहीही तुमची ओळख दर्शवत नाही. यासाठी बॅकएंड कॉन्फिगर असणे आवश्यक आहे, आणि तुम्ही पाठवा टॅप केल्यावरच हे घडते.</string>
+    <string name="donate_sending">पाठवत आहे…</string>
+    <string name="donate_sent">धन्यवाद. ओळख सुधारण्यात मदत करण्यासाठी तुमचा रिडॅक्टेड नमुना पाठवला गेला.</string>
     <string name="backend_label">सर्व्हरचा पत्ता</string>
     <string name="backend_hint">https://your-cybershield-backend.example</string>
     <string name="backend_current">वापरात: %1$s</string>
@@ -228,6 +236,7 @@
     <string name="f_callback_request">मजकुरात दिलेल्या नंबरवर कॉल किंवा संदेश करायला सांगतो.</string>
     <string name="f_contains_link">यात लिंक आहे. तिची स्वतंत्र तपासणी खाली दिली आहे.</string>
     <string name="f_suspicious_link">यात धोकादायक वैशिष्ट्ये असलेली लिंक आहे.</string>
+    <string name="f_ml_pattern_match">याची भाषा ओळखीच्या घोटाळ्यांसारखी आहे, जरी विशिष्ट इशारा देणारा वाक्प्रचार आढळला नसला तरी.</string>
     <string name="f_url_parse_failed">हा होस्ट असलेला पूर्ण वेब पत्ता नाही.</string>
     <string name="f_url_dangerous_scheme">थेट कोड चालवू शकणारा किंवा ॲप उघडू शकणारा लिंक प्रकार वापरतो.</string>
     <string name="f_url_no_scheme">पत्त्यात http:// किंवा https:// नव्हते; तो https:// मानून तपासला.</string>
