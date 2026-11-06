@@ -123,7 +123,26 @@ export function createApp(config, { fetchImpl = fetch, now = Date.now, providers
     };
   }
 
+  /** What a person sees when they open the server address in a browser. */
+  function index() {
+    return {
+      body: {
+        service: 'CyberShield backend',
+        version: VERSION,
+        status: 'ok',
+        endpoints: {
+          'GET /health': 'Liveness and which providers are configured',
+          'POST /v1/url/check': 'Link reputation (Safe Browsing, VirusTotal, URLhaus)',
+          'POST /v1/ai/analyze': 'AI explanation of a redacted message',
+          'POST /v1/contribute': 'Opt-in, redacted training-data donation',
+        },
+        docs: 'https://github.com/RajvardhanPatil07/CyberShield/tree/main/backend',
+      },
+    };
+  }
+
   const routes = {
+    'GET /': index,
     'GET /health': health,
     'POST /v1/url/check': checkUrl,
     'POST /v1/ai/analyze': analyse,

@@ -10,6 +10,7 @@ A small Node.js service that the Android app calls **only when the user taps** "
 
 | Method | Path | Purpose |
 |---|---|---|
+| GET | `/` | Service name, version and the list of endpoints (what you see when you open the address in a browser) |
 | GET | `/health` | Liveness, plus which providers are configured (booleans only) |
 | POST | `/v1/url/check` | `{"url": "..."}` → reputation from Safe Browsing, VirusTotal, URLhaus |
 | POST | `/v1/ai/analyze` | `{"text", "kind", "language", "localFindings"}` → structured AI explanation |
@@ -42,7 +43,7 @@ Errors are always `{"error": {"code", "message"}}`: `invalid_request` / `invalid
 cd backend
 cp .env.example .env      # fill in whichever keys you have
 npm start                 # http://localhost:8787
-npm test                  # 28 tests, no network or keys needed
+npm test                  # 29 tests, no network or keys needed
 ```
 
 The Android debug build calls `http://10.0.2.2:8787`, which the emulator maps to your computer. For a physical phone over USB run `adb reverse tcp:8787 tcp:8787` and set the server address to `http://127.0.0.1:8787` in the app's Settings.
