@@ -102,7 +102,7 @@ Release signing and GitHub secrets: [docs/RELEASE.md](docs/RELEASE.md).
 ```bash
 cd backend
 cp .env.example .env     # every key is optional
-npm test                 # 28 tests, no network needed
+npm test                 # 29 tests, no network needed
 npm start                # http://localhost:8787
 ```
 
@@ -123,7 +123,7 @@ How to get each key, response formats, limits and deployment: [backend/README.md
 |---|---|---|
 | Android JVM unit tests | 81 | Accuracy on the labelled evaluation sets (see below), message scams (EN/HI/MR/Hinglish), genuine OTP and everyday SMS, URLs (IP, punycode, homograph, credentials, lookalikes, shorteners, free hosting, redirects, malformed input), QR and UPI parsing, redaction (cloud and report), history privacy and limits, backend-client failure modes, translation completeness, ML fusion rules, Kotlin↔Python model parity, rules vs rules+ML accuracy and latency |
 | Android instrumented tests | 13 | Message → HIGH and history without content; LinkGuard confirmation gating; genuine OTP → LOW; clear history; share text, share link, `PROCESS_TEXT`; on-device OCR of a Hindi+English screenshot; QR decoding from images; ML model loads from the APK, is off by default, raises a missed scam once switched on, and a donation reaches a local backend |
-| Backend tests | 28 | Valid request, invalid input (400/413/415), missing credentials, provider down, retry, cache, rate limits (app and VirusTotal), shortener expansion without SSRF, AI schema validation and error mapping, donations (stored, unredacted text rejected, bad label, not configured) |
+| Backend tests | 29 | Valid request, invalid input (400/413/415), missing credentials, provider down, retry, cache, rate limits (app and VirusTotal), shortener expansion without SSRF, AI schema validation and error mapping, donations (stored, unredacted text rejected, bad label, not configured) |
 | ML pipeline self-tests (`cd ml && make test`) | 8 | Config and data loading, label taxonomy matches `FindingCode`, feature hashing, training, calibration, donation ingestion and the frozen holdout split |
 
 ### Accuracy

@@ -57,6 +57,15 @@ describe('health', () => {
     assert.equal(res.headers.get('cache-control'), 'no-store');
   });
 
+  it('describes the service at the root address', async () => {
+    const res = await fetch(ctx.base + '/');
+    assert.equal(res.status, 200);
+    const body = await res.json();
+    assert.equal(body.status, 'ok');
+    assert.ok(body.endpoints['GET /health']);
+    assert.equal((await fetch(ctx.base + '/', { method: 'POST' })).status, 405);
+  });
+
   it('returns 404 and 405 for unknown routes and methods', async () => {
     assert.equal((await fetch(ctx.base + '/nope')).status, 404);
     assert.equal((await fetch(ctx.base + '/health', { method: 'POST' })).status, 405);
