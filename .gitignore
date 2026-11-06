@@ -27,3 +27,9 @@ node_modules/
 !.env.example
 coverage/
 .kotlin/
+
+# Local video and design work (not part of the project)
+/video/
+/.video-work/
+/docs/video/
+/docs/design/
