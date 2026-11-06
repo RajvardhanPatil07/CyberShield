@@ -79,6 +79,7 @@
     <string name="why_title">Why</string>
     <string name="what_to_do">What to do</string>
     <string name="disclaimer">Result from on-device rules. It is not proof that something is malicious or safe.</string>
+    <string name="disclaimer_ml">Result from on-device rules and the experimental AI model. It is not proof that something is malicious or safe.</string>
     <string name="detected_language">Detected language: %1$s (best guess)</string>
     <string name="level_low">No obvious red flags</string>
     <string name="level_medium">Caution advised</string>
@@ -196,6 +197,7 @@
     <string name="ml_unavailable">No AI model is bundled in this build yet, so this setting has no effect.</string>
     <string name="donate_button">Help improve detection</string>
     <string name="donate_consent">Send this redacted message to help improve scam detection. It is submitted as a suspected scam. Personal details have been removed (shown below) and nothing identifies you. This needs the backend to be configured, and happens only when you tap Send.</string>
+    <string name="donate_remember">Don\'t ask again before donating (you can turn this off in Settings)</string>
     <string name="donate_sending">Sending…</string>
     <string name="donate_sent">Thanks. Your redacted sample was sent to help improve detection.</string>
     <string name="backend_label">Server address</string>

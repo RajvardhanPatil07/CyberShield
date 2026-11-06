@@ -73,6 +73,7 @@
     <string name="why_title">क्यों</string>
     <string name="what_to_do">क्या करें</string>
     <string name="disclaimer">यह परिणाम फ़ोन पर चलने वाले नियमों से है। यह किसी चीज़ के ख़तरनाक या सुरक्षित होने का प्रमाण नहीं है।</string>
+    <string name="disclaimer_ml">यह परिणाम फ़ोन पर चलने वाले नियमों और प्रयोगात्मक AI मॉडल से है। यह किसी चीज़ के ख़तरनाक या सुरक्षित होने का प्रमाण नहीं है।</string>
     <string name="detected_language">पहचानी गई भाषा: %1$s (अनुमान)</string>
     <string name="level_low">कोई स्पष्ट ख़तरा नहीं दिखा</string>
     <string name="level_medium">सावधानी रखें</string>
@@ -183,6 +184,7 @@
     <string name="ml_unavailable">इस बिल्ड में अभी कोई AI मॉडल शामिल नहीं है, इसलिए इस सेटिंग का कोई असर नहीं होता।</string>
     <string name="donate_button">पहचान बेहतर बनाने में मदद करें</string>
     <string name="donate_consent">स्कैम पहचान बेहतर बनाने में मदद के लिए यह संपादित (रिडैक्टेड) संदेश भेजें। इसे संदिग्ध स्कैम के रूप में भेजा जाता है। व्यक्तिगत विवरण हटा दिए गए हैं (नीचे दिखाया गया है) और कुछ भी आपकी पहचान नहीं करता। इसके लिए बैकएंड कॉन्फ़िगर होना चाहिए, और यह केवल तभी होता है जब आप भेजें टैप करते हैं।</string>
+    <string name="donate_remember">दान करने से पहले फिर न पूछें (सेटिंग्स में बंद कर सकते हैं)</string>
     <string name="donate_sending">भेजा जा रहा है…</string>
     <string name="donate_sent">धन्यवाद। पहचान बेहतर बनाने में मदद के लिए आपका रिडैक्टेड नमूना भेज दिया गया।</string>
     <string name="backend_label">सर्वर का पता</string>

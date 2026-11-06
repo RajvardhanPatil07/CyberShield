@@ -159,6 +159,25 @@ Phases 0, 1, 1b and 2 are implemented and verified:
 - **Backend:** `POST /v1/contribute` with server-side `looksUnredacted` guard, pluggable JSONL sink, rate limiting, and `not_configured` when `CONTRIBUTIONS_DIR` is unset. 28 tests pass.
 - **ml/:** `make all` runs snapshot → train → gate → **export** (writes the Android asset + parity reference); `contributions` ingests donated JSONL into frozen dev/holdout TSVs; 8 self-tests pass.
 
+### End-to-end test results (6 Nov 2026)
+
+`MlEvaluationTest` scores the labelled message sets with rules only and with rules + the bundled model
+(ML assist on). The model was trained on the dev set, so only the holdout row is a fair estimate:
+
+| Set | Rules recall | Rules false alarms | Rules + ML recall | Rules + ML false alarms |
+|---|---|---|---|---|
+| Messages dev (70 scam, 50 legit; trained on) | 100% | 0% | 100% | 0% |
+| **Messages holdout** (40 scam, 30 legit) | **80.0%** | **0%** | **87.5%** | **6.7%** |
+
+On the holdout the model catches 3 scams the rules miss (a car-prize fee scam, an instant-loan lure, a
+Hindi-English electricity-cut threat) and wrongly flags 2 normal messages (a BigBasket delivery notice
+and a note about a plumber visit). That trade is why ML assist stays opt-in.
+
+`MlFlowsTest` runs on an Android 15 emulator against the real APK: the model loads from the APK
+(1.6 ms per message on the emulator, 0.2 ms on the JVM), ML is off by default, the Settings toggle turns
+it on and lifts a missed scam from 25 (LOW) to 96 (HIGH) with the `ML_PATTERN_MATCH` reason, and a
+donated sample travels app → local backend → JSONL → `make ingest` → frozen real holdout.
+
 **Why phase 3 (default-on) is intentionally not done.** The bundled classifier is trained only on the
 synthetic eval data, so its real-world accuracy is unknown and its measured false-positive rate on the
 synthetic holdout is high. The plan's own gate (§2, §5) forbids enabling a model by default until it
