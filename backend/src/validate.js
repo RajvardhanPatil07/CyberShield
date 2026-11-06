@@ -52,3 +52,35 @@ export function validateAiRequest(body) {
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export const validInstallId = (v) => (typeof v === 'string' && UUID.test(v) ? v.toLowerCase() : null);
+
+// Contributions (opt-in, redacted scam-message donations for the ML training corpus).
+const CONTRIB_LABELS = new Set(['scam', 'legit', 'unsure']);
+const CONTRIB_LANGUAGES = new Set(['en', 'hi', 'mr', 'hinglish', 'mixed', 'unknown']);
+const EMAIL_RE = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i;
+const PHONE_RE = /(?<!\d)(?:\+?91[ -]?)?[6-9]\d{4}[ -]?\d{5}(?!\d)/;
+// The on-device Redactor replaces any run of 4+ digits with [NUMBER]; a run of 5+ digits reaching the
+// server means the text was not redacted. Rupee amounts survive redaction only as <=3-digit groups.
+const LONG_DIGITS_RE = /\d{5,}/;
+
+/** Defence in depth: the app must redact first; reject anything that still carries obvious personal data. */
+export function looksUnredacted(text) {
+  return EMAIL_RE.test(text) || PHONE_RE.test(text) || LONG_DIGITS_RE.test(text);
+}
+
+export function validateContributionRequest(body) {
+  if (!body || typeof body !== 'object' || Array.isArray(body)) throw bad('Body must be a JSON object.');
+  const { text, label, language = 'unknown', kind = 'message', findings = [] } = body;
+  if (typeof text !== 'string' || text.trim().length === 0) throw bad('"text" is required.');
+  if (text.length > MAX_TEXT_LENGTH) throw bad(`"text" must be at most ${MAX_TEXT_LENGTH} characters.`);
+  if (!CONTRIB_LABELS.has(label)) throw bad('"label" must be scam, legit or unsure.');
+  if (!CONTRIB_LANGUAGES.has(language)) throw bad('"language" is not a recognised value.');
+  if (!KINDS.has(kind)) throw bad('"kind" must be message, url or screenshot.');
+  if (!Array.isArray(findings) || findings.length > 20 || !findings.every((c) => typeof c === 'string' && FINDING_CODE.test(c))) {
+    throw bad('"findings" must be up to 20 finding codes.');
+  }
+  const trimmed = text.trim();
+  if (looksUnredacted(trimmed)) {
+    throw new HttpError(400, 'unredacted', 'Submission still contains personal data; it must be redacted on-device first.');
+  }
+  return { text: trimmed, label, language, kind, findings };
+}

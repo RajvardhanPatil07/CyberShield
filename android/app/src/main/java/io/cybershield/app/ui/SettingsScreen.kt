@@ -86,6 +86,15 @@ fun SettingsScreen(services: AppServices) {
         }
     }
 
+    SettingsCard(stringResource(R.string.ml_title)) {
+        ToggleRow(stringResource(R.string.ml_toggle), stringResource(R.string.ml_toggle_detail), services.mlAssist, "ml_toggle") {
+            services.updateMlAssist(it)
+        }
+        if (!services.mlClassifier.isAvailable) {
+            Text(stringResource(R.string.ml_unavailable), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+    }
+
     SettingsCard(stringResource(R.string.data_title)) {
         ToggleRow(stringResource(R.string.history_toggle), null, services.saveHistory, "history_toggle") { services.updateSaveHistory(it) }
         SoftButton(onClick = { confirmDelete = true }, contentColor = CsColors.RiskText, modifier = Modifier.fillMaxWidth().testTag("delete_all")) { Text(stringResource(R.string.delete_all_data)) }

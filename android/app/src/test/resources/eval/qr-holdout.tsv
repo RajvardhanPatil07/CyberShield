@@ -1,0 +1,15 @@
+# Labelled QR payloads held out from rule tuning. UPI IDs and names are fictitious.
+# Columns: id, label (scam|legit), payload
+id	label	payload
+h-q01	scam	upi://pay?pa=icici.care@ybl&pn=ICICI%20Customer%20Support&am=5000&tn=Card%20unblock
+h-q02	scam	upi://pay?pa=winner.2026@paytm&pn=Amazon%20Prize&am=1499&tn=Reward%20delivery
+h-q03	scam	upi://collect?pa=olx.buyer@okicici&pn=Vikram%20Singh&am=15000&tn=Advance
+h-q04	scam	upi://pay?pa=income.tax@apl&pn=Income%20Tax%20Department&am=3200&tn=Refund%20verification
+h-q05	scam	https://sbi-reward.click/redeem
+h-q06	scam	upi://pay?pa=police.challan@quickpay&pn=Traffic%20Police&am=2000&tn=Challan%20fine
+h-l01	legit	upi://pay?pa=dmart.baner@hdfcbank&pn=DMart%20Baner&mc=5411
+h-l02	legit	upi://pay?pa=priya.k@okaxis&pn=Priya%20K
+h-l03	legit	https://www.zomato.com/pune/restaurant
+h-l04	legit	upi://pay?pa=autorickshaw.mh12@ybl&pn=Santosh%20Jadhav&am=60
+h-l05	legit	upi://pay?pa=petrolpump.iocl@sbi&pn=Indian%20Oil%20Fuel%20Station&mc=5541
+h-l06	legit	mailto:info@college.edu.in

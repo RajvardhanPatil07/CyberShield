@@ -48,6 +48,15 @@ interface ReputationService { suspend fun check(url: String): CloudResult<Reputa
 interface AiExplainer { suspend fun explain(redactedText: String, kind: String, language: String, localFindings: List<String>): CloudResult<AiAnalysis> }
 
 /**
+ * Sends an opt-in, already-redacted scam-message sample to the backend's training corpus. The text
+ * must be redacted on-device first (see [io.cybershield.app.security.Redactor]); the backend rejects
+ * anything that still carries personal data.
+ */
+interface ContributionService {
+    suspend fun contribute(redactedText: String, label: String, language: String, findings: List<String>): CloudResult<Unit>
+}
+
+/**
  * Talks to the CyberShield backend (backend/ in this repository). The backend holds every provider
  * API key; this client never sees one. Requests carry only the content the user chose to submit.
  */
@@ -56,7 +65,7 @@ class BackendClient(
     private val installId: String,
     private val requireHttps: Boolean,
     private val transport: Transport = HttpTransport(),
-) : ReputationService, AiExplainer {
+) : ReputationService, AiExplainer, ContributionService {
 
     fun interface Transport {
         /** Returns HTTP status and body. Throws IOException for network failures. */
@@ -76,6 +85,14 @@ class BackendClient(
                 .put("localFindings", JSONArray(localFindings.take(20))),
             35_000,
         ) { parseAi(it) }
+
+    override suspend fun contribute(redactedText: String, label: String, language: String, findings: List<String>): CloudResult<Unit> =
+        call(
+            "/v1/contribute",
+            JSONObject().put("text", redactedText.take(4000)).put("label", label).put("language", language)
+                .put("findings", JSONArray(findings.take(20))),
+            15_000,
+        ) { /* success body is just a status + id; nothing to parse */ }
 
     private suspend fun <T> call(path: String, body: JSONObject, timeoutMs: Int, parse: (JSONObject) -> T): CloudResult<T> {
         if (!isConfigured) return CloudResult.NotConfigured

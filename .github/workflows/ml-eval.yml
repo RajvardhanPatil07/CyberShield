@@ -1,0 +1,52 @@
+name: ML eval
+
+# Phase 0: runs the on-device message-classifier pipeline and the baseline gate.
+# The gate is in REPORT mode (see ml/config.yaml), so it measures but never blocks — the shadow-mode
+# rollout from docs/AI_ML_PLAN.md. Flip gate.enforce to true in Phase 3, once a real holdout exists.
+
+on:
+  push:
+    branches: [main]
+    paths: ["ml/**", "android/app/src/test/resources/eval/**", ".github/workflows/ml-eval.yml"]
+  pull_request:
+    branches: [main]
+    paths: ["ml/**", "android/app/src/test/resources/eval/**", ".github/workflows/ml-eval.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ml:
+    name: Train, evaluate and gate the message classifier
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ml
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      # The Phase-0 baseline is pure stdlib: no pip install needed.
+      - name: Pipeline self-tests
+        run: make test
+
+      - name: Train, evaluate and gate (report mode)
+        run: make all
+
+      - name: Publish metrics card to the job summary
+        if: always()
+        run: |
+          card="models/0.1.0-baseline/card.md"
+          if [ -f "$card" ]; then cat "$card" >> "$GITHUB_STEP_SUMMARY"; fi
+
+      - name: Upload model card
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ml-model-card
+          path: ml/models/*/card.md
+          if-no-files-found: ignore

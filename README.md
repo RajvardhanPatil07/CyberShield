@@ -21,6 +21,7 @@ CyberShield answers "is this a scam?" before you act. It runs on the phone by de
 | **Threat intelligence** (optional) | One tap checks a link with Google Safe Browsing, VirusTotal and URLhaus through the CyberShield backend. Only a provider match is shown as **"Confirmed malicious"**; everything else is labelled a heuristic. |
 | **AI explanation** (optional) | One tap sends **redacted** text (numbers, e-mails, UPI IDs removed, previewed first) to Gemini through the backend for a plain-language explanation in the app language. |
 | **History and dashboard** | Totals, suspicious and high-risk counts, recent activity, search and filters. Never stores message text, full links, UPI IDs or numbers. |
+| **Report this** | For risky results, drafts a report on the phone (OTPs and your card, account and Aadhaar numbers removed; the sender's number, UPI ID and links kept) to copy or share, with one-tap Chakshu, cybercrime.gov.in and 1930. Nothing is sent by CyberShield. |
 | **Share-to-scan** | Share text or images from any app, use *Check with CyberShield* in the text-selection menu, or launcher shortcuts. |
 | **Languages** | English, हिन्दी, मराठी interface and explanations, switchable in-app; detection always uses all three dictionaries plus romanised Hindi. |
 
@@ -28,7 +29,11 @@ Nothing opens automatically. Links and UPI payments open only after a confirmati
 
 ## Screenshots
 
-All screenshots are from the debug build on an Android 15 (API 35) emulator.
+Screenshots are from the debug build on an Android 15 (API 35) emulator. The first row shows the current Cobalt Silk design (5 Nov 2026); the rows below it were taken before the redesign and show the same features in the older look.
+
+| Home | Result, main step first | Report this | QRGuard |
+|---|---|---|---|
+| ![Home](design/device/01-home.png) | ![Result](design/device/03-message-high-scrolled.png) | ![Report](design/device/11-report.png) | ![QRGuard](design/device/10-qrguard.png) |
 
 | Dashboard | ScamLens | Screenshot OCR (Hindi + English) | QRGuard UPI |
 |---|---|---|---|
@@ -75,7 +80,7 @@ Requirements: JDK 17+ and Android SDK Platform 35 (Android Studio provides both)
 
 ```bash
 cd android
-./gradlew :app:testDebugUnitTest      # 62 JVM unit tests
+./gradlew :app:testDebugUnitTest      # 69 JVM unit tests, including the accuracy evaluation
 ./gradlew :app:lintDebug              # Android lint (0 issues)
 ./gradlew :app:assembleDebug          # app/build/outputs/apk/debug/*.apk
 ./gradlew :app:assembleRelease        # R8-shrunk; unsigned unless signing env vars are set
@@ -110,9 +115,21 @@ How to get each key, response formats, limits and deployment: [backend/README.md
 
 | Suite | Count | Covers |
 |---|---|---|
-| Android JVM unit tests | 62 | Message scams (EN/HI/MR/Hinglish), genuine OTP and everyday SMS, URLs (IP, punycode, homograph, credentials, lookalikes, shorteners, free hosting, redirects, malformed input), QR and UPI parsing, redaction, history privacy and limits, backend-client failure modes, translation completeness |
+| Android JVM unit tests | 69 | Accuracy on the labelled evaluation sets (see below), message scams (EN/HI/MR/Hinglish), genuine OTP and everyday SMS, URLs (IP, punycode, homograph, credentials, lookalikes, shorteners, free hosting, redirects, malformed input), QR and UPI parsing, redaction (cloud and report), history privacy and limits, backend-client failure modes, translation completeness |
 | Android instrumented tests | 9 | Message → HIGH and history without content; LinkGuard confirmation gating; genuine OTP → LOW; clear history; share text, share link, `PROCESS_TEXT`; on-device OCR of a Hindi+English screenshot; QR decoding from images |
 | Backend tests | 19 | Valid request, invalid input (400/413/415), missing credentials, provider down, retry, cache, rate limits (app and VirusTotal), shortener expansion without SSRF, AI schema validation and error mapping |
+
+### Accuracy
+
+`EvaluationTest` scores the on-device engines on labelled dev and holdout sets of messages, links and QR codes (`android/app/src/test/resources/eval/`). Holdout results (5 Nov 2026), the fairer estimate:
+
+| | Recall | Precision | False alarms |
+|---|---|---|---|
+| Messages (40 scam, 30 legit) | 80.0% | 100% | 0 |
+| Links (15 phishing, 10 legit) | 86.7% | 100% | 0 |
+| QR codes (6 scam, 6 legit) | 100% | 100% | 0 |
+
+The samples were written for this project from public advisory patterns. They are not real collected messages, so these numbers do not measure real-world accuracy. Method, before/after figures and the known misses: [docs/EVALUATION.md](docs/EVALUATION.md).
 
 ## Privacy and security
 
@@ -126,9 +143,9 @@ Details: [PRIVACY.md](PRIVACY.md) · [docs/SECURITY_REVIEW.md](docs/SECURITY_REV
 
 ## Limitations
 
-- Detection is rule-based. Accuracy (precision/recall) has **not** been measured on a labelled dataset; new wording or clean-looking domains can score LOW, and a low score is not proof of safety.
+- Detection is rule-based. On the project's own holdout set it misses 1 in 5 scam messages, mostly familiar tricks in unfamiliar words; it has not been measured on real collected messages. New wording or clean-looking domains can score LOW, and a low score is not proof of safety.
 - Threat intelligence and AI are implemented and tested with scripted responses but have **not been run against live API keys**.
-- Tested on an Android 15 emulator only. **No physical-device testing yet**: live camera QR decoding, real WhatsApp/Messages sharing, UPI app hand-off and OCR on real screenshots still need it.
+- Tested on an Android 15 emulator and on the maintainer's own phone. Wider testing across phone makers and older Android versions has not been done.
 - Hindi and Marathi translations have not been reviewed by native speakers; language detection is a best guess. See [docs/MULTILINGUAL.md](docs/MULTILINGUAL.md).
 - No background protection: Android does not let ordinary apps read other apps' messages, and CyberShield deliberately avoids notification and accessibility access.
 - The backend has no app attestation yet (rate limits only) and keeps limits in memory per instance.
@@ -136,16 +153,16 @@ Details: [PRIVACY.md](PRIVACY.md) · [docs/SECURITY_REVIEW.md](docs/SECURITY_REV
 
 ## Roadmap
 
-1. Physical-device test pass ([checklist](docs/DEMO.md#physical-device-checklist-not-yet-done)).
-2. Live-key verification of Safe Browsing, VirusTotal, URLhaus and Gemini; deploy the backend on HTTPS.
-3. Labelled evaluation set from public advisories; publish precision/recall.
-4. Native-speaker review of Hindi and Marathi; more Indian languages.
-5. Play Integrity / App Check on the backend.
-6. Pre-filled, redacted "Report to Chakshu / 1930" flow.
+1. Live-key verification of Safe Browsing, VirusTotal, URLhaus and Gemini; deploy the backend on HTTPS.
+2. Add real, consented and anonymised messages to the evaluation as an untouched test split, and generalise the rules by category ([evaluation](docs/EVALUATION.md#next-steps)).
+3. Native-speaker review of Hindi and Marathi; more Indian languages.
+4. Play Integrity / App Check on the backend.
+
+Done: physical-device check on the maintainer's phone; labelled evaluation with published precision/recall; pre-filled, redacted "Report this" flow for Chakshu, cybercrime.gov.in and 1930.
 
 ## Project docs
 
-[Architecture](docs/ARCHITECTURE.md) · [Demo script](docs/DEMO.md) · [Pitch](docs/PITCH.md) · [Security review](docs/SECURITY_REVIEW.md) · [Audit of the starting code](docs/AUDIT.md) · [Release & signing](docs/RELEASE.md) · [Multilingual scope](docs/MULTILINGUAL.md) · [Platform limits](docs/PLATFORM_LIMITATIONS.md) · [Privacy policy](PRIVACY.md)
+[Architecture](docs/ARCHITECTURE.md) · [Evaluation](docs/EVALUATION.md) · [Demo script](docs/DEMO.md) · [Pitch](docs/PITCH.md) · [Security review](docs/SECURITY_REVIEW.md) · [Audit of the starting code](docs/AUDIT.md) · [Release & signing](docs/RELEASE.md) · [Multilingual scope](docs/MULTILINGUAL.md) · [Platform limits](docs/PLATFORM_LIMITATIONS.md) · [Privacy policy](PRIVACY.md)
 
 No licence has been selected yet. Choose one after reviewing dependency obligations (ML Kit is subject to Google's ML Kit terms).
 

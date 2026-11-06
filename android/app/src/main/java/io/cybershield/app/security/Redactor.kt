@@ -27,6 +27,41 @@ object Redactor {
         return out
     }
 
+    /** Values that identify the sender, and money amounts. A report needs them, so [forReport] keeps them. */
+    private val keptInReports = listOf(
+        Regex("""(?i)(?:\brs\.?|\binr|₹)\s?\d[\d,]*(?:\.\d{1,2})?"""),
+        Regex("""(?i)\b[A-Z0-9._%+\-]+@[A-Z0-9.\-]+\.[A-Z]{2,}\b"""),
+        Regex("""\b[a-zA-Z0-9.\-_]{2,256}@[a-zA-Z][a-zA-Z0-9]{1,63}\b"""),
+        Regex("""(?<!\d)(?:\+?91[ \-]?)?[6-9]\d{4}[ \-]?\d{5}(?!\d)"""),
+        // Toll-free and landline numbers such as 1800 123 4567 or 020-2555 1234.
+        Regex("""(?<!\d)(?:1800|1860)[ \-]?\d{3}[ \-]?\d{4}(?!\d)"""),
+        Regex("""(?<!\d)0\d{2,4}[ \-]\d{6,8}(?!\d)"""),
+    )
+    private val userSecrets = rules.filter { (_, label) -> label in setOf("[PAN]", "[CARD]", "[AADHAAR]", "[ACCOUNT]", "[NUMBER]") }
+
+    /**
+     * Prepares text for a fraud report that the user sends themselves (Chakshu, cybercrime.gov.in).
+     * Removes the user's own secrets (OTPs and other codes, card, account, Aadhaar and PAN numbers) and
+     * link query strings, but keeps the sender's phone numbers, UPI IDs, e-mail addresses and links, and
+     * rupee amounts, because those are what the authorities need.
+     */
+    fun forReport(text: String): String {
+        var out = stripUrlQueries(text.take(ScamLens.MAX_INPUT))
+        val kept = mutableListOf<String>()
+        fun protect(range: IntRange) {
+            kept += out.substring(range)
+            out = out.replaceRange(range, "\u0000${kept.size - 1}\u0000")
+        }
+        UrlParser.extract(out, limit = 20).sortedByDescending { it.second.first }.forEach { (_, range) -> protect(range) }
+        for (regex in keptInReports) {
+            regex.findAll(out).toList().asReversed().forEach { protect(it.range) }
+        }
+        for ((regex, replacement) in userSecrets) out = regex.replace(out, replacement)
+        // Restore in reverse so a placeholder nested inside a later-protected value is filled in too.
+        for (index in kept.indices.reversed()) out = out.replace("\u0000$index\u0000", kept[index])
+        return out
+    }
+
     fun redact(text: String): String {
         var out = stripUrlQueries(text.take(ScamLens.MAX_INPUT))
         // Protect URLs from number/e-mail rules by swapping them for placeholders first.

@@ -1,0 +1,24 @@
+# Labelled QR payloads for tuning QRGuard (dev split). UPI IDs and names are fictitious.
+# A "scam" QR is one a user should not pay or open; "legit" is an ordinary merchant, person-to-person or web QR.
+# Columns: id, label (scam|legit), payload
+id	label	payload
+d-q01	scam	upi://pay?pa=refund.desk@ybl&pn=SBI%20Refund%20Desk&am=4999&tn=Refund%20processing
+d-q02	scam	upi://pay?pa=kbc.winner@paytm&pn=KBC%20Lottery&am=12500&tn=Prize%20claim%20fee
+d-q03	scam	upi://collect?pa=support99@axl&pn=Customer%20Care&am=2000
+d-q04	scam	upi://pay?pa=cashback.offer@ibl&pn=Google%20Pay%20Rewards&am=1&tn=Receive%20cashback
+d-q05	scam	upi://pay?pa=army.officer.olx@okaxis&pn=Rajesh%20Kumar&am=25000&tn=to%20receive%20payment
+d-q06	scam	upi://pay?pa=kyc.update@ybl&pn=HDFC%20Bank%20KYC&am=10
+d-q07	scam	upi://pay?pa=elec.bill@xyzpay&pn=Electricity%20Board&am=1850&tn=Pending%20bill%20penalty
+d-q08	scam	https://hdfc-kyc-verify.top/login
+d-q09	scam	upi://pay?pn=Refund&am=500
+d-q10	scam	upi://pay?pa=prize.claim@ptyes&pn=Lucky%20Draw&am=999&tn=Gift%20winner%20fee&cu=USD
+d-l01	legit	upi://pay?pa=shreeganeshkirana@okhdfcbank&pn=Shree%20Ganesh%20Kirana&mc=5411
+d-l02	legit	upi://pay?pa=9876543210@ybl&pn=Sunil%20Patil
+d-l03	legit	upi://pay?pa=chaiwala.ramesh@paytm&pn=Ramesh%20Tea%20Stall&am=20
+d-l04	legit	https://www.swiggy.com/menu/12345
+d-l05	legit	upi://pay?pa=anita.sharma@oksbi&pn=Anita%20Sharma&am=350&tn=Dinner%20split
+d-l06	legit	https://www.irctc.co.in/
+d-l07	legit	WIFI:S:CafeGuest;T:WPA;P:coffee2026;;
+d-l08	legit	upi://pay?pa=medplus.store@icici&pn=MedPlus%20Pharmacy&mc=5912
+d-l09	legit	tel:+912025551234
+d-l10	legit	Table 12 - Scan the menu at the counter

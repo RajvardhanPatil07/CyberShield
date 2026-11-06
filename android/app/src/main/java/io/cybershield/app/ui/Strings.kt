@@ -38,6 +38,7 @@ fun FindingCode.label(): Int = when (this) {
     CALLBACK_REQUEST -> R.string.f_callback_request
     CONTAINS_LINK -> R.string.f_contains_link
     SUSPICIOUS_LINK -> R.string.f_suspicious_link
+    ML_PATTERN_MATCH -> R.string.f_ml_pattern_match
     URL_PARSE_FAILED -> R.string.f_url_parse_failed
     URL_DANGEROUS_SCHEME -> R.string.f_url_dangerous_scheme
     URL_NO_SCHEME -> R.string.f_url_no_scheme
@@ -113,6 +114,16 @@ fun DetectedLanguage.label(): Int = when (this) {
     DetectedLanguage.DEVANAGARI_UNKNOWN -> R.string.lang_detect_devanagari
     DetectedLanguage.MIXED -> R.string.lang_detect_mixed
     DetectedLanguage.UNKNOWN -> R.string.lang_detect_unknown
+}
+
+/** Language code sent with a donated sample. Matches the backend's accepted contribution languages. */
+fun DetectedLanguage.contributionCode(): String = when (this) {
+    DetectedLanguage.ENGLISH -> "en"
+    DetectedLanguage.HINDI -> "hi"
+    DetectedLanguage.MARATHI -> "mr"
+    DetectedLanguage.ROMANISED_HINDI -> "hinglish"
+    DetectedLanguage.DEVANAGARI_UNKNOWN, DetectedLanguage.MIXED -> "mixed"
+    DetectedLanguage.UNKNOWN -> "unknown"
 }
 
 @StringRes

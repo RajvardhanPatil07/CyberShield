@@ -1,6 +1,6 @@
 # CyberShield privacy policy
 
-_Last updated: 4 November 2026 · applies to app version 0.3.0 and the backend in this repository_
+_Last updated: 5 November 2026 · applies to app version 0.3.0 and the backend in this repository_
 
 CyberShield checks messages, links, QR codes and screenshots for signs of fraud. It is designed so that, by default, nothing you check leaves your phone.
 
@@ -31,14 +31,19 @@ Both cloud features are **off until you tap them and agree**. The consent dialog
 |---|---|---|
 | **Check with threat intelligence** (LinkGuard) | The link, with any user name/password and `#fragment` removed | The CyberShield server, which looks it up with Google Safe Browsing, VirusTotal (report lookup only; the URL is never submitted for scanning) and abuse.ch URLhaus. If the link is from a known shortener (e.g. bit.ly), the server asks only that shortener where it redirects. |
 | **Explain with AI** (ScamLens) | The text after on-device redaction: numbers (OTPs, phone, card, Aadhaar, account numbers), e-mail addresses, UPI IDs and PAN numbers are replaced with placeholders such as `[NUMBER]`, and query strings are removed from links | The CyberShield server, which forwards it to Google's Gemini API to generate an explanation |
+| **Help improve detection** (ScamLens, for risky results) | The same on-device-redacted text, plus a "suspected scam" label, the detected language and the names of the warning signals. No numbers, e-mail addresses, UPI IDs or your installation ID are included in the stored record | The CyberShield server, **only if it has been configured to collect contributions**. Unlike the other features, a donated sample **is stored** (as redacted text) to improve future detection. The server rejects anything that still contains personal data. |
 
 Every request also includes a random installation ID, used only for rate limiting. It is not linked to your name, phone number, Google account or device identifiers, and is reset when you delete app data.
 
-The CyberShield server **does not store** the content you send. Its logs contain only the endpoint, HTTP status and response time, not the link, the text or your IP address. Lookup results are kept in memory for up to one hour under a one-way hash of the link, to avoid repeated provider calls.
+Apart from the opt-in *Help improve detection* donation above, the CyberShield server **does not store** the content you send. Its logs contain only the endpoint, HTTP status and response time, not the link, the text or your IP address. Lookup results are kept in memory for up to one hour under a one-way hash of the link, to avoid repeated provider calls.
 
 Third-party providers process the data under their own terms. In particular, Google may use content sent to the free tier of the Gemini API to improve its products; that is why CyberShield redacts personal values first. Do not submit content you are not comfortable sharing.
 
 Names inside a message (for example "Dear Rahul") are **not** removed by redaction. Check the preview before sending.
+
+### Reporting a scam
+
+*Report this* (shown for risky results) prepares a report text **on the phone**. CyberShield does not send it anywhere. You can edit it, copy it, share it with an app you choose, or open the government's Chakshu portal, cybercrime.gov.in or the 1930 dialler yourself. The draft removes OTPs and other codes, card, account, Aadhaar and PAN numbers, and link query strings. It keeps phone numbers, UPI IDs, e-mail addresses, links and rupee amounts, because the authorities need them to trace the sender. Check the text before sharing it. Copied text stays on the Android clipboard until something else replaces it.
 
 ## 3. What is stored on your phone
 

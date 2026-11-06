@@ -7,11 +7,22 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PhotoCamera
+import androidx.compose.material.icons.filled.QrCodeScanner
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -22,8 +33,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -55,9 +69,23 @@ fun QrScanner(onDetected: (String) -> Unit) {
     val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted = it }
 
     if (!granted) {
-        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(stringResource(R.string.qr_camera_rationale))
-            PrimaryButton(onClick = { permission.launch(android.Manifest.permission.CAMERA) }) { Text(stringResource(R.string.qr_allow_camera)) }
+        // Same footprint as the live preview, so the screen does not jump once the camera is allowed.
+        GlassCard(Modifier.fillMaxWidth().height(320.dp), shape = RoundedCornerShape(20.dp), color = CsColors.GlassStrong) {
+            Column(
+                Modifier.fillMaxSize().padding(24.dp),
+                verticalArrangement = Arrangement.spacedBy(14.dp, Alignment.CenterVertically),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Box(Modifier.size(72.dp).clip(RoundedCornerShape(22.dp)).background(CsColors.AccentSoft), contentAlignment = Alignment.Center) {
+                    Icon(Icons.Default.QrCodeScanner, null, tint = CsColors.Accent, modifier = Modifier.size(40.dp))
+                }
+                Text(stringResource(R.string.qr_camera_rationale), textAlign = TextAlign.Center, color = CsColors.Ink2)
+                PrimaryButton(onClick = { permission.launch(android.Manifest.permission.CAMERA) }, modifier = Modifier.testTag("qr_allow_camera")) {
+                    Icon(Icons.Default.PhotoCamera, null)
+                    Spacer(Modifier.width(8.dp))
+                    Text(stringResource(R.string.qr_allow_camera))
+                }
+            }
         }
         return
     }

@@ -10,15 +10,18 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -30,6 +33,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -52,6 +56,7 @@ fun QrGuardScreen(services: AppServices, onInspectLink: (String) -> Unit) {
     var noCodeInImage by remember { mutableStateOf(false) }
     var confirm by remember { mutableStateOf(false) }
     var openFailed by remember { mutableStateOf(false) }
+    var reporting by remember { mutableStateOf(false) }
 
     fun accept(value: String) {
         raw = value.take(4096)
@@ -80,6 +85,8 @@ fun QrGuardScreen(services: AppServices, onInspectLink: (String) -> Unit) {
             Text(stringResource(R.string.qr_from_image))
         }
         if (noCodeInImage) Notice(stringResource(R.string.qr_no_code), color = CsColors.RiskText)
+        Spacer(Modifier.height(16.dp))
+        QrTips()
         return
     }
 
@@ -102,7 +109,19 @@ fun QrGuardScreen(services: AppServices, onInspectLink: (String) -> Unit) {
         }
     }
     Spacer(Modifier.height(12.dp))
-    ResultCard(current.assessment)
+    ResultCard(current.assessment, onReport = { reporting = true })
+    if (reporting) {
+        // A readable summary of a UPI request is easier to file than the raw upi:// URI.
+        val content = current.upi?.let { upi ->
+            listOfNotNull(
+                upi.payeeAddress?.let { stringResource(R.string.upi_payee) + ": " + it },
+                upi.payeeName?.let { stringResource(R.string.upi_name) + ": " + it },
+                upi.amount?.let { stringResource(R.string.upi_amount) + ": ₹" + it },
+                upi.note?.let { stringResource(R.string.upi_note) + ": " + it },
+            ).joinToString("\n")
+        } ?: raw.orEmpty()
+        ReportDialog(current.assessment, content, onDismiss = { reporting = false })
+    }
     Spacer(Modifier.height(12.dp))
 
     val target = current.openTarget
@@ -134,6 +153,23 @@ fun QrGuardScreen(services: AppServices, onInspectLink: (String) -> Unit) {
             onDismiss = { confirm = false },
             onConfirm = { confirm = false; openFailed = !openExternally(context, target, context.getString(R.string.open_in_upi)) },
         )
+    }
+}
+
+/** Short UPI QR safety tips, shown before anything is scanned. */
+@Composable
+private fun QrTips() {
+    SectionLabel(stringResource(R.string.qr_tips_title).uppercase())
+    Spacer(Modifier.height(8.dp))
+    GlassCard(Modifier.fillMaxWidth().enter(3)) {
+        listOf(R.string.tip_1, R.string.qr_tip_payee, R.string.qr_tip_sticker).forEachIndexed { i, tip ->
+            if (i > 0) HorizontalDivider(color = CsColors.Track)
+            Row(Modifier.padding(14.dp), verticalAlignment = Alignment.Top) {
+                Icon(Icons.Default.Lightbulb, null, tint = CsColors.Accent, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(10.dp))
+                Text(stringResource(tip), color = CsColors.Ink)
+            }
+        }
     }
 }
 

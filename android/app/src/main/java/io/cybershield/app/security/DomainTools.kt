@@ -128,6 +128,8 @@ object DomainTools {
         "xyz", "top", "click", "link", "zip", "mov", "icu", "buzz", "tk", "ml", "ga", "cf", "gq", "rest", "cyou", "sbs", "cfd",
         "bond", "lol", "monster", "quest", "support", "win", "loan", "work", "country", "kim", "date", "racing", "review",
         "stream", "download", "men", "party", "trade", "accountant", "science", "faith", "cricket", "best", "beauty", "hair",
+        // Cheap generic endings that dominate Indian KYC, parcel and challan phishing waves.
+        "online", "site", "shop", "store", "live", "cc",
     )
 
     /**
@@ -160,6 +162,9 @@ object DomainTools {
         Brand("flipkart", setOf("flipkart.com")),
         Brand("indiapost", setOf("indiapost.gov.in", "ippbonline.com")),
         Brand("epfo", setOf("epfindia.gov.in")),
+        Brand("parivahan", setOf("parivahan.gov.in")),
+        Brand("pmkisan", setOf("pmkisan.gov.in")),
+        Brand("fastag", setOf("ihmcl.co.in", "ihmcl.com", "npci.org.in")),
         Brand("rbi", setOf("rbi.org.in"), exact = true),
         Brand("lic", setOf("licindia.in"), exact = true),
         Brand("whatsapp", setOf("whatsapp.com", "whatsapp.net", "wa.me")),
@@ -219,11 +224,14 @@ object DomainTools {
     /** Hostname parts split on dots and hyphens, used for brand keyword matching. */
     private fun parts(host: String) = host.split('.', '-').filter { it.isNotEmpty() }
 
-    /** Brands named in the hostname whose official domains do not include the actual registrable domain. */
-    fun impersonatedBrands(host: String): List<String> {
+    /**
+     * Brands named in the hostname whose official domains do not include the actual registrable domain.
+     * With [digitSwaps], digits standing in for letters (g00gle-pay, sb1-kyc) are undone first.
+     */
+    fun impersonatedBrands(host: String, digitSwaps: Boolean = false): List<String> {
         val registrable = registrableDomain(host)
         if (isOfficial(registrable)) return emptyList()
-        val hostParts = parts(skeleton(host))
+        val hostParts = parts(if (digitSwaps) confusableDigits(skeleton(host)) else skeleton(host))
         return brands.filter { brand ->
             hostParts.any { part -> part == brand.keyword || !brand.exact && brand.keyword.length >= 4 && part.contains(brand.keyword) }
         }.filter { brand -> registrable !in brand.official }.map { it.keyword }.distinct()

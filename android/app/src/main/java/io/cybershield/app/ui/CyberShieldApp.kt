@@ -83,6 +83,11 @@ import io.cybershield.app.R
 import io.cybershield.app.cloud.BackendClient
 import io.cybershield.app.data.AppSettings
 import io.cybershield.app.data.ScanHistoryRepository
+import io.cybershield.app.ml.MlClassifier
+import io.cybershield.app.ml.MlClassifierFactory
+import io.cybershield.app.security.RiskAnalyzer
+import io.cybershield.app.security.RiskAssessment
+import io.cybershield.app.security.ScanKind
 import io.cybershield.app.security.UrlParser
 
 enum class Page { HOME, MESSAGE, LINK, QR, HISTORY, SETTINGS }
@@ -104,9 +109,28 @@ class AppServices(context: Context) {
         private set
     var saveHistory by mutableStateOf(settings.saveHistory)
         private set
+    var mlAssist by mutableStateOf(settings.mlAssist)
+        private set
+    var donationConsent by mutableStateOf(settings.donationConsent)
+        private set
+
+    /** The on-device classifier for this build. Phase 1 resolves to [MlClassifier.Disabled]. */
+    val mlClassifier: MlClassifier = MlClassifierFactory.create(context)
+
+    /** True only when the user enabled ML assist AND a model is actually bundled in this build. */
+    val mlActive: Boolean get() = mlAssist && mlClassifier.isAvailable
 
     fun updateCloudConsent(value: Boolean) { settings.cloudConsent = value; cloudConsent = value }
     fun updateSaveHistory(value: Boolean) { settings.saveHistory = value; saveHistory = value }
+    fun updateMlAssist(value: Boolean) { settings.mlAssist = value; mlAssist = value }
+    fun updateDonationConsent(value: Boolean) { settings.donationConsent = value; donationConsent = value }
+
+    /**
+     * Analyses a message through the rules, fusing the on-device model only when ML assist is active.
+     * Centralised here so every screen shares one, consistent path.
+     */
+    fun analyseMessage(text: String, kind: ScanKind): RiskAssessment =
+        RiskAnalyzer.message(text, kind, if (mlActive) mlClassifier else MlClassifier.Disabled)
 
     /** Runs [block] against history only when the user allows history; always refreshes observers. */
     fun <T> record(block: (ScanHistoryRepository) -> T): T? = (if (saveHistory) block(history) else null).also { historyVersion++ }
@@ -118,6 +142,8 @@ class AppServices(context: Context) {
     fun reload() {
         cloudConsent = settings.cloudConsent
         saveHistory = settings.saveHistory
+        mlAssist = settings.mlAssist
+        donationConsent = settings.donationConsent
         historyVersion++
     }
 }
@@ -225,7 +251,8 @@ fun CyberShieldApp(incoming: Incoming? = null, onIncomingConsumed: () -> Unit = 
                             Page.SETTINGS -> SettingsScreen(services)
                         }
                         // Room to scroll the last card clear of the floating tab bar.
-                        Spacer(Modifier.navigationBarsPadding().height(TabBarHeight + 24.dp))
+                        // The bar takes TabBarHeight plus 20 dp of padding; the rest is breathing room.
+                        Spacer(Modifier.navigationBarsPadding().height(TabBarHeight + 40.dp))
                     }
                 }
             }

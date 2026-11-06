@@ -177,6 +177,14 @@
     <string name="cloud_title">क्लाउड जाँच (वैकल्पिक)</string>
     <string name="cloud_toggle">मेरे टैप करने पर क्लाउड जाँच की अनुमति दें</string>
     <string name="cloud_toggle_detail">डिफ़ॉल्ट रूप से बंद। कुछ भी अपने आप नहीं भेजा जाता।</string>
+    <string name="ml_title">ऑन-डिवाइस AI सहायता (प्रयोगात्मक)</string>
+    <string name="ml_toggle">ऑन-डिवाइस AI मॉडल का उपयोग करें</string>
+    <string name="ml_toggle_detail">एक प्रशिक्षित ऑन-डिवाइस जाँच जोड़ता है, जो उन संदेशों का जोखिम स्तर बढ़ा सकती है जिनकी भाषा घोटाले जैसी लगती है, भले ही कोई नियम न मिले। पूरी तरह आपके फ़ोन पर चलती है। मूल्यांकन के दौरान डिफ़ॉल्ट रूप से बंद।</string>
+    <string name="ml_unavailable">इस बिल्ड में अभी कोई AI मॉडल शामिल नहीं है, इसलिए इस सेटिंग का कोई असर नहीं होता।</string>
+    <string name="donate_button">पहचान बेहतर बनाने में मदद करें</string>
+    <string name="donate_consent">स्कैम पहचान बेहतर बनाने में मदद के लिए यह संपादित (रिडैक्टेड) संदेश भेजें। इसे संदिग्ध स्कैम के रूप में भेजा जाता है। व्यक्तिगत विवरण हटा दिए गए हैं (नीचे दिखाया गया है) और कुछ भी आपकी पहचान नहीं करता। इसके लिए बैकएंड कॉन्फ़िगर होना चाहिए, और यह केवल तभी होता है जब आप भेजें टैप करते हैं।</string>
+    <string name="donate_sending">भेजा जा रहा है…</string>
+    <string name="donate_sent">धन्यवाद। पहचान बेहतर बनाने में मदद के लिए आपका रिडैक्टेड नमूना भेज दिया गया।</string>
     <string name="backend_label">सर्वर का पता</string>
     <string name="backend_hint">https://your-cybershield-backend.example</string>
     <string name="backend_current">उपयोग में: %1$s</string>
@@ -228,6 +236,7 @@
     <string name="f_callback_request">टेक्स्ट में दिए नंबर पर कॉल या संदेश करने को कहता है।</string>
     <string name="f_contains_link">इसमें लिंक है। उसकी अलग से जाँच नीचे दी गई है।</string>
     <string name="f_suspicious_link">इसमें जोखिम वाली विशेषताओं वाला लिंक है।</string>
+    <string name="f_ml_pattern_match">इसकी भाषा जाने-पहचाने घोटालों जैसी है, भले ही कोई खास चेतावनी वाला वाक्यांश न मिला हो।</string>
     <string name="f_url_parse_failed">यह होस्ट वाला पूरा वेब पता नहीं है।</string>
     <string name="f_url_dangerous_scheme">ऐसा लिंक प्रकार इस्तेमाल करता है जो सीधे कोड चला सकता है या ऐप खोल सकता है।</string>
     <string name="f_url_no_scheme">पते में http:// या https:// नहीं था; इसे https:// मानकर जाँचा गया।</string>
@@ -274,4 +283,27 @@
     <string name="rec_report_1930">पैसे गए हों तो तुरंत 1930 पर कॉल करें या cybercrime.gov.in पर शिकायत करें।</string>
     <string name="rec_report_chakshu">धोखाधड़ी वाले कॉल, SMS या WhatsApp संदेश की शिकायत संचार साथी के “चक्षु” पोर्टल पर करें।</string>
     <string name="rec_stay_cautious">इस फ़ोन पर कोई बड़ा ख़तरा संकेत नहीं मिला। फिर भी कुछ करने से पहले भेजने वाले की पुष्टि करें।</string>
+
+    <!-- Report a scam -->
+    <string name="report_action">शिकायत करें</string>
+    <string name="report_title">इस धोखाधड़ी की शिकायत करें</string>
+    <string name="report_explain">धोखाधड़ी वाले कॉल, SMS और WhatsApp संदेशों की शिकायत चक्षु पर करें। अगर पैसे गए हैं, तो अभी 1930 पर कॉल करें या cybercrime.gov.in पर शिकायत दर्ज करें।</string>
+    <string name="report_redacted">ओटीपी और आपके कार्ड, खाता और आधार नंबर हटा दिए गए हैं। भेजने वाले का फ़ोन नंबर, UPI ID और लिंक रखे गए हैं क्योंकि इनसे धोखेबाज़ की पहचान होती है। शेयर करने से पहले टेक्स्ट जाँच लें।</string>
+    <string name="report_copy">कॉपी करें</string>
+    <string name="report_copied">कॉपी हो गया। इसे शिकायत फ़ॉर्म में पेस्ट करें।</string>
+    <string name="report_share">शेयर करें</string>
+    <string name="report_open_chakshu">चक्षु खोलें</string>
+    <string name="report_open_cybercrime">cybercrime.gov.in खोलें</string>
+    <string name="report_call_1930">1930 पर कॉल करें</string>
+    <string name="report_close">बंद करें</string>
+    <string name="report_heading">संदिग्ध धोखाधड़ी (CyberShield से जाँचा गया)</string>
+    <string name="report_type">प्रकार: %1$s</string>
+    <string name="report_risk">जोखिम: %1$s (%2$s/100)</string>
+    <string name="report_signs">चेतावनी के संकेत:</string>
+    <string name="report_content">सामग्री:</string>
+
+    <!-- QRGuard tips -->
+    <string name="qr_tips_title">QR कोड से भुगतान करने से पहले</string>
+    <string name="qr_tip_payee">जाँच लें कि आपके UPI ऐप में दिखने वाला नाम उसी व्यक्ति या दुकान का है जिसे आप भुगतान करना चाहते हैं।</string>
+    <string name="qr_tip_sticker">दुकानों और पार्किंग में देखें कि असली QR कोड के ऊपर कोई नया स्टिकर तो नहीं चिपकाया गया है।</string>
 </resources>

@@ -46,6 +46,7 @@ import io.cybershield.app.cloud.AiAnalysis
 import io.cybershield.app.cloud.CloudResult
 import io.cybershield.app.security.Redactor
 import io.cybershield.app.security.RiskAssessment
+import io.cybershield.app.security.RiskLevel
 import io.cybershield.app.security.ScamLens
 import io.cybershield.app.security.ScanKind
 import io.cybershield.app.vision.ImageReaders
@@ -74,16 +75,21 @@ fun ScamLensScreen(
     var ai by remember { mutableStateOf<CloudResult<AiAnalysis>?>(null) }
     var aiLoading by remember { mutableStateOf(false) }
     var consentPreview by remember { mutableStateOf<String?>(null) }
+    var donatePreview by remember { mutableStateOf<String?>(null) }
+    var donating by remember { mutableStateOf(false) }
+    var donateResult by remember { mutableStateOf<CloudResult<Unit>?>(null) }
+    var reporting by remember { mutableStateOf(false) }
     var notice by remember { mutableStateOf(showSharedNotice) }
     val language = LocalConfiguration.current.locales[0].language.takeIf { it in setOf("en", "hi", "mr") } ?: "en"
 
     LaunchedEffect(showSharedNotice) { if (showSharedNotice) { notice = true; onNoticeShown() } }
 
     fun analyse(text: String, kind: ScanKind) {
-        val r = ScamLens.analyze(text, kind)
+        val r = services.analyseMessage(text, kind)
         result = r
         analysedText = text.take(ScamLens.MAX_INPUT)
         ai = null
+        donateResult = null
         services.record { it.add(r, kind, target = null) }
     }
 
@@ -149,7 +155,7 @@ fun ScamLensScreen(
             Spacer(Modifier.width(6.dp))
             Text(stringResource(R.string.action_pick_screenshot))
         }
-        if (input.isNotEmpty()) SoftButton(onClick = { onInputChange(""); result = null; ai = null; ocr = OcrState.IDLE }) { Text(stringResource(R.string.action_clear)) }
+        if (input.isNotEmpty()) SoftButton(onClick = { onInputChange(""); result = null; ai = null; donateResult = null; ocr = OcrState.IDLE }) { Text(stringResource(R.string.action_clear)) }
     }
     when (ocr) {
         OcrState.RUNNING -> Notice(stringResource(R.string.ocr_running), progress = true)
@@ -161,7 +167,7 @@ fun ScamLensScreen(
 
     val current = result ?: return
     Spacer(Modifier.height(16.dp))
-    ResultCard(current, showLanguage = true)
+    ResultCard(current, showLanguage = true, onReport = { reporting = true })
     Spacer(Modifier.height(12.dp))
     HighlightedText(analysedText, current.findings)
 
@@ -197,6 +203,47 @@ fun ScamLensScreen(
     if (aiLoading) Notice(stringResource(R.string.cloud_loading), progress = true)
     ai?.let { outcome ->
         if (outcome is CloudResult.Ok) { Spacer(Modifier.height(12.dp)); AiCard(outcome.value) } else CloudProblem(outcome)
+    }
+
+    // Opt-in: donate a redacted copy of a flagged message to improve detection (see docs/AI_ML_PLAN.md).
+    if (current.level != RiskLevel.LOW && donateResult !is CloudResult.Ok) {
+        Spacer(Modifier.height(12.dp))
+        SoftButton(
+            onClick = {
+                if (services.client().isConfigured) donatePreview = Redactor.redact(analysedText) else donateResult = CloudResult.NotConfigured
+            },
+            enabled = !donating,
+            modifier = Modifier.fillMaxWidth().testTag("donate_sample"),
+        ) {
+            Icon(Icons.Default.Security, null)
+            Spacer(Modifier.width(8.dp))
+            Text(stringResource(R.string.donate_button))
+        }
+    }
+    if (donating) Notice(stringResource(R.string.donate_sending), progress = true)
+    donateResult?.let { outcome ->
+        if (outcome is CloudResult.Ok) Notice(stringResource(R.string.donate_sent), color = CsColors.Accent) else CloudProblem(outcome)
+    }
+
+    if (reporting) ReportDialog(current, analysedText, onDismiss = { reporting = false })
+
+    donatePreview?.let { preview ->
+        CloudConsentDialog(
+            body = stringResource(R.string.donate_consent),
+            preview = preview,
+            alreadyAllowed = services.donationConsent,
+            onDismiss = { donatePreview = null },
+            onSend = { rememberChoice ->
+                donatePreview = null
+                if (rememberChoice) services.updateDonationConsent(true)
+                donating = true
+                scope.launch {
+                    donateResult = services.client().contribute(preview, "scam", current.language.contributionCode(),
+                        current.findings.map { it.code.name }.distinct())
+                    donating = false
+                }
+            },
+        )
     }
 
     consentPreview?.let { preview ->

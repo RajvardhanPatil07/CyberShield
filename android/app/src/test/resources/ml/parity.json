@@ -1,0 +1,117 @@
+{
+ "activation_threshold": 0.84,
+ "cases": [
+  {
+   "text": "Dear customer, your SBI account will be blocked today. Update your KYC immediately at sbi-kyc-update.xyz/login",
+   "prob": 0.9980580930612918
+  },
+  {
+   "text": "Hi, I am Priya from Amazon HR. We are hiring for part-time job. Daily income Rs 5000-8000. Reply YES to know more.",
+   "prob": 0.9879921524731766
+  },
+  {
+   "text": "Your SIM card will be deactivated in 2 hours as per TRAI. Press 9 to speak with our customer care executive.",
+   "prob": 0.9921013443456165
+  },
+  {
+   "text": "Your Netflix subscription has been suspended because of a payment failure. Update your card details at netflix-billing-help.com to continue.",
+   "prob": 0.9708885490301218
+  },
+  {
+   "text": "Your EPF claim of Rs 48,000 is approved. Pay a verification fee of Rs 999 to release the amount.",
+   "prob": 0.9876657899847859
+  },
+  {
+   "text": "Your account has been credited with Rs 50,000 loan. To withdraw, pay processing fee of Rs 2,999 now.",
+   "prob": 0.9685735059420347
+  },
+  {
+   "text": "Ghar baithe kamaye Rs 2000 roz. Sirf YouTube videos like karo. Abhi join karo t.me/dailytasks",
+   "prob": 0.9852746695725986
+  },
+  {
+   "text": "मैं सीबीआई से बोल रहा हूं। आपके नाम पर मनी लॉन्ड्रिंग का केस दर्ज है। आप डिजिटल अरेस्ट में हैं। किसी को मत बताना।",
+   "prob": 0.7137827152157319
+  },
+  {
+   "text": "स्क्रीन शेयर करने के लिए AnyDesk ऐप डाउनलोड करें, हम आपकी समस्या ठीक कर देंगे।",
+   "prob": 0.9891722853502918
+  },
+  {
+   "text": "कॅशबॅक मिळवण्यासाठी हा क्यूआर कोड स्कॅन करा आणि पिन टाका.",
+   "prob": 0.7997248896312912
+  },
+  {
+   "text": "482913 is your OTP for the transaction of Rs 1,250.00 at AMAZON. Valid for 5 minutes. Do not share this OTP with anyone. - HDFC Bank",
+   "prob": 0.013269506386746111
+  },
+  {
+   "text": "Your MSEDCL electricity bill of Rs 1,240 for Oct-26 is generated. Due date 15-11-26. Pay using the MSEDCL app or website.",
+   "prob": 0.013596285637082376
+  },
+  {
+   "text": "Your Zomato order from Burger King is on the way. Your delivery partner Ramesh will reach in 15 minutes.",
+   "prob": 0.019584097348644
+  },
+  {
+   "text": "Rs 25 cashback credited to your Paytm wallet for your recent recharge.",
+   "prob": 0.03823123451397147
+  },
+  {
+   "text": "Your SIP of Rs 5,000 in Axis Bluechip Fund has been processed successfully on 05-Nov-26.",
+   "prob": 0.011430205943544155
+  },
+  {
+   "text": "आपके खाते से 1,500 रुपये यूपीआई द्वारा डेबिट किए गए हैं। अगर यह आपने नहीं किया तो बैंक से संपर्क करें।",
+   "prob": 0.8363848644858652
+  },
+  {
+   "text": "Your Google Pay payment of Rs 150 to Rahul was successful.",
+   "prob": 0.017707127818896707
+  },
+  {
+   "text": "Interview scheduled with Infosys on 12 Nov, 10:00 AM. Join using the Teams link sent to your registered email.",
+   "prob": 0.023916769584795584
+  },
+  {
+   "text": "Hi dear, I am from the customer support team of PhonePe. To process your refund of Rs 4,999, approve the collect request I sent.",
+   "prob": 0.7365770045696081
+  },
+  {
+   "text": "Investment opportunity: earn 5% daily profit with our AI trading bot. Risk-free returns, withdraw anytime.",
+   "prob": 0.897608970151475
+  },
+  {
+   "text": "Dear customer, your YONO account is deactivated. Update PAN immediately to reactivate: yono-sbi.cc",
+   "prob": 0.9684107554705579
+  },
+  {
+   "text": "Sir aapka account block ho jayega. OTP bata dijiye verify karne ke liye.",
+   "prob": 0.9525973664461268
+  },
+  {
+   "text": "तुम्ही 5 लाखांचे बक्षीस जिंकले आहे! प्रक्रिया शुल्क 2000 रुपये भरा.",
+   "prob": 0.8854310930085133
+  },
+  {
+   "text": "Rs 899.00 spent on your ICICI Bank Credit Card XX1234 at MYNTRA on 04-Nov. Avl limit Rs 1,12,300.",
+   "prob": 0.22266668369189394
+  },
+  {
+   "text": "Dear customer, your mobile number has been successfully linked to your Aadhaar. - UIDAI",
+   "prob": 0.3272089773383221
+  },
+  {
+   "text": "Do not share your UPI PIN with anyone. NPCI and banks never ask for it. - NPCI",
+   "prob": 0.07025093263484336
+  },
+  {
+   "text": "आपकी ट्रेन 2 घंटे देरी से चल रही है।",
+   "prob": 0.5973654968099558
+  },
+  {
+   "text": "Hi Raj, the plumber will come at 11 tomorrow. Please keep someone at home.",
+   "prob": 0.8878403785645232
+  }
+ ]
+}

@@ -2,8 +2,9 @@ import { createServer } from 'node:http';
 import { geminiExplainer } from './ai.js';
 import { expandShortUrl } from './expand.js';
 import { aggregate, safeBrowsing, urlhaus, virusTotal } from './providers.js';
+import { buildContributionRecord, fileContributionSink, nullContributionSink } from './contribute.js';
 import { HttpError, logRequest, RateLimiter, sha256, TtlCache } from './support.js';
-import { validateAiRequest, validateUrlRequest, validInstallId } from './validate.js';
+import { validateAiRequest, validateContributionRequest, validateUrlRequest, validInstallId } from './validate.js';
 
 const VERSION = '0.3.0';
 const DISCLAIMER = 'AI-generated explanation. It can be wrong; confirm with official channels before acting.';
@@ -12,7 +13,7 @@ const DISCLAIMER = 'AI-generated explanation. It can be wrong; confirm with offi
  * Builds the request handler. Everything external (fetch, clock, providers) is injectable so the
  * test suite runs without network access or real API keys.
  */
-export function createApp(config, { fetchImpl = fetch, now = Date.now, providers, explainer, log = logRequest } = {}) {
+export function createApp(config, { fetchImpl = fetch, now = Date.now, providers, explainer, contributionSink, log = logRequest } = {}) {
   const deps = { fetchImpl, timeoutMs: config.providerTimeoutMs };
   const intel = providers ?? [
     safeBrowsing({ apiKey: config.keys.safeBrowsing, ...deps }),
@@ -20,8 +21,11 @@ export function createApp(config, { fetchImpl = fetch, now = Date.now, providers
     urlhaus({ authKey: config.keys.urlhaus, ...deps }),
   ];
   const ai = explainer ?? geminiExplainer({ apiKey: config.keys.gemini, model: config.geminiModel, fetchImpl, timeoutMs: config.aiTimeoutMs });
+  const contributions = contributionSink
+    ?? (config.contributionsDir ? fileContributionSink(config.contributionsDir, { now }) : nullContributionSink);
   const urlLimiter = new RateLimiter(config.urlRatePerMinute, 60_000, now);
   const aiLimiter = new RateLimiter(config.aiRatePerMinute, 60_000, now);
+  const contributeLimiter = new RateLimiter(config.contributeRatePerMinute, 60_000, now);
   const cache = new TtlCache(5000, now);
 
   function clientKeys(req) {
@@ -96,6 +100,17 @@ export function createApp(config, { fetchImpl = fetch, now = Date.now, providers
     return { body: { analysis, model, disclaimer: DISCLAIMER } };
   }
 
+  async function contribute(req) {
+    enforceLimit(contributeLimiter, req, 'contribute');
+    const request = validateContributionRequest(await readJson(req));
+    if (!contributions.configured) {
+      throw new HttpError(503, 'not_configured', 'Contributions are not enabled on this server.');
+    }
+    const record = buildContributionRecord(request, now());
+    await contributions.store(record);
+    return { body: { status: 'stored', id: record.id } };
+  }
+
   function health() {
     return {
       body: {
@@ -103,6 +118,7 @@ export function createApp(config, { fetchImpl = fetch, now = Date.now, providers
         version: VERSION,
         providers: Object.fromEntries(intel.map((p) => [p.name, p.configured ? 'configured' : 'not_configured'])),
         ai: ai.configured ? 'configured' : 'not_configured',
+        contributions: contributions.configured ? 'configured' : 'not_configured',
       },
     };
   }
@@ -111,11 +127,34 @@ export function createApp(config, { fetchImpl = fetch, now = Date.now, providers
     'GET /health': health,
     'POST /v1/url/check': checkUrl,
     'POST /v1/ai/analyze': analyse,
+    'POST /v1/contribute': contribute,
   };
+
+  /** CORS headers for browser callers on an allowed origin (ALLOWED_ORIGINS); none otherwise. */
+  function corsHeaders(req) {
+    if (config.allowedOrigins.size === 0) return {};
+    const origin = String(req.headers.origin ?? '');
+    if (!config.allowedOrigins.has(origin.toLowerCase())) return { Vary: 'Origin' };
+    return { 'Access-Control-Allow-Origin': origin, 'Access-Control-Expose-Headers': 'Retry-After', 'Access-Control-Max-Age': '600', Vary: 'Origin' };
+  }
+
+  function preflight(req, res, path) {
+    const cors = corsHeaders(req);
+    const knownPath = Object.keys(routes).some((r) => r.endsWith(` ${path}`));
+    const allowed = knownPath && cors['Access-Control-Allow-Origin'];
+    res.writeHead(allowed ? 204 : 403, {
+      ...cors,
+      ...(allowed ? { 'Access-Control-Allow-Methods': 'GET, POST', 'Access-Control-Allow-Headers': 'Content-Type, Accept, X-CyberShield-Install' } : {}),
+      'Cache-Control': 'no-store',
+    });
+    res.end();
+    log({ method: 'OPTIONS', path: knownPath ? path : 'unmatched', status: allowed ? 204 : 403, ms: 0 });
+  }
 
   return async function handler(req, res) {
     const started = now();
     const path = (req.url ?? '/').split('?')[0];
+    if (req.method === 'OPTIONS') return preflight(req, res, path);
     const route = routes[`${req.method} ${path}`];
     let status = 200;
     let cached;
@@ -145,6 +184,7 @@ export function createApp(config, { fetchImpl = fetch, now = Date.now, providers
       'Cache-Control': 'no-store',
       'X-Content-Type-Options': 'nosniff',
       'Referrer-Policy': 'no-referrer',
+      ...corsHeaders(req),
       ...headers,
     });
     res.end(JSON.stringify(payload));

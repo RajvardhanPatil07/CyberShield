@@ -44,6 +44,9 @@ enum class FindingCode(val weight: Int, val english: String) {
     CALLBACK_REQUEST(10, "Asks you to call or message a number given in the text."),
     CONTAINS_LINK(10, "Contains a link; its destination was checked separately."),
     SUSPICIOUS_LINK(0, "Contains a link with risky characteristics."),
+    // Raised by the optional on-device ML model (see MlFusion / docs/AI_ML_PLAN.md), never by the rules.
+    // Weight 0: the fused score is set explicitly by MlFusion, not summed from this finding.
+    ML_PATTERN_MATCH(0, "The wording resembles known scam messages, even though no specific red-flag phrase matched."),
 
     // URLs
     URL_PARSE_FAILED(55, "Could not parse a complete URL with a host."),

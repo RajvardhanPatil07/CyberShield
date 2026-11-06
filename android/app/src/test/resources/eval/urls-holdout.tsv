@@ -1,0 +1,28 @@
+# Labelled links held out from rule tuning. Phishing examples follow patterns from public advisories; the domains are fictitious.
+# Columns: id, label (scam|legit), url
+id	label	url
+h-u01	scam	https://axisbank-reward-points.top/redeem
+h-u02	scam	http://kotak-netbanking-verify.xyz/
+h-u03	scam	https://phonpe.com/refund
+h-u04	scam	https://hdfcbnak.com/login
+h-u05	scam	http://103.21.58.199/kyc/update
+h-u06	scam	https://onlinesbi.sbi@secure-kyc.cn/
+h-u07	scam	https://is.gd/kycsbi
+h-u08	scam	https://bluedart-redelivery.online/pay
+h-u09	scam	https://pan-aadhaar-link.site/
+h-u10	scam	https://customs-clearance-india.pages.dev/
+h-u11	scam	https://free-recharge-offer.web.app/
+h-u12	scam	https://whatsapp-gold.download/WhatsAppGold.apk
+h-u13	scam	https://epfo-claim-status.in/claim
+h-u14	scam	https://myntra-lucky-draw.shop/
+h-u15	scam	http://sbi.co.in.kyc-verification.live/
+h-l01	legit	https://www.axisbank.com/
+h-l02	legit	https://www.kotak.com/en/home.html
+h-l03	legit	https://www.phonepe.com/
+h-l04	legit	https://www.myntra.com/
+h-l05	legit	https://www.epfindia.gov.in/
+h-l06	legit	https://www.bluedart.com/tracking
+h-l07	legit	https://sancharsaathi.gov.in/
+h-l08	legit	https://docs.google.com/document/d/1abc/edit
+h-l09	legit	https://www.swiggy.com/
+h-l10	legit	https://www.rbi.org.in/
