@@ -9,7 +9,8 @@
 A privacy-first Android app that tells people in India whether a message, link or QR code is a scam *before* they act on it, in English, हिन्दी and मराठी.
 
 [![Live demo](https://img.shields.io/badge/Live_demo-cybershield--theta--cyan.vercel.app-2448F5?style=for-the-badge&logo=vercel&logoColor=white)](https://cybershield-theta-cyan.vercel.app)
-[![Download APK](https://img.shields.io/badge/Download-Android_APK-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/RajvardhanPatil07/CyberShield/actions/workflows/android-build.yml?query=branch%3Amain+is%3Asuccess)
+[![Demo video](https://img.shields.io/badge/Demo_video-YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtu.be/ztQrNjkaHcg)
+[![Download APK](https://img.shields.io/badge/Download-Android_APK-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/RajvardhanPatil07/CyberShield/releases/latest)
 
 [![Android build](https://github.com/RajvardhanPatil07/CyberShield/actions/workflows/android-build.yml/badge.svg)](https://github.com/RajvardhanPatil07/CyberShield/actions/workflows/android-build.yml)
 [![ML eval](https://github.com/RajvardhanPatil07/CyberShield/actions/workflows/ml-eval.yml/badge.svg)](https://github.com/RajvardhanPatil07/CyberShield/actions/workflows/ml-eval.yml)
@@ -18,7 +19,7 @@ A privacy-first Android app that tells people in India whether a message, link o
 ![Node.js](https://img.shields.io/badge/Node.js-%E2%89%A522.9_·_0_deps-339933?logo=nodedotjs&logoColor=white)
 ![Min SDK](https://img.shields.io/badge/Android-8.0%2B_(API_26)-3DDC84?logo=android&logoColor=white)
 
-[Live demo](https://cybershield-theta-cyan.vercel.app) · [Features](#features) · [How it works](#how-it-works) · [Tech stack](#tech-stack) · [Quick start](#quick-start) · [Accuracy](#accuracy) · [Docs](#documentation)
+[Live demo](https://cybershield-theta-cyan.vercel.app) · [Demo video](#demo-video) · [Features](#features) · [How it works](#how-it-works) · [Tech stack](#tech-stack) · [Quick start](#quick-start) · [Accuracy](#accuracy) · [Docs](#documentation)
 
 </div>
 
@@ -43,9 +44,20 @@ CyberShield answers one question, **"is this a scam?"**, on the phone, without r
 
 | | |
 |---|---|
+| ▶️ **Demo video** | **[youtu.be/ztQrNjkaHcg](https://youtu.be/ztQrNjkaHcg)**: a walkthrough of the app on YouTube. |
 | 🌐 **Web demo** | **[cybershield-theta-cyan.vercel.app](https://cybershield-theta-cyan.vercel.app)**: ScamLens, LinkGuard and QRGuard in the browser, connected to the live backend on Render. |
-| 📱 **Android app** | Download `cybershield-debug-apk` from the [latest successful CI run](https://github.com/RajvardhanPatil07/CyberShield/actions/workflows/android-build.yml?query=branch%3Amain+is%3Asuccess), unzip, and install `app-arm64-v8a-debug.apk` (most phones, ~38 MB) or `app-universal-debug.apk` (any device). |
+| 📱 **Android app** | Download from the [latest release](https://github.com/RajvardhanPatil07/CyberShield/releases/latest): `CyberShield-v0.3.0-arm64-v8a.apk` (most phones, ~21 MB) or `CyberShield-v0.3.0-universal.apk` (any device). English, हिन्दी and मराठी. |
 | 🧪 **Sample inputs** | Scam messages, links and QR codes to test with: [docs/DEMO.md](docs/DEMO.md) and [docs/demo/](docs/demo/). |
+
+## Demo video
+
+<div align="center">
+
+[![Watch the CyberShield demo on YouTube](https://img.youtube.com/vi/ztQrNjkaHcg/maxresdefault.jpg)](https://youtu.be/ztQrNjkaHcg)
+
+<sub>Click the image to watch on YouTube.</sub>
+
+</div>
 
 ## Screenshots
 
