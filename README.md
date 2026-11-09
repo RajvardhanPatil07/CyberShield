@@ -9,7 +9,7 @@
 A privacy-first Android app that tells people in India whether a message, link or QR code is a scam *before* they act on it, in English, हिन्दी and मराठी.
 
 [![Live demo](https://img.shields.io/badge/Live_demo-cybershield--theta--cyan.vercel.app-2448F5?style=for-the-badge&logo=vercel&logoColor=white)](https://cybershield-theta-cyan.vercel.app)
-[![Download APK](https://img.shields.io/badge/Download-Android_APK-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/RajvardhanPatil07/CyberShield/actions/workflows/android-build.yml?query=branch%3Amain+is%3Asuccess)
+[![Download APK](https://img.shields.io/badge/Download-Android_APK-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/RajvardhanPatil07/CyberShield/releases/latest)
 
 [![Android build](https://github.com/RajvardhanPatil07/CyberShield/actions/workflows/android-build.yml/badge.svg)](https://github.com/RajvardhanPatil07/CyberShield/actions/workflows/android-build.yml)
 [![ML eval](https://github.com/RajvardhanPatil07/CyberShield/actions/workflows/ml-eval.yml/badge.svg)](https://github.com/RajvardhanPatil07/CyberShield/actions/workflows/ml-eval.yml)
